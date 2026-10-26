@@ -1,0 +1,22 @@
+# SAM / CloudFormation build artifacts
+backend/infra/.aws-sam/
+samconfig.toml
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node (si se usa tooling de build en frontend)
+node_modules/
+
+# Env / secrets
+.env
+.env.*
+*.pem
+
+# OS / editor
+.DS_Store
+.vscode/
+*.swp
