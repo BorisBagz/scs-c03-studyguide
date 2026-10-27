@@ -81,6 +81,36 @@ document.querySelectorAll(".tab").forEach((btn) => {
   });
 });
 
+// ---------- Modo nocturno ----------
+
+const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+
+function isDark() {
+  const t = document.documentElement.dataset.theme;
+  return t ? t === "dark" : darkQuery.matches;
+}
+
+function syncThemeUI() {
+  const dark = isDark();
+  const btn = $("#theme-btn");
+  btn.setAttribute("aria-pressed", String(dark));
+  btn.setAttribute("aria-label", dark ? "Activar modo claro" : "Activar modo nocturno");
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#0D1520" : "#F1F5F9");
+}
+
+$("#theme-btn").addEventListener("click", () => {
+  const next = isDark() ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try {
+    localStorage.setItem("scs03_theme", next);
+  } catch (e) {
+    /* sin almacenamiento: el cambio dura solo esta sesión */
+  }
+  syncThemeUI();
+});
+darkQuery.addEventListener("change", syncThemeUI);
+syncThemeUI();
+
 // ---------- Plano del examen ----------
 
 function blueprintHTML({ link, intro }) {
@@ -211,7 +241,7 @@ async function startQuiz(spec) {
       return;
     }
     activeSpec = spec;
-    activeDomain = spec.kind === "exam" ? { id: "exam", name: spec.size ? "Test corto" : "Examen completo", color: "#14243B", tint: "#D9DFEA" } : spec.domain;
+    activeDomain = spec.kind === "exam" ? { id: "exam", name: spec.size ? "Test corto" : "Examen completo", color: "var(--ink)", tint: "var(--line)" } : spec.domain;
     views.quiz.style.setProperty("--c", activeDomain.color);
     showView("quiz");
     renderQuestion();

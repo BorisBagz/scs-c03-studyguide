@@ -438,7 +438,7 @@ const Sim = (() => {
       })
       .join("");
 
-    $("#results-card").innerHTML = `<article class="result" style="--c:#14243B">
+    $("#results-card").innerHTML = `<article class="result" style="--c:var(--ink)">
       <h1 tabindex="-1" data-focus>Simulacro realista</h1>
       <p class="result-sub">${r.timeUp ? "Se acabó el tiempo: se calificaron las respuestas guardadas" : "Examen entregado"} · ${minutes(r.used)} de ${MINUTES} min</p>
       <p class="result-score"><span>${r.score} de ${total} correctas</span><span class="result-pct">${pct}%</span></p>
