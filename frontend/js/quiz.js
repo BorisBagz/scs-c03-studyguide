@@ -7,6 +7,7 @@ const QuizEngine = (() => {
   let userAnswers = [];
 
   const EXAM_SIZE = 65;
+  const SHORT_SIZE = 25;
   const QUICK_SIZE = 15;
 
   async function fetchDomain(d) {
@@ -42,9 +43,9 @@ const QuizEngine = (() => {
     let list;
     if (spec.kind === "exam") {
       const pools = await Promise.all(DOMAINS.map(async (d) => ({ d, qs: await fetchDomain(d) })));
-      const counts = allocate(EXAM_SIZE, pools.map((p) => ({ id: p.d.id, weight: p.d.weight, avail: p.qs.length })));
+      const counts = allocate(spec.size || EXAM_SIZE, pools.map((p) => ({ id: p.d.id, weight: p.d.weight, avail: p.qs.length })));
       list = pools.flatMap((p) => shuffle(p.qs).slice(0, counts[p.d.id]));
-      currentDomain = { id: "exam", name: "Examen completo" };
+      currentDomain = { id: "exam", name: spec.size ? "Test corto" : "Examen completo" };
     } else {
       list = await fetchDomain(spec.domain);
       if (spec.limit) list = shuffle(list).slice(0, spec.limit);
@@ -150,6 +151,7 @@ const QuizEngine = (() => {
   return {
     load,
     EXAM_SIZE,
+    SHORT_SIZE,
     QUICK_SIZE,
     getCurrentQuestion,
     getCurrentIndex,

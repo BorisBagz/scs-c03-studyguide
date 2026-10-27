@@ -165,6 +165,9 @@ $("#domain-list").addEventListener("click", (e) => {
 $("#exam-start-btn").addEventListener("click", (e) => {
   if (!e.currentTarget.disabled) startQuiz({ kind: "exam" });
 });
+$("#exam-short-btn").addEventListener("click", (e) => {
+  if (!e.currentTarget.disabled) startQuiz({ kind: "exam", size: QuizEngine.SHORT_SIZE });
+});
 
 function renderExamCard() {
   const counts = DOMAINS.map((d) => questionCounts[d.id]);
@@ -175,8 +178,9 @@ function renderExamCard() {
     ? "Cargando preguntas…"
     : total === 0
     ? "Aún no hay preguntas."
-    : `${n} preguntas aleatorias de los 6 dominios, repartidas según su peso en el examen.`;
+    : `Examen de ${n} o test corto de ${Math.min(QuizEngine.SHORT_SIZE, total)}: preguntas aleatorias de los 6 dominios, repartidas según su peso en el examen.`;
   $("#exam-start-btn").disabled = !loaded || total === 0;
+  $("#exam-short-btn").disabled = !loaded || total === 0;
 }
 
 async function loadQuestionCounts() {
@@ -206,7 +210,7 @@ async function startQuiz(spec) {
       return;
     }
     activeSpec = spec;
-    activeDomain = spec.kind === "exam" ? { id: "exam", name: "Examen completo", color: "#14243B", tint: "#D9DFEA" } : spec.domain;
+    activeDomain = spec.kind === "exam" ? { id: "exam", name: spec.size ? "Test corto" : "Examen completo", color: "#14243B", tint: "#D9DFEA" } : spec.domain;
     views.quiz.style.setProperty("--c", activeDomain.color);
     showView("quiz");
     renderQuestion();
@@ -478,7 +482,7 @@ function finishQuiz() {
         .join("")}</ul>
        <p class="result-note">Referencia: el examen real se aprueba con 750 sobre 1000 en una escala propia de AWS; este porcentaje es orientativo y no equivale a esa escala.</p>`
     : "";
-  const sub = isExam ? "Examen completo terminado" : activeSpec.limit ? `Quiz rápido · ${r.total} preguntas` : "Quiz completado";
+  const sub = isExam ? (activeSpec.size ? "Test corto terminado" : "Examen completo terminado") : activeSpec.limit ? `Quiz rápido · ${r.total} preguntas` : "Quiz completado";
 
   $("#results-card").innerHTML = `<article class="result" style="--c:${d.color}">
     <h1 tabindex="-1" data-focus>${esc(d.name)}</h1>

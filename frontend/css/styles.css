@@ -1521,3 +1521,12 @@ a.btn {
     flex-wrap: nowrap;
   }
 }
+
+.exam-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.exam-actions .btn {
+  flex: 1 1 140px;
+}
