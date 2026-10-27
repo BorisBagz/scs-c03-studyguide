@@ -1144,6 +1144,516 @@
       ],
       "explanation": "El modo proactivo evalúa la configuración de un recurso antes de desplegarlo (por ejemplo, desde hooks de CloudFormation), con reglas que lo soportan.",
       "reference": "https://aws.amazon.com/config/faq/"
+    },
+    {
+      "id": "GOV-138",
+      "type": "multiple",
+      "topic": "firewall-manager",
+      "question": "Which policy types can AWS Firewall Manager apply across an organization? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Amazon Macie discovery jobs"
+        },
+        {
+          "id": "b",
+          "text": "AWS WAF policies"
+        },
+        {
+          "id": "c",
+          "text": "AWS Shield Advanced policies"
+        },
+        {
+          "id": "d",
+          "text": "AWS Network Firewall policies"
+        },
+        {
+          "id": "e",
+          "text": "IAM permission policies"
+        },
+        {
+          "id": "f",
+          "text": "AWS KMS key policies"
+        }
+      ],
+      "correct": [
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "Firewall Manager gestiona WAF, Shield Advanced, security groups, Network Firewall, Route 53 Resolver DNS Firewall, NACLs y firewalls de terceros. No gestiona políticas IAM ni de KMS.",
+      "reference": "https://aws.amazon.com/firewall-manager/faqs"
+    },
+    {
+      "id": "GOV-139",
+      "type": "multiple",
+      "topic": "control-tower",
+      "question": "When an AWS Control Tower landing zone is set up, which components are created? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "A VPC peering connection between all accounts"
+        },
+        {
+          "id": "b",
+          "text": "A Security (foundational) OU containing those accounts"
+        },
+        {
+          "id": "c",
+          "text": "GuardDuty enabled automatically in all accounts and Regions"
+        },
+        {
+          "id": "d",
+          "text": "A Log Archive account"
+        },
+        {
+          "id": "e",
+          "text": "An Audit account"
+        },
+        {
+          "id": "f",
+          "text": "An IAM user with AdministratorAccess in every account"
+        }
+      ],
+      "correct": [
+        "b",
+        "d",
+        "e"
+      ],
+      "explanation": "Control Tower crea las cuentas compartidas de Log Archive y Audit en la OU Security, además de controles obligatorios. Servicios como GuardDuty se habilitan por separado.",
+      "reference": "https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html"
+    },
+    {
+      "id": "GOV-140",
+      "type": "multiple",
+      "topic": "rcp-perimetro-datos",
+      "question": "A company is building a data perimeter. Which controls help ensure that only trusted identities access trusted resources from expected networks? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "An RCP that denies access to company resources unless aws:PrincipalOrgID matches the organization"
+        },
+        {
+          "id": "b",
+          "text": "VPC endpoint policies that allow only requests to resources in the organization"
+        },
+        {
+          "id": "c",
+          "text": "AWS Artifact organization agreements"
+        },
+        {
+          "id": "d",
+          "text": "Tag policies that standardize the Owner tag"
+        },
+        {
+          "id": "e",
+          "text": "GuardDuty suppression rules for external IP addresses"
+        },
+        {
+          "id": "f",
+          "text": "An SCP that denies access to resources outside the organization unless aws:ResourceOrgID matches"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "f"
+      ],
+      "explanation": "Un data perimeter combina controles de identidad (RCP con PrincipalOrgID), de recursos (SCP con ResourceOrgID) y de red (políticas de endpoints y condiciones de red).",
+      "reference": "https://aws.amazon.com/blogs/aws/introducing-resource-control-policies-rcps-a-new-authorization-policy"
+    },
+    {
+      "id": "GOV-141",
+      "type": "multiple",
+      "topic": "etiquetado-gobierno",
+      "question": "A company requires every new S3 bucket to have a DataClassification tag with one of three approved values. Which controls together enforce this? (Select TWO.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "An AWS Config rule that adds the tag after creation"
+        },
+        {
+          "id": "b",
+          "text": "A tag policy that defines the allowed values for DataClassification with enforcement for S3 buckets"
+        },
+        {
+          "id": "c",
+          "text": "An SCP that denies s3:CreateBucket when aws:RequestTag/DataClassification is null"
+        },
+        {
+          "id": "d",
+          "text": "A Service Catalog TagOption"
+        },
+        {
+          "id": "e",
+          "text": "A GuardDuty suppression rule for untagged buckets"
+        }
+      ],
+      "correct": [
+        "b",
+        "c"
+      ],
+      "explanation": "La SCP exige que el tag esté presente al crear y la tag policy limita los valores permitidos. Config solo detecta después de la creación.",
+      "reference": "https://aws.amazon.com/blogs/mt/implement-aws-resource-tagging-strategy-using-aws-tag-policies-and-service-control-policies-scps"
+    },
+    {
+      "id": "GOV-142",
+      "type": "multiple",
+      "topic": "scp",
+      "question": "A security engineer wants to introduce a new restrictive SCP without breaking production workloads. Which practices should the engineer follow? (Select TWO.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Test the SCP in the management account first"
+        },
+        {
+          "id": "b",
+          "text": "Review CloudTrail AccessDenied events after attaching the SCP"
+        },
+        {
+          "id": "c",
+          "text": "Remove FullAWSAccess from all OUs before testing"
+        },
+        {
+          "id": "d",
+          "text": "Attach the SCP directly to the root of the organization to see the impact quickly"
+        },
+        {
+          "id": "e",
+          "text": "Attach the SCP first to a test or policy-staging OU and validate workloads"
+        }
+      ],
+      "correct": [
+        "b",
+        "e"
+      ],
+      "explanation": "Las SCP se prueban en una OU de staging y se observan los AccessDenied en CloudTrail antes de ampliarlas. La cuenta de administración no está sujeta a SCP, así que no sirve para probarlas.",
+      "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+    },
+    {
+      "id": "GOV-143",
+      "type": "ordering",
+      "topic": "control-tower",
+      "question": "Order the steps of provisioning a new account with AWS Control Tower.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Request the account through Account Factory"
+        },
+        {
+          "id": "b",
+          "text": "Control Tower creates the account and enrolls it in the selected OU"
+        },
+        {
+          "id": "c",
+          "text": "Mandatory and enabled controls of the OU are applied to the account"
+        },
+        {
+          "id": "d",
+          "text": "Customizations (for example, AFT or Customizations for Control Tower) deploy the account baseline"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "Account Factory crea e inscribe la cuenta, hereda los controles de su OU y luego se aplican las personalizaciones de baseline.",
+      "reference": "https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html"
+    },
+    {
+      "id": "GOV-144",
+      "type": "ordering",
+      "topic": "scp",
+      "question": "Order the steps to roll out a new SCP safely.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Write the SCP and test it in a policy-staging OU"
+        },
+        {
+          "id": "b",
+          "text": "Monitor CloudTrail for unexpected AccessDenied errors"
+        },
+        {
+          "id": "c",
+          "text": "Attach the SCP to the target OUs in phases"
+        },
+        {
+          "id": "d",
+          "text": "Continue monitoring and adjust exceptions as needed"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "Un despliegue gradual con monitoreo reduce el riesgo de cortar operaciones legítimas.",
+      "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+    },
+    {
+      "id": "GOV-145",
+      "type": "ordering",
+      "topic": "firewall-manager",
+      "question": "Order the steps to start using AWS Firewall Manager.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable all features in AWS Organizations"
+        },
+        {
+          "id": "b",
+          "text": "Designate a Firewall Manager administrator account"
+        },
+        {
+          "id": "c",
+          "text": "Ensure AWS Config is enabled in the member accounts and Regions"
+        },
+        {
+          "id": "d",
+          "text": "Create a Firewall Manager policy with automatic remediation"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "Firewall Manager necesita Organizations con todas las funciones, un administrador y AWS Config para descubrir recursos antes de aplicar políticas.",
+      "reference": "https://aws.amazon.com/firewall-manager/faqs"
+    },
+    {
+      "id": "GOV-146",
+      "type": "matching",
+      "topic": "audit-manager-artifact",
+      "question": "Match each compliance need with the AWS service that meets it.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Download AWS's own compliance reports such as SOC 2"
+        },
+        {
+          "id": "p2",
+          "text": "Collect evidence about your own controls for an audit"
+        },
+        {
+          "id": "p3",
+          "text": "Record resource configuration history and evaluate rules"
+        },
+        {
+          "id": "p4",
+          "text": "Score posture against standards such as CIS and PCI DSS"
+        },
+        {
+          "id": "p5",
+          "text": "Review a workload against the pillars of the AWS framework"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "AWS Security Hub CSPM"
+        },
+        {
+          "id": "b",
+          "text": "AWS Config"
+        },
+        {
+          "id": "c",
+          "text": "AWS Artifact"
+        },
+        {
+          "id": "d",
+          "text": "AWS Audit Manager"
+        },
+        {
+          "id": "e",
+          "text": "AWS Well-Architected Tool"
+        },
+        {
+          "id": "f",
+          "text": "Amazon GuardDuty"
+        }
+      ],
+      "correct": {
+        "p1": "c",
+        "p2": "d",
+        "p3": "b",
+        "p4": "a",
+        "p5": "e"
+      },
+      "explanation": "Cada servicio aporta una pieza del cumplimiento; GuardDuty detecta amenazas. (Audit Manager ya no admite clientes nuevos, pero sigue siendo parte del temario.)",
+      "reference": "https://docs.aws.amazon.com/audit-manager/latest/userguide/what-is.html"
+    },
+    {
+      "id": "GOV-147",
+      "type": "matching",
+      "topic": "iac-validacion",
+      "question": "Match each infrastructure-as-code control with its purpose.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "CloudFormation Guard"
+        },
+        {
+          "id": "p2",
+          "text": "CloudFormation hooks"
+        },
+        {
+          "id": "p3",
+          "text": "Stack policy"
+        },
+        {
+          "id": "p4",
+          "text": "Drift detection"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Prevent updates that replace or delete critical resources"
+        },
+        {
+          "id": "b",
+          "text": "Evaluate resources before they are provisioned"
+        },
+        {
+          "id": "c",
+          "text": "Validate templates against policy-as-code rules in CI"
+        },
+        {
+          "id": "d",
+          "text": "Encrypt stack outputs automatically"
+        },
+        {
+          "id": "e",
+          "text": "Detect manual changes to deployed resources"
+        }
+      ],
+      "correct": {
+        "p1": "c",
+        "p2": "b",
+        "p3": "a",
+        "p4": "e"
+      },
+      "explanation": "Cada control actúa en un momento distinto del ciclo de IaC; ninguno cifra outputs.",
+      "reference": "https://docs.aws.amazon.com/cfn-guard/latest/ug/what-is-guard.html"
+    },
+    {
+      "id": "GOV-148",
+      "type": "matching",
+      "topic": "service-catalog-ram",
+      "question": "Match each resource shared through AWS RAM with its typical use case.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "VPC subnets"
+        },
+        {
+          "id": "p2",
+          "text": "Transit gateway"
+        },
+        {
+          "id": "p3",
+          "text": "AWS Private CA"
+        },
+        {
+          "id": "p4",
+          "text": "Route 53 Resolver rules"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "IAM roles"
+        },
+        {
+          "id": "b",
+          "text": "Let workload accounts launch resources in centrally managed networks"
+        },
+        {
+          "id": "c",
+          "text": "Issue private certificates from a central CA in many accounts"
+        },
+        {
+          "id": "d",
+          "text": "Connect VPCs from many accounts to a central network hub"
+        },
+        {
+          "id": "e",
+          "text": "Forward DNS queries to on-premises resolvers from many VPCs"
+        }
+      ],
+      "correct": {
+        "p1": "b",
+        "p2": "d",
+        "p3": "c",
+        "p4": "e"
+      },
+      "explanation": "Estos recursos se comparten con RAM; los roles IAM no se comparten así, se asumen entre cuentas.",
+      "reference": "https://docs.aws.amazon.com/ram/latest/userguide/what-is.html"
+    },
+    {
+      "id": "GOV-149",
+      "type": "single",
+      "topic": "organizations-estructura",
+      "question": "Why does AWS recommend designating a delegated administrator account for services such as GuardDuty, Security Hub, and IAM Access Analyzer instead of managing them from the management account?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Because delegated administrators receive a discount on the services."
+        },
+        {
+          "id": "b",
+          "text": "Because these services cannot be enabled in the management account."
+        },
+        {
+          "id": "c",
+          "text": "Because SCPs apply only to delegated administrator accounts."
+        },
+        {
+          "id": "d",
+          "text": "To minimize the use of the management account, which is not restricted by SCPs and should have as few users and workloads as possible."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "La cuenta de administración tiene un poder especial y no está limitada por SCP; delegar reduce su uso y su superficie de riesgo.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/org-management.html"
+    },
+    {
+      "id": "GOV-150",
+      "type": "single",
+      "topic": "organizations-estructura",
+      "question": "A company uses IAM Identity Center for all human access. The security team needs a way to access critical accounts if Identity Center or the external identity provider becomes unavailable.\n\nWhich solution follows best practices?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Share the root user password of every account with the operations team."
+        },
+        {
+          "id": "b",
+          "text": "Rely on AWS Support to grant temporary access during an outage."
+        },
+        {
+          "id": "c",
+          "text": "Create break-glass IAM principals in the critical accounts with strong MFA, store the credentials securely, and alert on any use."
+        },
+        {
+          "id": "d",
+          "text": "Disable Identity Center and use IAM users for everyone."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "El acceso break-glass es un mecanismo de emergencia controlado, con MFA fuerte, credenciales protegidas y alertas ante cualquier uso; no reemplaza el acceso normal.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/org-management.html"
     }
   ]
 }

@@ -1047,6 +1047,675 @@
       ],
       "explanation": "Una cuenta forense aislada con herramientas preparadas evita contaminar la evidencia y alertar al atacante. La cuenta de log archive debe mantenerse solo para almacenar logs.",
       "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/preparation-summary.html"
+    },
+    {
+      "id": "INC-134",
+      "type": "multiple",
+      "topic": "evidencia-forense",
+      "question": "A security engineer must preserve evidence from a compromised EC2 instance before the instance is terminated.\n\nWhich data should the engineer capture? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "A copy of the AWS managed policies attached to the role"
+        },
+        {
+          "id": "b",
+          "text": "Instance metadata such as tags, security groups, attached IAM role, and network interfaces"
+        },
+        {
+          "id": "c",
+          "text": "A memory dump of the running instance"
+        },
+        {
+          "id": "d",
+          "text": "An AMI of a different, healthy instance"
+        },
+        {
+          "id": "e",
+          "text": "The AWS Trusted Advisor report for the account"
+        },
+        {
+          "id": "f",
+          "text": "Snapshots of all attached EBS volumes"
+        }
+      ],
+      "correct": [
+        "b",
+        "c",
+        "f"
+      ],
+      "explanation": "La evidencia útil incluye la memoria volátil, los discos y el contexto de la instancia (configuración de red, rol, tags). Una instancia sana o los informes de Trusted Advisor no aportan evidencia del incidente.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/collect-relevant-artifacts.html"
+    },
+    {
+      "id": "INC-135",
+      "type": "multiple",
+      "topic": "correlacion-validacion",
+      "question": "A security engineer is investigating whether an IAM role was misused. Which sources provide the MOST useful evidence? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "The Amazon Detective profile of the role"
+        },
+        {
+          "id": "b",
+          "text": "AWS Cost Explorer reports"
+        },
+        {
+          "id": "c",
+          "text": "Amazon GuardDuty findings that involve the role"
+        },
+        {
+          "id": "d",
+          "text": "AWS CloudTrail events for the role's sessions"
+        },
+        {
+          "id": "e",
+          "text": "AWS Artifact compliance reports"
+        },
+        {
+          "id": "f",
+          "text": "AWS Trusted Advisor service limit checks"
+        }
+      ],
+      "correct": [
+        "a",
+        "c",
+        "d"
+      ],
+      "explanation": "CloudTrail muestra qué hizo cada sesión, GuardDuty señala comportamientos sospechosos y Detective aporta líneas base y relaciones. Los informes de costos o cumplimiento no son evidencia de actividad.",
+      "reference": "https://docs.aws.amazon.com/detective/latest/userguide/detective-terms-concepts.html"
+    },
+    {
+      "id": "INC-136",
+      "type": "multiple",
+      "topic": "contencion-recuperacion",
+      "question": "An S3 bucket that contains customer data was accidentally made public for 6 hours. Which actions should the security engineer take? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Rotate the key material of the SSE-S3 encryption"
+        },
+        {
+          "id": "b",
+          "text": "Review CloudTrail data events or S3 server access logs to identify which objects were accessed and by whom"
+        },
+        {
+          "id": "c",
+          "text": "Disable CloudTrail to avoid logging further access"
+        },
+        {
+          "id": "d",
+          "text": "Delete the bucket and all objects immediately"
+        },
+        {
+          "id": "e",
+          "text": "Run an Amazon Macie job to determine what sensitive data was in the exposed objects"
+        },
+        {
+          "id": "f",
+          "text": "Enable S3 Block Public Access on the bucket (and the account)"
+        }
+      ],
+      "correct": [
+        "b",
+        "e",
+        "f"
+      ],
+      "explanation": "Primero se contiene la exposición, luego se determina qué se accedió y qué tan sensible era, para dimensionar el impacto. Borrar el bucket destruye evidencia, y el cifrado del lado del servidor no protege frente a accesos permitidos.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/source-containment.html"
+    },
+    {
+      "id": "INC-137",
+      "type": "multiple",
+      "topic": "ir-preparacion",
+      "question": "Which preparation steps allow a team to isolate compromised EC2 instances quickly during an incident? (Select TWO.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create isolation security groups only after the incident is confirmed"
+        },
+        {
+          "id": "b",
+          "text": "Pre-create an isolation security group (no inbound or outbound rules) in every VPC"
+        },
+        {
+          "id": "c",
+          "text": "Give every analyst root user credentials for each account"
+        },
+        {
+          "id": "d",
+          "text": "Disable termination protection on all instances"
+        },
+        {
+          "id": "e",
+          "text": "Pre-authorize an automation role and runbook that can swap security groups and detach instances from Auto Scaling groups"
+        }
+      ],
+      "correct": [
+        "b",
+        "e"
+      ],
+      "explanation": "Tener los security groups de aislamiento y la automatización listos reduce el tiempo de contención; crearlos durante el incidente lo retrasa.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/preparation-summary.html"
+    },
+    {
+      "id": "INC-138",
+      "type": "multiple",
+      "topic": "ir-preparacion",
+      "question": "A company with AWS Shield Advanced wants the Shield Response Team (SRT) to be able to write AWS WAF rules on its behalf during an attack. Which requirements must be met? (Select TWO.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "An AWS Config rule monitors the web ACLs"
+        },
+        {
+          "id": "b",
+          "text": "The account has a Business Support or Enterprise Support plan"
+        },
+        {
+          "id": "c",
+          "text": "The company shares the root user credentials with the SRT"
+        },
+        {
+          "id": "d",
+          "text": "GuardDuty is enabled in all Regions"
+        },
+        {
+          "id": "e",
+          "text": "The company grants the SRT access with an IAM role that has the AWSShieldDRTAccessPolicy managed policy"
+        }
+      ],
+      "correct": [
+        "b",
+        "e"
+      ],
+      "explanation": "El acceso del SRT requiere un plan de soporte Business o Enterprise y un rol IAM que autorice al SRT (con AWSShieldDRTAccessPolicy) a gestionar WAF y Shield en la cuenta.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/ddos-advanced-summary-capabilities.html"
+    },
+    {
+      "id": "INC-139",
+      "type": "multiple",
+      "topic": "pruebas-fis-resilience",
+      "question": "Which components are defined in an AWS FIS experiment template? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "IAM Identity Center permission sets"
+        },
+        {
+          "id": "b",
+          "text": "Actions to run against the targets"
+        },
+        {
+          "id": "c",
+          "text": "Stop conditions based on CloudWatch alarms"
+        },
+        {
+          "id": "d",
+          "text": "A Roles Anywhere trust anchor"
+        },
+        {
+          "id": "e",
+          "text": "Targets selected by resource IDs, tags, or filters"
+        },
+        {
+          "id": "f",
+          "text": "GuardDuty suppression rules"
+        }
+      ],
+      "correct": [
+        "b",
+        "c",
+        "e"
+      ],
+      "explanation": "Una plantilla de FIS define acciones, objetivos, stop conditions y el rol IAM que usa el experimento.",
+      "reference": "https://docs.aws.amazon.com/en_us/fis/latest/userguide/experiment-templates.html"
+    },
+    {
+      "id": "INC-140",
+      "type": "ordering",
+      "topic": "contencion-recuperacion",
+      "question": "An IAM user's access key was exposed publicly. Order the response steps.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Deactivate the exposed access key"
+        },
+        {
+          "id": "b",
+          "text": "Review CloudTrail for all activity performed with the key"
+        },
+        {
+          "id": "c",
+          "text": "Remove any identities and resources created by the attacker"
+        },
+        {
+          "id": "d",
+          "text": "Delete the old key, issue new credentials securely, and fix how the key was exposed"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "Primero se invalida la credencial, luego se dimensiona el alcance, se erradica la persistencia y por último se recupera y corrige la causa raíz.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/source-containment.html"
+    },
+    {
+      "id": "INC-141",
+      "type": "ordering",
+      "topic": "remediacion-automatica",
+      "question": "Order the components of an automated response to a GuardDuty finding for a compromised EC2 instance.",
+      "options": [
+        {
+          "id": "a",
+          "text": "GuardDuty publishes the finding to EventBridge"
+        },
+        {
+          "id": "b",
+          "text": "An EventBridge rule matches the finding type and severity"
+        },
+        {
+          "id": "c",
+          "text": "The rule starts a Step Functions workflow or SSM Automation runbook"
+        },
+        {
+          "id": "d",
+          "text": "The workflow isolates the instance and creates EBS snapshots"
+        },
+        {
+          "id": "e",
+          "text": "The workflow notifies the team and opens a ticket"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e"
+      ],
+      "explanation": "Es el patrón detección → enrutamiento → orquestación → contención y evidencia → notificación.",
+      "reference": "https://docs.aws.amazon.com/solutions/latest/automated-forensics-orchestrator-for-amazon-ec2/architecture-overview.html"
+    },
+    {
+      "id": "INC-142",
+      "type": "ordering",
+      "topic": "ir-preparacion",
+      "question": "Order the steps to enable proactive engagement with the Shield Response Team.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Subscribe to AWS Shield Advanced"
+        },
+        {
+          "id": "b",
+          "text": "Add Shield Advanced protection to the resources"
+        },
+        {
+          "id": "c",
+          "text": "Associate Route 53 health checks with the protected resources"
+        },
+        {
+          "id": "d",
+          "text": "Configure emergency contacts and enable proactive engagement"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "El proactive engagement requiere recursos protegidos con health checks asociados para que el SRT pueda detectar el impacto y contactar al equipo.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/ddos-advanced-summary-capabilities.html"
+    },
+    {
+      "id": "INC-143",
+      "type": "ordering",
+      "topic": "ir-plan-runbooks",
+      "question": "Order the activities after the immediate threat of an incident has been contained.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Eradicate the threat and restore service from clean sources"
+        },
+        {
+          "id": "b",
+          "text": "Perform root cause analysis"
+        },
+        {
+          "id": "c",
+          "text": "Update runbooks, controls, and detections based on lessons learned"
+        },
+        {
+          "id": "d",
+          "text": "Validate the improvements in a game day or simulation"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "La fase posterior al incidente cierra el ciclo: las lecciones aprendidas se convierten en controles y se prueban.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/preparation-summary.html"
+    },
+    {
+      "id": "INC-144",
+      "type": "matching",
+      "topic": "evidencia-forense",
+      "question": "Match each type of evidence with the AWS mechanism used to collect it.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Volatile memory of an instance"
+        },
+        {
+          "id": "p2",
+          "text": "Disk contents"
+        },
+        {
+          "id": "p3",
+          "text": "Network metadata of connections"
+        },
+        {
+          "id": "p4",
+          "text": "API activity of a principal"
+        },
+        {
+          "id": "p5",
+          "text": "DNS queries made from the VPC"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Forensic tool run through Systems Manager Run Command"
+        },
+        {
+          "id": "b",
+          "text": "AWS CloudTrail"
+        },
+        {
+          "id": "c",
+          "text": "EBS snapshots"
+        },
+        {
+          "id": "d",
+          "text": "VPC Flow Logs"
+        },
+        {
+          "id": "e",
+          "text": "Route 53 Resolver query logs"
+        },
+        {
+          "id": "f",
+          "text": "AWS Trusted Advisor"
+        }
+      ],
+      "correct": {
+        "p1": "a",
+        "p2": "c",
+        "p3": "d",
+        "p4": "b",
+        "p5": "e"
+      },
+      "explanation": "Cada fuente captura un tipo de evidencia distinto; Trusted Advisor ofrece recomendaciones, no evidencia.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/collect-relevant-artifacts.html"
+    },
+    {
+      "id": "INC-145",
+      "type": "matching",
+      "topic": "correlacion-validacion",
+      "question": "Match each GuardDuty finding type prefix (threat purpose) with what it indicates.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Recon"
+        },
+        {
+          "id": "p2",
+          "text": "CryptoCurrency"
+        },
+        {
+          "id": "p3",
+          "text": "Exfiltration"
+        },
+        {
+          "id": "p4",
+          "text": "Backdoor"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Probing or scanning to gather information"
+        },
+        {
+          "id": "b",
+          "text": "Data moved out of the environment"
+        },
+        {
+          "id": "c",
+          "text": "The KMS key was rotated"
+        },
+        {
+          "id": "d",
+          "text": "A resource is compromised and communicating with a command-and-control server"
+        },
+        {
+          "id": "e",
+          "text": "Cryptocurrency mining activity"
+        }
+      ],
+      "correct": {
+        "p1": "a",
+        "p2": "e",
+        "p3": "b",
+        "p4": "d"
+      },
+      "explanation": "El prefijo del tipo de hallazgo indica el propósito de la amenaza; ninguno indica una rotación de clave.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings-severity.html"
+    },
+    {
+      "id": "INC-146",
+      "type": "matching",
+      "topic": "correlacion-validacion",
+      "question": "Match each GuardDuty severity level with its numeric range.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Low"
+        },
+        {
+          "id": "p2",
+          "text": "Medium"
+        },
+        {
+          "id": "p3",
+          "text": "High"
+        },
+        {
+          "id": "p4",
+          "text": "Critical"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "0.0 – 0.9"
+        },
+        {
+          "id": "b",
+          "text": "1.0 – 3.9"
+        },
+        {
+          "id": "c",
+          "text": "9.0 – 10.0"
+        },
+        {
+          "id": "d",
+          "text": "4.0 – 6.9"
+        },
+        {
+          "id": "e",
+          "text": "7.0 – 8.9"
+        }
+      ],
+      "correct": {
+        "p1": "b",
+        "p2": "d",
+        "p3": "e",
+        "p4": "c"
+      },
+      "explanation": "Los rangos de severidad de GuardDuty se usan habitualmente en patrones de EventBridge (por ejemplo, severidad ≥ 7 para alertas urgentes).",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings-severity.html"
+    },
+    {
+      "id": "INC-147",
+      "type": "matching",
+      "topic": "pruebas-fis-resilience",
+      "question": "Match each resilience need with the AWS service that meets it.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Inject controlled failures to test recovery"
+        },
+        {
+          "id": "p2",
+          "text": "Assess an application against RTO and RPO targets"
+        },
+        {
+          "id": "p3",
+          "text": "Control Regional failover with highly available routing controls"
+        },
+        {
+          "id": "p4",
+          "text": "Restore from immutable backups"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "AWS Resilience Hub"
+        },
+        {
+          "id": "b",
+          "text": "AWS Fault Injection Service"
+        },
+        {
+          "id": "c",
+          "text": "AWS Backup with Vault Lock"
+        },
+        {
+          "id": "d",
+          "text": "Route 53 Application Recovery Controller"
+        },
+        {
+          "id": "e",
+          "text": "Amazon Macie"
+        }
+      ],
+      "correct": {
+        "p1": "b",
+        "p2": "a",
+        "p3": "d",
+        "p4": "c"
+      },
+      "explanation": "Cada servicio cubre una parte de la resiliencia; Macie descubre datos sensibles.",
+      "reference": "https://docs.aws.amazon.com/resilience-hub/latest/userguide/concepts-terms.html"
+    },
+    {
+      "id": "INC-148",
+      "type": "single",
+      "topic": "contencion-recuperacion",
+      "question": "A Lambda function was modified by an attacker to send data to an external endpoint. The security team must stop all executions immediately while preserving the malicious code for analysis.\n\nWhat should the security engineer do FIRST?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Set the function's reserved concurrency to 0 to throttle all invocations."
+        },
+        {
+          "id": "b",
+          "text": "Remove the function's resource-based policy."
+        },
+        {
+          "id": "c",
+          "text": "Delete the function and redeploy the last known good version."
+        },
+        {
+          "id": "d",
+          "text": "Detach the function from its VPC."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Con concurrencia reservada en 0 la función deja de ejecutarse sin perder el código ni la configuración. Borrarla destruye la evidencia, y quitar la resource policy no detiene invocaciones de orígenes como colas o eventos.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/source-containment.html"
+    },
+    {
+      "id": "INC-149",
+      "type": "single",
+      "topic": "contencion-recuperacion",
+      "question": "GuardDuty detects that a container in an Amazon EKS cluster is running a crypto miner. The team must contain the workload while preserving it for analysis.\n\nWhich action should the security engineer take?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Terminate the EKS cluster."
+        },
+        {
+          "id": "b",
+          "text": "Delete the pod so that the deployment creates a clean replacement."
+        },
+        {
+          "id": "c",
+          "text": "Scale the deployment to zero replicas."
+        },
+        {
+          "id": "d",
+          "text": "Cordon the node, apply a Kubernetes network policy that denies all traffic to and from the pod, and keep the pod running for evidence collection."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Aislar el pod con una network policy y cordonar el nodo contiene la amenaza sin destruir evidencia. Borrar el pod o escalar a cero elimina el contenedor afectado.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/compromised-ec2"
+    },
+    {
+      "id": "INC-150",
+      "type": "single",
+      "topic": "contencion-recuperacion",
+      "question": "GuardDuty reports Exfiltration:S3/AnomalousBehavior for an IAM role that is downloading large numbers of objects from a sensitive bucket. The role is also used by a legitimate application.\n\nWhat should the security engineer do FIRST to contain the activity with the LEAST impact?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Disable GuardDuty S3 Protection to stop the findings."
+        },
+        {
+          "id": "b",
+          "text": "Delete the bucket to prevent further downloads."
+        },
+        {
+          "id": "c",
+          "text": "Enable S3 Object Lock on the bucket."
+        },
+        {
+          "id": "d",
+          "text": "Revoke the active sessions of the role, then investigate how the role's credentials were obtained."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Revocar las sesiones invalida las credenciales del atacante, y la aplicación legítima obtiene credenciales nuevas. Object Lock evita borrados, no lecturas.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/source-containment.html"
     }
   ]
 }
