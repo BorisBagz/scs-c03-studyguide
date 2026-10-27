@@ -190,7 +190,126 @@
      "title": "Responder a eventos de seguridad"
     }
    ],
-   "topics": []
+   "topics": [
+    {
+     "id": "ir-plan-runbooks",
+     "title": "Plan de respuesta, playbooks y runbooks",
+     "summary": "Cómo documentar y automatizar la respuesta: RACI, playbooks, OpsCenter y notebooks.",
+     "tasks": [
+      "2.1"
+     ],
+     "services": [
+      "OpsCenter",
+      "Systems Manager",
+      "SageMaker AI"
+     ]
+    },
+    {
+     "id": "ir-preparacion",
+     "title": "Preparación: acceso, herramientas, blast radius y Shield Advanced",
+     "summary": "Estructura de cuentas, acceso de respondedores, minimizar el radio de impacto y protección DDoS.",
+     "tasks": [
+      "2.1"
+     ],
+     "services": [
+      "Shield Advanced",
+      "Organizations",
+      "IAM"
+     ]
+    },
+    {
+     "id": "pruebas-fis-resilience",
+     "title": "Probar el plan: FIS y Resilience Hub",
+     "summary": "Experimentos de caos con stop conditions y evaluación de RTO/RPO.",
+     "tasks": [
+      "2.1"
+     ],
+     "services": [
+      "Fault Injection Service",
+      "Resilience Hub"
+     ]
+    },
+    {
+     "id": "remediacion-automatica",
+     "title": "Remediación automática: SSM, Step Functions, Lambda y ARC",
+     "summary": "Qué herramienta usar para automatizar la respuesta y recuperar disponibilidad.",
+     "tasks": [
+      "2.1"
+     ],
+     "services": [
+      "SSM Automation",
+      "Step Functions",
+      "Lambda",
+      "ARC"
+     ]
+    },
+    {
+     "id": "forense-automatizada-ec2",
+     "title": "Automated Forensics Orchestrator para EC2",
+     "summary": "Adquisición de memoria y disco, aislamiento e investigación en una cuenta forense.",
+     "tasks": [
+      "2.1"
+     ],
+     "services": [
+      "Step Functions",
+      "EventBridge",
+      "Security Hub"
+     ]
+    },
+    {
+     "id": "evidencia-forense",
+     "title": "Capturar y preservar evidencia forense",
+     "summary": "Orden de volatilidad, snapshots, memoria, cadena de custodia y cuenta forense.",
+     "tasks": [
+      "2.2"
+     ],
+     "services": [
+      "EBS",
+      "S3 Object Lock",
+      "KMS"
+     ]
+    },
+    {
+     "id": "correlacion-validacion",
+     "title": "Correlacionar logs y validar hallazgos",
+     "summary": "Determinar alcance e impacto de un evento uniendo CloudTrail, flow logs y servicios de seguridad.",
+     "tasks": [
+      "2.2"
+     ],
+     "services": [
+      "CloudTrail",
+      "Athena",
+      "Logs Insights",
+      "Security Hub"
+     ]
+    },
+    {
+     "id": "detective-causa-raiz",
+     "title": "Amazon Detective y análisis de causa raíz",
+     "summary": "Behavior graph, finding groups, perfiles de entidad y método de RCA.",
+     "tasks": [
+      "2.2"
+     ],
+     "services": [
+      "Detective",
+      "GuardDuty"
+     ]
+    },
+    {
+     "id": "contencion-recuperacion",
+     "title": "Contención, erradicación y recuperación",
+     "summary": "Aislar EC2, contener credenciales, erradicar persistencia y restaurar con AWS Backup.",
+     "tasks": [
+      "2.2"
+     ],
+     "services": [
+      "Security groups",
+      "NACL",
+      "AWS Backup",
+      "WAF"
+     ]
+    }
+   ]
   },
   "infrastructure-security": {
    "tasks": [
