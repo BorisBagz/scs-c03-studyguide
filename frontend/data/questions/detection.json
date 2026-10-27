@@ -583,6 +583,678 @@
       ],
       "explanation": "Las credenciales temporales robadas se invalidan revocando las sesiones del rol con una política de denegación condicionada a aws:TokenIssueTime; luego se corrige el origen y se investiga.",
       "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+    },
+    {
+      "id": "DET-020",
+      "type": "single",
+      "topic": "cloudtrail-lake",
+      "question": "Se necesita consultar con SQL meses de actividad de API con el menor esfuerzo operativo y retención administrada. ¿Qué opción?",
+      "options": [
+        {
+          "id": "a",
+          "text": "CloudTrail Lake (o un trail con Athena si Lake no está disponible)"
+        },
+        {
+          "id": "b",
+          "text": "CloudWatch alarms"
+        },
+        {
+          "id": "c",
+          "text": "VPC Flow Logs"
+        },
+        {
+          "id": "d",
+          "text": "AWS Artifact"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "CloudTrail Lake almacena eventos en un almacén consultable con SQL; la alternativa es un trail en S3 con Athena.",
+      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/cloudtrail-lake-concepts.html"
+    },
+    {
+      "id": "DET-021",
+      "type": "single",
+      "topic": "analisis-de-logs",
+      "question": "Se quiere consultar CloudTrail con SQL de forma económica sin administrar servidores. ¿Qué diseño?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un clúster de Hadoop propio"
+        },
+        {
+          "id": "b",
+          "text": "CloudWatch Logs Insights exclusivamente"
+        },
+        {
+          "id": "c",
+          "text": "Athena sobre el bucket del trail con partition projection"
+        },
+        {
+          "id": "d",
+          "text": "Un RDS con importaciones manuales"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Athena consulta datos en S3 sin servidores; partition projection evita administrar particiones.",
+      "reference": "https://docs.aws.amazon.com/athena/latest/ug/create-cloudtrail-table-partition-projection.html"
+    },
+    {
+      "id": "DET-022",
+      "type": "single",
+      "topic": "analisis-de-logs",
+      "question": "Los analistas necesitan dashboards interactivos y búsqueda de texto sobre logs de seguridad. ¿Qué servicio?",
+      "options": [
+        {
+          "id": "a",
+          "text": "AWS Config"
+        },
+        {
+          "id": "b",
+          "text": "Amazon Macie"
+        },
+        {
+          "id": "c",
+          "text": "Amazon Inspector"
+        },
+        {
+          "id": "d",
+          "text": "Amazon OpenSearch Service con Dashboards"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "OpenSearch indexa y permite búsquedas y paneles; se protege con acceso en VPC y control de acceso fino.",
+      "reference": "https://docs.aws.amazon.com/athena/latest/ug/create-cloudtrail-table-partition-projection.html"
+    },
+    {
+      "id": "DET-023",
+      "type": "single",
+      "topic": "cloudwatch-monitoreo",
+      "question": "Se quiere reducir falsas alarmas combinando varias condiciones. ¿Qué se crea?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un metric filter adicional"
+        },
+        {
+          "id": "b",
+          "text": "Una alarma compuesta"
+        },
+        {
+          "id": "c",
+          "text": "Una alarma por cada métrica con la misma acción"
+        },
+        {
+          "id": "d",
+          "text": "Una regla de Config"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Las alarmas compuestas combinan el estado de otras alarmas con lógica booleana.",
+      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/monitoring/alarm-actions.html"
+    },
+    {
+      "id": "DET-024",
+      "type": "single",
+      "topic": "cloudwatch-monitoreo",
+      "question": "Se necesita detectar comportamiento atípico sin conocer un umbral fijo. ¿Qué característica?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Alarma con detección de anomalías"
+        },
+        {
+          "id": "b",
+          "text": "Alarma estática"
+        },
+        {
+          "id": "c",
+          "text": "Alarma de composición"
+        },
+        {
+          "id": "d",
+          "text": "Subscription filter"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "La detección de anomalías modela el comportamiento esperado de la métrica.",
+      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/monitoring/alarm-actions.html"
+    },
+    {
+      "id": "DET-025",
+      "type": "single",
+      "topic": "cloudwatch-monitoreo",
+      "question": "Se quiere monitorear varias cuentas desde una cuenta central. ¿Qué capacidad de CloudWatch?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Exportar manualmente a S3"
+        },
+        {
+          "id": "b",
+          "text": "Config rules"
+        },
+        {
+          "id": "c",
+          "text": "Un trail por cuenta"
+        },
+        {
+          "id": "d",
+          "text": "Cross-account observability (sink y links, idealmente con Organizations)"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Una cuenta de monitoreo con sink recibe datos de las cuentas origen vinculadas.",
+      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/monitoring/alarm-actions.html"
+    },
+    {
+      "id": "DET-026",
+      "type": "single",
+      "topic": "guardduty",
+      "question": "Un escáner de vulnerabilidades autorizado genera falsos positivos en GuardDuty. ¿Qué se hace?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Deshabilitar GuardDuty"
+        },
+        {
+          "id": "b",
+          "text": "Eliminar el trail"
+        },
+        {
+          "id": "c",
+          "text": "Cambiar la Región"
+        },
+        {
+          "id": "d",
+          "text": "Una regla de supresión acotada para esos hallazgos"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las reglas de supresión archivan automáticamente hallazgos que coinciden con criterios específicos sin deshabilitar el servicio.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+    },
+    {
+      "id": "DET-027",
+      "type": "single",
+      "topic": "guardduty",
+      "question": "¿Cómo se conservan los hallazgos de GuardDuty más de 90 días?",
+      "options": [
+        {
+          "id": "a",
+          "text": "No es posible"
+        },
+        {
+          "id": "b",
+          "text": "Con un grupo de logs sin retención"
+        },
+        {
+          "id": "c",
+          "text": "Exportándolos a un bucket de S3 cifrado con KMS"
+        },
+        {
+          "id": "d",
+          "text": "Con una alarma de CloudWatch"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "GuardDuty retiene los hallazgos 90 días; la exportación a S3 permite conservarlos más tiempo.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+    },
+    {
+      "id": "DET-028",
+      "type": "single",
+      "topic": "guardduty",
+      "question": "Se necesita detectar malware en objetos que se suben a S3. ¿Qué plan de GuardDuty?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Malware Protection for S3"
+        },
+        {
+          "id": "b",
+          "text": "Runtime Monitoring"
+        },
+        {
+          "id": "c",
+          "text": "Lambda Protection"
+        },
+        {
+          "id": "d",
+          "text": "RDS Protection"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Cada plan cubre una fuente: Malware Protection for S3 analiza objetos subidos a buckets.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+    },
+    {
+      "id": "DET-029",
+      "type": "single",
+      "topic": "macie",
+      "question": "Se debe detectar un identificador propio de la empresa en los datos de S3. ¿Qué se crea en Macie?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un custom data identifier con una expresión regular"
+        },
+        {
+          "id": "b",
+          "text": "Una regla de Config"
+        },
+        {
+          "id": "c",
+          "text": "Un trail de datos"
+        },
+        {
+          "id": "d",
+          "text": "Una política de bucket"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los custom data identifiers amplían la detección con regex y palabras clave.",
+      "reference": "https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html"
+    },
+    {
+      "id": "DET-030",
+      "type": "single",
+      "topic": "security-hub",
+      "question": "Se quiere subir o bajar automáticamente la severidad de ciertos hallazgos en Security Hub. ¿Qué se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una SCP"
+        },
+        {
+          "id": "b",
+          "text": "Tag policies"
+        },
+        {
+          "id": "c",
+          "text": "Una regla de VPC"
+        },
+        {
+          "id": "d",
+          "text": "Automation rules"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las reglas de automatización modifican hallazgos (severidad, notas, estado) según criterios.",
+      "reference": "https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html"
+    },
+    {
+      "id": "DET-031",
+      "type": "single",
+      "topic": "security-lake",
+      "question": "Se desea consolidar en una sola Región los datos de varias Regiones por cumplimiento. ¿Qué característica de Security Lake?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Subscription filters"
+        },
+        {
+          "id": "b",
+          "text": "Un agregador de Config"
+        },
+        {
+          "id": "c",
+          "text": "Regiones de rollup"
+        },
+        {
+          "id": "d",
+          "text": "Cross-Region backup"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Un rollup Region agrega los datos de las Regiones contribuyentes.",
+      "reference": "https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html"
+    },
+    {
+      "id": "DET-032",
+      "type": "single",
+      "topic": "security-lake",
+      "question": "Los analistas quieren consultar datos de Security Lake con SQL sin moverlos. ¿Qué tipo de suscriptor?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Suscriptor de acceso a consultas (query access) con Athena"
+        },
+        {
+          "id": "b",
+          "text": "Un trail de organización"
+        },
+        {
+          "id": "c",
+          "text": "Una regla de EventBridge"
+        },
+        {
+          "id": "d",
+          "text": "Suscriptor de acceso a datos únicamente"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Query access permite consultar tablas con Athena; data access entrega los objetos a un consumidor.",
+      "reference": "https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html"
+    },
+    {
+      "id": "DET-033",
+      "type": "single",
+      "topic": "logs-de-red",
+      "question": "Se necesita registrar peticiones web de WAF sin guardar contraseñas en las query strings. ¿Qué se configura?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Cifrar el bucket únicamente"
+        },
+        {
+          "id": "b",
+          "text": "Campos redactados (redacted fields) en el logging de WAF"
+        },
+        {
+          "id": "c",
+          "text": "Un metric filter"
+        },
+        {
+          "id": "d",
+          "text": "Desactivar el logging"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "WAF permite redactar campos como cabeceras o query strings antes de registrarlos.",
+      "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
+    },
+    {
+      "id": "DET-034",
+      "type": "single",
+      "topic": "logs-de-red",
+      "question": "Se quiere cambiar el formato de un VPC Flow Log existente. ¿Qué se hace?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Se edita el formato en caliente"
+        },
+        {
+          "id": "b",
+          "text": "Se usa Athena"
+        },
+        {
+          "id": "c",
+          "text": "Se cambia el trail"
+        },
+        {
+          "id": "d",
+          "text": "Se elimina el flow log y se crea uno nuevo con el formato deseado"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "El formato de un flow log no se puede modificar una vez creado.",
+      "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
+    },
+    {
+      "id": "DET-035",
+      "type": "single",
+      "topic": "troubleshooting-deteccion",
+      "question": "Los logs de una instancia no aparecen en CloudWatch. ¿Qué se revisa primero?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Que el agente esté configurado, que el rol tenga la política del agente y que haya salida al endpoint"
+        },
+        {
+          "id": "b",
+          "text": "La retención de CloudTrail"
+        },
+        {
+          "id": "c",
+          "text": "La clave de Macie"
+        },
+        {
+          "id": "d",
+          "text": "El estándar de Security Hub"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los fallos típicos son configuración del agente, permisos del rol de instancia y conectividad al endpoint.",
+      "reference": "https://repost.aws/knowledge-center/troubleshoot-cloudwatch-log-ingestion"
+    },
+    {
+      "id": "DET-036",
+      "type": "single",
+      "topic": "troubleshooting-deteccion",
+      "question": "API Gateway no escribe logs de acceso. ¿Qué falta con frecuencia?",
+      "options": [
+        {
+          "id": "a",
+          "text": "El ARN del rol de CloudWatch configurado a nivel de cuenta en esa Región"
+        },
+        {
+          "id": "b",
+          "text": "Un trail de datos"
+        },
+        {
+          "id": "c",
+          "text": "Una zona de Route 53"
+        },
+        {
+          "id": "d",
+          "text": "Una regla de WAF"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "API Gateway necesita un rol con permisos para publicar logs en CloudWatch configurado en la cuenta y Región.",
+      "reference": "https://repost.aws/knowledge-center/troubleshoot-cloudwatch-log-ingestion"
+    },
+    {
+      "id": "DET-037",
+      "type": "single",
+      "topic": "config-ssm-evaluaciones",
+      "question": "Se quiere mantener una configuración en las instancias de forma continua usando etiquetas como destino. ¿Qué capacidad de Systems Manager?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Parameter Store"
+        },
+        {
+          "id": "b",
+          "text": "Patch Manager únicamente"
+        },
+        {
+          "id": "c",
+          "text": "State Manager (asociaciones)"
+        },
+        {
+          "id": "d",
+          "text": "Session Manager"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "State Manager mantiene un estado deseado mediante asociaciones aplicadas a objetivos por etiqueta.",
+      "reference": "https://docs.aws.amazon.com/config/latest/developerguide/setup-autoremediation.html"
+    },
+    {
+      "id": "DET-038",
+      "type": "single",
+      "topic": "alertas-eventbridge-sns",
+      "question": "Se quiere crear automáticamente un ticket operativo cuando se activa una alarma. ¿Qué acción?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una acción de Macie"
+        },
+        {
+          "id": "b",
+          "text": "Una acción de OpsItem en Systems Manager OpsCenter"
+        },
+        {
+          "id": "c",
+          "text": "Un trail"
+        },
+        {
+          "id": "d",
+          "text": "Un subscription filter"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Las alarmas de CloudWatch pueden crear OpsItems en OpsCenter.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings_eventbridge.html"
+    },
+    {
+      "id": "DET-039",
+      "type": "multiple",
+      "topic": "cloudtrail",
+      "question": "¿Qué buenas prácticas aplican a un trail de organización? (Elige TRES)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Permitir que cada cuenta miembro lo detenga"
+        },
+        {
+          "id": "b",
+          "text": "Almacenar los logs en la cuenta de carga de trabajo"
+        },
+        {
+          "id": "c",
+          "text": "Registrar en todas las Regiones"
+        },
+        {
+          "id": "d",
+          "text": "Entregar a un bucket en una cuenta de logging dedicada"
+        },
+        {
+          "id": "e",
+          "text": "Cifrar con KMS y habilitar la validación de integridad"
+        }
+      ],
+      "correct": [
+        "c",
+        "d",
+        "e"
+      ],
+      "explanation": "Las cuentas miembro no pueden modificar un trail de organización; el bucket debe estar protegido en una cuenta aparte.",
+      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
+    },
+    {
+      "id": "DET-040",
+      "type": "ordering",
+      "topic": "guardduty",
+      "question": "Ordena el flujo de respuesta automatizada ante un hallazgo de GuardDuty de severidad alta.",
+      "options": [
+        {
+          "id": "a",
+          "text": "GuardDuty genera el hallazgo"
+        },
+        {
+          "id": "b",
+          "text": "EventBridge lo coincide con una regla de severidad alta"
+        },
+        {
+          "id": "c",
+          "text": "Se invoca una Lambda o runbook de Systems Manager"
+        },
+        {
+          "id": "d",
+          "text": "La automatización aísla el recurso y notifica al equipo por SNS"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "GuardDuty detecta; EventBridge enruta; la automatización contiene y notifica.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+    },
+    {
+      "id": "DET-041",
+      "type": "matching",
+      "topic": "guardduty",
+      "question": "Empareja cada necesidad con el plan de GuardDuty adecuado.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Malware en objetos subidos a S3"
+        },
+        {
+          "id": "p2",
+          "text": "Procesos maliciosos en contenedores o instancias"
+        },
+        {
+          "id": "p3",
+          "text": "Actividad anómala contra buckets de S3"
+        },
+        {
+          "id": "p4",
+          "text": "Credenciales de base de datos comprometidas"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Macie"
+        },
+        {
+          "id": "b",
+          "text": "Runtime Monitoring"
+        },
+        {
+          "id": "c",
+          "text": "RDS Protection"
+        },
+        {
+          "id": "d",
+          "text": "Malware Protection for S3"
+        },
+        {
+          "id": "e",
+          "text": "S3 Protection"
+        }
+      ],
+      "correct": {
+        "p1": "d",
+        "p2": "b",
+        "p3": "e",
+        "p4": "c"
+      },
+      "explanation": "Cada plan cubre una fuente específica; Macie clasifica datos sensibles y no es un plan de GuardDuty.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
     }
   ]
 }

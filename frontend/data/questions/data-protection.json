@@ -644,6 +644,1077 @@
       },
       "explanation": "El almacén predeterminado tiene el mayor rendimiento y SLA; el almacén de CloudHSM usa tu clúster de HSM; XKS delega en un gestor de claves externo vía proxy (menor rendimiento, sin claves asimétricas ni rotación automática).",
       "reference": "https://docs.aws.amazon.com/kms/latest/developerguide/key-store-overview.html"
+    },
+    {
+      "id": "DP-022",
+      "type": "single",
+      "topic": "tls-elb-acm",
+      "question": "Una organización debe cumplir un requisito FIPS en sus balanceadores de aplicación. ¿Qué se elige?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un certificado importado"
+        },
+        {
+          "id": "b",
+          "text": "Un security group con puerto 443"
+        },
+        {
+          "id": "c",
+          "text": "La política ELBSecurityPolicy-2016-08"
+        },
+        {
+          "id": "d",
+          "text": "Una política de seguridad de ELB cuyo nombre incluye FIPS (módulo criptográfico validado AWS-LC)"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "El ALB no admite políticas personalizadas: se elige entre las predefinidas y las que incluyen FIPS usan el módulo validado.",
+      "reference": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/describe-ssl-policies.html"
+    },
+    {
+      "id": "DP-023",
+      "type": "single",
+      "topic": "tls-elb-acm",
+      "question": "¿Qué certificados de ACM se pueden asociar a una distribución de CloudFront?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Los de cualquier Región"
+        },
+        {
+          "id": "b",
+          "text": "Los que están en la Región us-east-1"
+        },
+        {
+          "id": "c",
+          "text": "Solo los importados"
+        },
+        {
+          "id": "d",
+          "text": "Solo los privados de Private CA"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "CloudFront solo puede usar certificados de ACM ubicados en us-east-1.",
+      "reference": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/describe-ssl-policies.html"
+    },
+    {
+      "id": "DP-024",
+      "type": "single",
+      "topic": "tls-elb-acm",
+      "question": "¿Qué política de bucket impide el acceso a S3 sin TLS?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una regla de ciclo de vida"
+        },
+        {
+          "id": "b",
+          "text": "Un Deny con aws:MultiFactorAuthPresent"
+        },
+        {
+          "id": "c",
+          "text": "Un Allow con aws:SourceIp"
+        },
+        {
+          "id": "d",
+          "text": "Un Deny cuando aws:SecureTransport es false"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "La condición aws:SecureTransport permite denegar cualquier solicitud que no use HTTPS.",
+      "reference": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/describe-ssl-policies.html"
+    },
+    {
+      "id": "DP-025",
+      "type": "single",
+      "topic": "tls-elb-acm",
+      "question": "Se necesita cifrado hasta la aplicación y no solo hasta el balanceador, sin que este descifre el tráfico. ¿Qué diseño?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Usar CloudFront sin HTTPS al origen"
+        },
+        {
+          "id": "b",
+          "text": "Un NAT gateway"
+        },
+        {
+          "id": "c",
+          "text": "Terminar TLS en el ALB y enviar HTTP al destino"
+        },
+        {
+          "id": "d",
+          "text": "Un Network Load Balancer con TLS passthrough y terminación en el destino"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Con passthrough el balanceador no descifra; el destino termina TLS. También es posible re-cifrar hacia el destino.",
+      "reference": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/describe-ssl-policies.html"
+    },
+    {
+      "id": "DP-026",
+      "type": "single",
+      "topic": "cifrado-entre-recursos",
+      "question": "¿Cómo se cifran los datos en un volumen de instance store NVMe?",
+      "options": [
+        {
+          "id": "a",
+          "text": "No se cifran"
+        },
+        {
+          "id": "b",
+          "text": "Con una clave KMS elegida por el cliente"
+        },
+        {
+          "id": "c",
+          "text": "Solo si se activa EBS default encryption"
+        },
+        {
+          "id": "d",
+          "text": "Automáticamente con XTS-AES-256; la clave reside en el hardware, no se puede desactivar ni aportar la propia"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "El cifrado del instance store NVMe es por hardware, con claves por volumen destruidas al detener o terminar la instancia.",
+      "reference": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html"
+    },
+    {
+      "id": "DP-027",
+      "type": "single",
+      "topic": "cifrado-entre-recursos",
+      "question": "¿Qué valor de encryption-status en los VPC Flow Logs indica tráfico cifrado en la capa de aplicación (TLS)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "2"
+        },
+        {
+          "id": "b",
+          "text": "0"
+        },
+        {
+          "id": "c",
+          "text": "1"
+        },
+        {
+          "id": "d",
+          "text": "3"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "0 es texto plano, 1 cifrado Nitro en la capa de red, 2 cifrado de aplicación y 3 ambas capas.",
+      "reference": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/data-protection.html"
+    },
+    {
+      "id": "DP-028",
+      "type": "single",
+      "topic": "kms-fundamentos",
+      "question": "¿Cuál es el periodo de espera al programar la eliminación de una clave KMS?",
+      "options": [
+        {
+          "id": "a",
+          "text": "90 días"
+        },
+        {
+          "id": "b",
+          "text": "Inmediato"
+        },
+        {
+          "id": "c",
+          "text": "24 horas fijas"
+        },
+        {
+          "id": "d",
+          "text": "Entre 7 y 30 días"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Durante la espera la clave está inutilizable y se puede cancelar la eliminación; después es irrecuperable.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/encryption-best-practices/kms.html"
+    },
+    {
+      "id": "DP-029",
+      "type": "single",
+      "topic": "kms-fundamentos",
+      "question": "¿Qué claves KMS admiten rotación automática?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Las asimétricas y HMAC"
+        },
+        {
+          "id": "b",
+          "text": "Las claves simétricas con material generado por KMS"
+        },
+        {
+          "id": "c",
+          "text": "Las de almacenes personalizados"
+        },
+        {
+          "id": "d",
+          "text": "Las importadas"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Las claves importadas, asimétricas, HMAC y de almacenes personalizados se rotan manualmente.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/encryption-best-practices/kms.html"
+    },
+    {
+      "id": "DP-030",
+      "type": "scenario",
+      "topic": "kms-fundamentos",
+      "question": "Un servicio de otra cuenta debe descifrar objetos cifrados con SSE-KMS. ¿Qué tipo de clave se necesita?",
+      "options": [
+        {
+          "id": "a",
+          "text": "La clave aws/s3"
+        },
+        {
+          "id": "b",
+          "text": "Cualquier clave con rotación"
+        },
+        {
+          "id": "c",
+          "text": "Una clave AWS owned"
+        },
+        {
+          "id": "d",
+          "text": "Una clave customer managed con key policy que permita a la otra cuenta"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las claves AWS managed no se pueden compartir entre cuentas; la customer managed sí con key policy e IAM.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/encryption-best-practices/kms.html"
+    },
+    {
+      "id": "DP-031",
+      "type": "single",
+      "topic": "kms-fundamentos",
+      "question": "¿Qué mecanismo permite delegar temporalmente el uso de una única clave a un servicio?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Resource control policies"
+        },
+        {
+          "id": "b",
+          "text": "Grants"
+        },
+        {
+          "id": "c",
+          "text": "Permissions boundary"
+        },
+        {
+          "id": "d",
+          "text": "Tag policies"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Los grants son delegaciones programáticas y limitadas a una sola clave, usadas por servicios como EBS o RDS.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/encryption-best-practices/kms.html"
+    },
+    {
+      "id": "DP-032",
+      "type": "single",
+      "topic": "kms-almacenes-llaves",
+      "question": "¿Cuántos almacenes de claves personalizados se pueden crear por cuenta y Región?",
+      "options": [
+        {
+          "id": "a",
+          "text": "10"
+        },
+        {
+          "id": "b",
+          "text": "1"
+        },
+        {
+          "id": "c",
+          "text": "100"
+        },
+        {
+          "id": "d",
+          "text": "Sin límite"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "El límite documentado es de 10 almacenes personalizados por cuenta y Región.",
+      "reference": "https://docs.aws.amazon.com/kms/latest/developerguide/key-store-overview.html"
+    },
+    {
+      "id": "DP-033",
+      "type": "single",
+      "topic": "kms-almacenes-llaves",
+      "question": "¿Qué ocurre si se pierde o elimina la clave externa en un almacén XKS?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Los datos cifrados quedan irrecuperables (crypto-shredding)"
+        },
+        {
+          "id": "b",
+          "text": "AWS regenera la clave"
+        },
+        {
+          "id": "c",
+          "text": "Se usa automáticamente la clave de KMS"
+        },
+        {
+          "id": "d",
+          "text": "Los datos siguen accesibles con la clave AWS managed"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "En XKS la clave externa es el control del cliente; sin ella, no hay forma de descifrar.",
+      "reference": "https://docs.aws.amazon.com/kms/latest/developerguide/key-store-overview.html"
+    },
+    {
+      "id": "DP-034",
+      "type": "single",
+      "topic": "cifrado-s3",
+      "question": "¿Qué cifrado se aplica por defecto a los objetos nuevos de S3 desde enero de 2023?",
+      "options": [
+        {
+          "id": "a",
+          "text": "DSSE-KMS"
+        },
+        {
+          "id": "b",
+          "text": "SSE-S3 como mínimo"
+        },
+        {
+          "id": "c",
+          "text": "SSE-C"
+        },
+        {
+          "id": "d",
+          "text": "Ninguno"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Todos los objetos nuevos se cifran con SSE-S3 como línea base.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/encryption-best-practices/s3.html"
+    },
+    {
+      "id": "DP-035",
+      "type": "single",
+      "topic": "cifrado-s3",
+      "question": "Se debe garantizar que el contenido nunca esté en claro en AWS y que AWS no pueda descifrarlo. ¿Qué opción?",
+      "options": [
+        {
+          "id": "a",
+          "text": "SSE-KMS con aws/s3"
+        },
+        {
+          "id": "b",
+          "text": "Cifrado del lado del cliente"
+        },
+        {
+          "id": "c",
+          "text": "SSE-S3"
+        },
+        {
+          "id": "d",
+          "text": "Block Public Access"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Con cifrado del lado del cliente S3 solo ve datos cifrados y la clave nunca se entrega a AWS.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/encryption-best-practices/s3.html"
+    },
+    {
+      "id": "DP-036",
+      "type": "single",
+      "topic": "cifrado-ebs-rds-servicios",
+      "question": "¿Qué tipo de snapshots no pueden hacerse públicos?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Los snapshots cifrados"
+        },
+        {
+          "id": "b",
+          "text": "Los de volúmenes gp3"
+        },
+        {
+          "id": "c",
+          "text": "Los de instance store"
+        },
+        {
+          "id": "d",
+          "text": "Los copiados entre Regiones"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los snapshots cifrados solo se comparten con cuentas específicas y requieren compartir la clave.",
+      "reference": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-encryption.html"
+    },
+    {
+      "id": "DP-037",
+      "type": "single",
+      "topic": "cifrado-ebs-rds-servicios",
+      "question": "Se quiere que todo volumen EBS nuevo en una Región se cree cifrado. ¿Qué se habilita?",
+      "options": [
+        {
+          "id": "a",
+          "text": "S3 Block Public Access"
+        },
+        {
+          "id": "b",
+          "text": "El cifrado predeterminado de EBS en la cuenta y Región"
+        },
+        {
+          "id": "c",
+          "text": "Una regla de ciclo de vida"
+        },
+        {
+          "id": "d",
+          "text": "Un security group"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "El cifrado predeterminado cifra automáticamente volúmenes y copias nuevas; se refuerza con SCP y Config.",
+      "reference": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-encryption.html"
+    },
+    {
+      "id": "DP-038",
+      "type": "single",
+      "topic": "inmutabilidad-datos",
+      "question": "¿Qué prerrequisito tiene S3 Object Lock?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Replicación entre Regiones"
+        },
+        {
+          "id": "b",
+          "text": "Un trail de organización"
+        },
+        {
+          "id": "c",
+          "text": "El versionado habilitado en el bucket"
+        },
+        {
+          "id": "d",
+          "text": "MFA Delete"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Object Lock protege versiones de objetos y exige versionado.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+    },
+    {
+      "id": "DP-039",
+      "type": "single",
+      "topic": "inmutabilidad-datos",
+      "question": "¿Qué permiso permite saltarse la retención en modo Governance de Object Lock?",
+      "options": [
+        {
+          "id": "a",
+          "text": "kms:Decrypt"
+        },
+        {
+          "id": "b",
+          "text": "s3:PutObjectLegalHold"
+        },
+        {
+          "id": "c",
+          "text": "s3:GetObjectVersion"
+        },
+        {
+          "id": "d",
+          "text": "s3:BypassGovernanceRetention (con el encabezado x-amz-bypass-governance-retention)"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "En modo Compliance nadie puede saltarla; en Governance, solo quien tiene ese permiso y el encabezado.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+    },
+    {
+      "id": "DP-040",
+      "type": "single",
+      "topic": "inmutabilidad-datos",
+      "question": "Una retención de evidencia debe mantenerse hasta nueva orden, sin fecha de fin. ¿Qué se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una bucket policy"
+        },
+        {
+          "id": "b",
+          "text": "Retención en modo Compliance de 1 día"
+        },
+        {
+          "id": "c",
+          "text": "Legal hold"
+        },
+        {
+          "id": "d",
+          "text": "Una regla de ciclo de vida"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "El legal hold no tiene caducidad y se activa o desactiva con s3:PutObjectLegalHold, independiente de la retención.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+    },
+    {
+      "id": "DP-041",
+      "type": "single",
+      "topic": "inmutabilidad-datos",
+      "question": "Se desea impedir que Lambda ejecute código no aprobado. ¿Qué servicio apoya esa política?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Amazon Detective"
+        },
+        {
+          "id": "b",
+          "text": "AWS Backup"
+        },
+        {
+          "id": "c",
+          "text": "AWS Signer con code signing configuration"
+        },
+        {
+          "id": "d",
+          "text": "Amazon Macie"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Lambda code signing solo permite desplegar paquetes firmados por perfiles de firma de confianza.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+    },
+    {
+      "id": "DP-042",
+      "type": "single",
+      "topic": "respaldo-ransomware",
+      "question": "¿Qué característica de los vaults logically air-gapped de AWS Backup los hace útiles contra ransomware?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Bloqueo Compliance por defecto, claves AWS-owned y posibilidad de compartirlos para restaurar"
+        },
+        {
+          "id": "b",
+          "text": "Se almacenan en la misma cuenta sin bloqueo"
+        },
+        {
+          "id": "c",
+          "text": "Solo admiten snapshots de EBS"
+        },
+        {
+          "id": "d",
+          "text": "Se pueden eliminar con el usuario root"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Aíslan las copias de la cuenta de producción con inmutabilidad y permiten restauración desde otra cuenta.",
+      "reference": "https://docs.aws.amazon.com/aws-backup/latest/devguide/vault-lock.html"
+    },
+    {
+      "id": "DP-043",
+      "type": "single",
+      "topic": "respaldo-ransomware",
+      "question": "¿Qué capacidad de AWS Backup comprueba automáticamente que los respaldos se pueden restaurar?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Restore testing"
+        },
+        {
+          "id": "b",
+          "text": "Backup Audit Manager exclusivamente"
+        },
+        {
+          "id": "c",
+          "text": "Cross-Region copy"
+        },
+        {
+          "id": "d",
+          "text": "Vault Lock"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las pruebas de restauración validan los puntos de recuperación y ayudan a medir RTO/RPO.",
+      "reference": "https://docs.aws.amazon.com/aws-backup/latest/devguide/vault-lock.html"
+    },
+    {
+      "id": "DP-044",
+      "type": "single",
+      "topic": "secrets-manager",
+      "question": "Una aplicación falla tras rotar la contraseña de la base de datos porque cachea credenciales. ¿Qué estrategia mitiga el problema?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Eliminar AWSPREVIOUS"
+        },
+        {
+          "id": "b",
+          "text": "Guardar la contraseña en una variable de entorno"
+        },
+        {
+          "id": "c",
+          "text": "Rotación con usuarios alternos (alternating users) y relectura del secreto por la aplicación"
+        },
+        {
+          "id": "d",
+          "text": "Desactivar la rotación"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Con usuarios alternos siempre hay una credencial válida durante la rotación.",
+      "reference": "https://docs.aws.amazon.com/secretsmanager/latest/userguide/rotating-secrets.html"
+    },
+    {
+      "id": "DP-045",
+      "type": "single",
+      "topic": "secrets-manager",
+      "question": "¿Qué servicio ofrece rotación nativa de secretos?",
+      "options": [
+        {
+          "id": "a",
+          "text": "KMS"
+        },
+        {
+          "id": "b",
+          "text": "IAM Access Analyzer"
+        },
+        {
+          "id": "c",
+          "text": "AWS Secrets Manager"
+        },
+        {
+          "id": "d",
+          "text": "Systems Manager Parameter Store"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Parameter Store guarda valores (cifrables con SecureString) pero no rota por sí mismo.",
+      "reference": "https://docs.aws.amazon.com/secretsmanager/latest/userguide/rotating-secrets.html"
+    },
+    {
+      "id": "DP-046",
+      "type": "single",
+      "topic": "llaves-importadas-multirregion",
+      "question": "Una clave con material importado dejó de funcionar al llegar su fecha de caducidad. ¿Qué se hace?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Reimportar el material de clave"
+        },
+        {
+          "id": "b",
+          "text": "Habilitar la rotación automática"
+        },
+        {
+          "id": "c",
+          "text": "Esperar a que KMS lo regenere"
+        },
+        {
+          "id": "d",
+          "text": "Crear un grant"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Al vencer, la clave no se puede usar hasta reimportar el material.",
+      "reference": "https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html"
+    },
+    {
+      "id": "DP-047",
+      "type": "single",
+      "topic": "llaves-importadas-multirregion",
+      "question": "Se necesita cifrar en una Región y descifrar en otra con la misma clave (recuperación ante desastres). ¿Qué se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Claves multi-Region"
+        },
+        {
+          "id": "b",
+          "text": "Claves de XKS"
+        },
+        {
+          "id": "c",
+          "text": "Una clave por Región sin relación"
+        },
+        {
+          "id": "d",
+          "text": "Una clave AWS owned"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las claves multi-Region comparten material entre Regiones; cada réplica tiene su propia key policy.",
+      "reference": "https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html"
+    },
+    {
+      "id": "DP-048",
+      "type": "single",
+      "topic": "proteccion-datos-sensibles",
+      "question": "¿Qué métrica permite alarmar cuando la protección de datos de CloudWatch Logs detecta datos sensibles?",
+      "options": [
+        {
+          "id": "a",
+          "text": "IncomingBytes"
+        },
+        {
+          "id": "b",
+          "text": "NumberOfMessagesPublished"
+        },
+        {
+          "id": "c",
+          "text": "LogEventsWithFindings"
+        },
+        {
+          "id": "d",
+          "text": "ErrorCount"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "La política publica la métrica LogEventsWithFindings para generar alarmas.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CloudWatch-Logs-Data-Protection-Policies.html"
+    },
+    {
+      "id": "DP-049",
+      "type": "single",
+      "topic": "proteccion-datos-sensibles",
+      "question": "¿Qué operaciones admite la protección de datos de mensajes de Amazon SNS?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Audit, De-identify y Deny"
+        },
+        {
+          "id": "b",
+          "text": "Encrypt y Decrypt"
+        },
+        {
+          "id": "c",
+          "text": "Solo Audit"
+        },
+        {
+          "id": "d",
+          "text": "Quarantine"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Se aplican a mensajes entrantes o salientes; una política por tópico. El servicio ya no está disponible para clientes nuevos.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CloudWatch-Logs-Data-Protection-Policies.html"
+    },
+    {
+      "id": "DP-050",
+      "type": "single",
+      "topic": "private-ca-certificados",
+      "question": "¿Qué modo de CA de AWS Private CA reduce la necesidad de revocación?",
+      "options": [
+        {
+          "id": "a",
+          "text": "El modo de corta duración (certificados de hasta 7 días)"
+        },
+        {
+          "id": "b",
+          "text": "Certificados importados"
+        },
+        {
+          "id": "c",
+          "text": "Una CA raíz sin subordinadas"
+        },
+        {
+          "id": "d",
+          "text": "El modo de uso general"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los certificados de vida corta caducan antes de requerir revocación; ACM renueva solo los de uso general.",
+      "reference": "https://docs.aws.amazon.com/privateca/latest/userguide/PcaWelcome.html"
+    },
+    {
+      "id": "DP-051",
+      "type": "single",
+      "topic": "private-ca-certificados",
+      "question": "Varias cuentas deben emitir certificados desde una CA central sin administrarla. ¿Cómo se comparte?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Con una tag policy"
+        },
+        {
+          "id": "b",
+          "text": "Copiando la clave privada"
+        },
+        {
+          "id": "c",
+          "text": "Con una bucket policy"
+        },
+        {
+          "id": "d",
+          "text": "Con AWS RAM"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Private CA se puede compartir mediante AWS Resource Access Manager.",
+      "reference": "https://docs.aws.amazon.com/privateca/latest/userguide/PcaWelcome.html"
+    },
+    {
+      "id": "DP-052",
+      "type": "multiple",
+      "topic": "kms-fundamentos",
+      "question": "¿Qué buenas prácticas aplican a KMS? (Elige TRES)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Evitar kms:* y separar administradores de usuarios"
+        },
+        {
+          "id": "b",
+          "text": "Usar la misma key policy en todas las réplicas multi-Region"
+        },
+        {
+          "id": "c",
+          "text": "Incluir datos de clientes en el encryption context"
+        },
+        {
+          "id": "d",
+          "text": "Usar una SCP para impedir la eliminación de claves"
+        },
+        {
+          "id": "e",
+          "text": "Usar kms:ViaService para limitar el uso a un servicio"
+        }
+      ],
+      "correct": [
+        "a",
+        "d",
+        "e"
+      ],
+      "explanation": "El encryption context aparece en claro en CloudTrail y las key policies de claves multi-Region no se comparten.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/encryption-best-practices/kms.html"
+    },
+    {
+      "id": "DP-053",
+      "type": "multiple",
+      "topic": "inmutabilidad-datos",
+      "question": "¿Qué configuraciones protegen respaldos frente a un administrador o cuenta comprometidos? (Elige TRES)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Vault Lock en modo Compliance"
+        },
+        {
+          "id": "b",
+          "text": "Copias en otra cuenta y Región"
+        },
+        {
+          "id": "c",
+          "text": "Retención corta en el mismo vault"
+        },
+        {
+          "id": "d",
+          "text": "Permitir que el root elimine puntos de recuperación"
+        },
+        {
+          "id": "e",
+          "text": "Aprobación multiparte para restaurar desde un vault aislado"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "e"
+      ],
+      "explanation": "La inmutabilidad, el aislamiento y la aprobación multiparte reducen el riesgo de borrado malicioso.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+    },
+    {
+      "id": "DP-054",
+      "type": "ordering",
+      "topic": "cifrado-s3",
+      "question": "Ordena los pasos para reforzar un bucket que debe usar SSE-KMS con TLS obligatorio.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Crear una clave KMS customer managed con su key policy"
+        },
+        {
+          "id": "b",
+          "text": "Configurar el cifrado predeterminado del bucket con SSE-KMS y esa clave"
+        },
+        {
+          "id": "c",
+          "text": "Agregar una bucket policy que niegue subidas sin cifrado y solicitudes sin TLS"
+        },
+        {
+          "id": "d",
+          "text": "Habilitar reglas de Config para detectar desviaciones"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "Primero la clave, luego el cifrado por defecto, después la política que lo impone y finalmente la detección continua con Config.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/encryption-best-practices/s3.html"
+    },
+    {
+      "id": "DP-055",
+      "type": "matching",
+      "topic": "inmutabilidad-datos",
+      "question": "Empareja cada necesidad con el mecanismo de protección.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Retención sin fecha de fin para una investigación"
+        },
+        {
+          "id": "p2",
+          "text": "Nadie, ni el root, puede borrar durante el periodo"
+        },
+        {
+          "id": "p3",
+          "text": "Copias aisladas lógicamente de la cuenta de producción"
+        },
+        {
+          "id": "p4",
+          "text": "Solo permitir despliegue de código firmado"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Object Lock en modo Compliance"
+        },
+        {
+          "id": "b",
+          "text": "Legal hold de S3 Object Lock"
+        },
+        {
+          "id": "c",
+          "text": "AWS Signer"
+        },
+        {
+          "id": "d",
+          "text": "Vault logically air-gapped de AWS Backup"
+        },
+        {
+          "id": "e",
+          "text": "Macie"
+        }
+      ],
+      "correct": {
+        "p1": "b",
+        "p2": "a",
+        "p3": "d",
+        "p4": "c"
+      },
+      "explanation": "Cada mecanismo cubre un caso distinto de integridad e inmutabilidad; Macie descubre datos sensibles y no protege contra borrado.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+    },
+    {
+      "id": "DP-056",
+      "type": "matching",
+      "topic": "kms-fundamentos",
+      "question": "Empareja cada tipo de clave KMS con su característica.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "AWS owned"
+        },
+        {
+          "id": "p2",
+          "text": "AWS managed"
+        },
+        {
+          "id": "p3",
+          "text": "Customer managed"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Invisible para el cliente y sin costo"
+        },
+        {
+          "id": "b",
+          "text": "Controlas política, rotación y eliminación"
+        },
+        {
+          "id": "c",
+          "text": "Se almacena en un HSM propio fuera de AWS"
+        },
+        {
+          "id": "d",
+          "text": "Creada por el servicio en tu cuenta; no editas su política"
+        }
+      ],
+      "correct": {
+        "p1": "a",
+        "p2": "d",
+        "p3": "b"
+      },
+      "explanation": "Los tres tipos varían en quién controla la clave; la clave en un HSM propio corresponde a CloudHSM o XKS.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/encryption-best-practices/kms.html"
     }
   ]
 }

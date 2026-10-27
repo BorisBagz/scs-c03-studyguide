@@ -552,6 +552,941 @@
       },
       "explanation": "SCP limita principales, RCP limita recursos y las declarativas aplican configuración base del servicio sin depender de acciones de API. Las tag policies son otro tipo de política.",
       "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_declarative.html"
+    },
+    {
+      "id": "GOV-019",
+      "type": "single",
+      "topic": "organizations-estructura",
+      "question": "¿Dónde se recomienda ejecutar los servicios de seguridad de la organización (Security Hub, GuardDuty, Config, Access Analyzer)?",
+      "options": [
+        {
+          "id": "a",
+          "text": "En la cuenta de administración con cargas de trabajo"
+        },
+        {
+          "id": "b",
+          "text": "En la cuenta de facturación únicamente"
+        },
+        {
+          "id": "c",
+          "text": "En una cuenta de seguridad (Security Tooling) como administrador delegado"
+        },
+        {
+          "id": "d",
+          "text": "En cada cuenta de desarrollo por separado"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "La cuenta de administración debe tener cargas mínimas; los servicios se delegan a una cuenta de seguridad.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/org-management.html"
+    },
+    {
+      "id": "GOV-020",
+      "type": "single",
+      "topic": "organizations-estructura",
+      "question": "¿Qué requisito tienen SCP, RCP y políticas declarativas?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Control Tower habilitado"
+        },
+        {
+          "id": "b",
+          "text": "Solo facturación consolidada"
+        },
+        {
+          "id": "c",
+          "text": "La organización debe tener habilitadas todas las características (all features)"
+        },
+        {
+          "id": "d",
+          "text": "Una cuenta por OU"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Las políticas de organización no están disponibles con solo facturación consolidada.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/org-management.html"
+    },
+    {
+      "id": "GOV-021",
+      "type": "single",
+      "topic": "scp",
+      "question": "¿Cuál es el efecto de una SCP sobre el usuario root de una cuenta miembro?",
+      "options": [
+        {
+          "id": "a",
+          "text": "La SCP también lo restringe"
+        },
+        {
+          "id": "b",
+          "text": "Solo lo afecta si tiene MFA"
+        },
+        {
+          "id": "c",
+          "text": "No lo afecta nunca"
+        },
+        {
+          "id": "d",
+          "text": "Solo lo afecta en la cuenta de administración"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las SCP afectan a todos los usuarios y roles de las cuentas adjuntas, incluido el root de las cuentas miembro.",
+      "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+    },
+    {
+      "id": "GOV-022",
+      "type": "single",
+      "topic": "scp",
+      "question": "¿Cuántas SCP se pueden adjuntar a una raíz, OU o cuenta, y qué tamaño máximo tiene cada una?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Hasta 5 de 5 120 caracteres"
+        },
+        {
+          "id": "b",
+          "text": "Hasta 10 SCP de 10 240 caracteres cada una"
+        },
+        {
+          "id": "c",
+          "text": "Hasta 100 de 1 000 caracteres"
+        },
+        {
+          "id": "d",
+          "text": "Sin límite"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Según la página de tipos de política: SCP 10 adjuntas y 10 240 caracteres; RCP 5 y 5 120 caracteres.",
+      "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+    },
+    {
+      "id": "GOV-023",
+      "type": "single",
+      "topic": "scp",
+      "question": "Se quiere limitar las Regiones utilizables en toda la organización. ¿Qué mecanismo?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una SCP con la clave aws:RequestedRegion"
+        },
+        {
+          "id": "b",
+          "text": "Una tag policy"
+        },
+        {
+          "id": "c",
+          "text": "Una regla de Config"
+        },
+        {
+          "id": "d",
+          "text": "Un permissions boundary por usuario"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "La SCP deniega acciones fuera de las Regiones permitidas, excluyendo servicios globales necesarios.",
+      "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+    },
+    {
+      "id": "GOV-024",
+      "type": "single",
+      "topic": "scp",
+      "question": "Tras habilitar RCP, ¿qué política administrada se adjunta por defecto a todas las entidades?",
+      "options": [
+        {
+          "id": "a",
+          "text": "RCPFullAWSAccess"
+        },
+        {
+          "id": "b",
+          "text": "AdministratorAccess"
+        },
+        {
+          "id": "c",
+          "text": "ReadOnlyAccess"
+        },
+        {
+          "id": "d",
+          "text": "FullAWSAccess"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "RCPFullAWSAccess permite todo para no cambiar el comportamiento hasta que se adjunten RCP propias.",
+      "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+    },
+    {
+      "id": "GOV-025",
+      "type": "single",
+      "topic": "rcp-perimetro-datos",
+      "question": "Un equipo guarda una bucket policy más permisiva que la RCP vigente. ¿Qué ocurre cuando alguien externo intenta acceder?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Se elimina la RCP automáticamente"
+        },
+        {
+          "id": "b",
+          "text": "La bucket policy prevalece y se permite el acceso"
+        },
+        {
+          "id": "c",
+          "text": "La política se rechaza al guardarla"
+        },
+        {
+          "id": "d",
+          "text": "La RCP se evalúa igualmente en la autorización y puede denegar el acceso"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las RCP no impiden guardar políticas de recursos permisivas, pero se evalúan siempre al acceder al recurso.",
+      "reference": "https://aws.amazon.com/blogs/aws/introducing-resource-control-policies-rcps-a-new-authorization-policy"
+    },
+    {
+      "id": "GOV-026",
+      "type": "single",
+      "topic": "rcp-perimetro-datos",
+      "question": "¿Las RCP afectan a los recursos de la cuenta de administración?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Solo en la cuenta de administración"
+        },
+        {
+          "id": "b",
+          "text": "Sí, a todas las cuentas"
+        },
+        {
+          "id": "c",
+          "text": "No, pero sí a cuentas miembro que son administradores delegados"
+        },
+        {
+          "id": "d",
+          "text": "Nunca a administradores delegados"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Las RCP no tienen efecto sobre recursos de la cuenta de administración.",
+      "reference": "https://aws.amazon.com/blogs/aws/introducing-resource-control-policies-rcps-a-new-authorization-policy"
+    },
+    {
+      "id": "GOV-027",
+      "type": "single",
+      "topic": "politicas-declarativas",
+      "question": "Antes de aplicar una política declarativa, se quiere saber qué cuentas incumplirían. ¿Qué se consulta?",
+      "options": [
+        {
+          "id": "a",
+          "text": "El informe de estado de cuentas (account status report)"
+        },
+        {
+          "id": "b",
+          "text": "VPC Flow Logs"
+        },
+        {
+          "id": "c",
+          "text": "Un conformance pack"
+        },
+        {
+          "id": "d",
+          "text": "La política efectiva de una SCP"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "El informe muestra el estado actual de los atributos soportados por las declarativas para las cuentas en alcance.",
+      "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_declarative.html"
+    },
+    {
+      "id": "GOV-028",
+      "type": "single",
+      "topic": "politicas-declarativas",
+      "question": "¿Qué política de organización controla si los servicios de IA de AWS pueden usar tu contenido para mejorar sus servicios?",
+      "options": [
+        {
+          "id": "a",
+          "text": "AI services opt-out policy"
+        },
+        {
+          "id": "b",
+          "text": "Tag policy"
+        },
+        {
+          "id": "c",
+          "text": "SCP"
+        },
+        {
+          "id": "d",
+          "text": "Backup policy"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "La opt-out de servicios de IA controla la recolección de datos para servicios de IA en toda la organización.",
+      "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_declarative.html"
+    },
+    {
+      "id": "GOV-029",
+      "type": "single",
+      "topic": "control-tower",
+      "question": "Desde la versión 4.0 del landing zone, ¿qué cambió con los controles obligatorios?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Ya no se aplican por defecto"
+        },
+        {
+          "id": "b",
+          "text": "Solo se aplican a la cuenta de administración"
+        },
+        {
+          "id": "c",
+          "text": "Pasaron a ser proactivos"
+        },
+        {
+          "id": "d",
+          "text": "Se eliminaron del servicio"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los controles obligatorios dejaron de aplicarse por defecto desde el landing zone 4.0.",
+      "reference": "https://docs.aws.amazon.com/controltower/latest/controlreference/control-behavior.html"
+    },
+    {
+      "id": "GOV-030",
+      "type": "single",
+      "topic": "control-tower",
+      "question": "¿Qué mecanismo implementa los controles DETECTIVOS de Control Tower?",
+      "options": [
+        {
+          "id": "a",
+          "text": "CloudFormation Hooks"
+        },
+        {
+          "id": "b",
+          "text": "Reglas de AWS Config"
+        },
+        {
+          "id": "c",
+          "text": "Amazon GuardDuty"
+        },
+        {
+          "id": "d",
+          "text": "SCP"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Los detectivos usan Config; los preventivos, políticas de Organizations; los proactivos, CloudFormation Hooks.",
+      "reference": "https://docs.aws.amazon.com/controltower/latest/controlreference/control-behavior.html"
+    },
+    {
+      "id": "GOV-031",
+      "type": "single",
+      "topic": "acceso-root-centralizado",
+      "question": "¿Cuál es la duración por defecto y máxima de una sesión root privilegiada?",
+      "options": [
+        {
+          "id": "a",
+          "text": "15 minutos"
+        },
+        {
+          "id": "b",
+          "text": "1 hora"
+        },
+        {
+          "id": "c",
+          "text": "24 horas"
+        },
+        {
+          "id": "d",
+          "text": "12 horas"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las sesiones root son de corta duración y limitadas a una tarea.",
+      "reference": "https://aws.amazon.com/blogs/security/secure-root-user-access-for-member-accounts-in-aws-organizations"
+    },
+    {
+      "id": "GOV-032",
+      "type": "single",
+      "topic": "acceso-root-centralizado",
+      "question": "¿Qué clave de condición limita qué tareas root puede ejecutar cada principal con sts:AssumeRoot?",
+      "options": [
+        {
+          "id": "a",
+          "text": "aws:PrincipalOrgID"
+        },
+        {
+          "id": "b",
+          "text": "aws:SourceVpce"
+        },
+        {
+          "id": "c",
+          "text": "sts:ExternalId"
+        },
+        {
+          "id": "d",
+          "text": "sts:TaskPolicyArn"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "TaskPolicyArn restringe qué política de tarea (por ejemplo S3UnlockBucketPolicy) puede usar cada principal.",
+      "reference": "https://aws.amazon.com/blogs/security/secure-root-user-access-for-member-accounts-in-aws-organizations"
+    },
+    {
+      "id": "GOV-033",
+      "type": "single",
+      "topic": "acceso-root-centralizado",
+      "question": "Tras habilitar la gestión centralizada de credenciales root, una cuenta nueva se crea sin contraseña root. ¿Qué implica?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Puede recuperarla por correo siempre"
+        },
+        {
+          "id": "b",
+          "text": "No puede recuperar la contraseña hasta que se vuelva a habilitar la recuperación de cuenta"
+        },
+        {
+          "id": "c",
+          "text": "Hereda la contraseña de la cuenta de administración"
+        },
+        {
+          "id": "d",
+          "text": "Queda sin usuario root"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Las cuentas creadas tras habilitar la función no tienen contraseña root ni recuperación de cuenta.",
+      "reference": "https://aws.amazon.com/blogs/security/secure-root-user-access-for-member-accounts-in-aws-organizations"
+    },
+    {
+      "id": "GOV-034",
+      "type": "single",
+      "topic": "firewall-manager",
+      "question": "¿Cuál es la diferencia entre remediación automática y manual en una política de Firewall Manager?",
+      "options": [
+        {
+          "id": "a",
+          "text": "En manual elimina recursos"
+        },
+        {
+          "id": "b",
+          "text": "En automático aplica las reglas a recursos no conformes y vigila la deriva; en manual crea las reglas sin imponerlas"
+        },
+        {
+          "id": "c",
+          "text": "No hay diferencia"
+        },
+        {
+          "id": "d",
+          "text": "En automático solo notifica"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "En modo manual se pueden revisar y aplicar los cambios cuenta por cuenta o cambiar luego a automático.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/working-with-policies"
+    },
+    {
+      "id": "GOV-035",
+      "type": "single",
+      "topic": "service-catalog-ram",
+      "question": "Se quiere que un producto actualizado llegue automáticamente a todas las cuentas. ¿Cómo se comparte el portafolio?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Con StackSets, que mantiene sincronizadas las copias"
+        },
+        {
+          "id": "b",
+          "text": "Importando y recompartiendo productos"
+        },
+        {
+          "id": "c",
+          "text": "Con AWS Organizations (referencia sincronizada), no con StackSets"
+        },
+        {
+          "id": "d",
+          "text": "Enviando la plantilla por correo"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Compartir portafolios da una referencia que se mantiene sincronizada; StackSets crea copias que deben redesplegarse. Los productos importados no se pueden recompartir.",
+      "reference": "https://docs.aws.amazon.com/servicecatalog/latest/adminguide/catalogs_portfolios_sharing.html"
+    },
+    {
+      "id": "GOV-036",
+      "type": "single",
+      "topic": "config-cumplimiento",
+      "question": "¿Cada cuánto pueden ejecutarse las reglas periódicas de AWS Config?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Cada segundo"
+        },
+        {
+          "id": "b",
+          "text": "Solo una vez al mes"
+        },
+        {
+          "id": "c",
+          "text": "Cada 1, 3, 6, 12 o 24 horas"
+        },
+        {
+          "id": "d",
+          "text": "Solo al crear el recurso"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Las reglas pueden dispararse por cambio de configuración o periódicamente con esas frecuencias.",
+      "reference": "https://aws.amazon.com/config/faq/"
+    },
+    {
+      "id": "GOV-037",
+      "type": "single",
+      "topic": "config-cumplimiento",
+      "question": "¿Para qué sirve un agregador de AWS Config?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Para bloquear cambios"
+        },
+        {
+          "id": "b",
+          "text": "Para cifrar recursos"
+        },
+        {
+          "id": "c",
+          "text": "Para reunir configuración y cumplimiento de varias cuentas y Regiones en una sola vista; no despliega reglas"
+        },
+        {
+          "id": "d",
+          "text": "Para desplegar reglas en todas las cuentas"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "La agregación es para reportes; para desplegar reglas se usan conformance packs o StackSets.",
+      "reference": "https://aws.amazon.com/config/faq/"
+    },
+    {
+      "id": "GOV-038",
+      "type": "single",
+      "topic": "security-hub-cspm",
+      "question": "¿Qué ofrece la puntuación de seguridad de Security Hub CSPM con un administrador delegado?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una puntuación solo de la cuenta de administración"
+        },
+        {
+          "id": "b",
+          "text": "Una lista de CVEs"
+        },
+        {
+          "id": "c",
+          "text": "El costo mensual"
+        },
+        {
+          "id": "d",
+          "text": "Una puntuación por estándar que abarca todas las cuentas de la organización"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Con Región de agregación abarca las Regiones enlazadas y con administrador delegado, todas las cuentas.",
+      "reference": "https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-standards.html"
+    },
+    {
+      "id": "GOV-039",
+      "type": "single",
+      "topic": "audit-manager-artifact",
+      "question": "¿Qué se aclara en la documentación sobre AWS Audit Manager?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Solo funciona con Artifact"
+        },
+        {
+          "id": "b",
+          "text": "Bloquea recursos no conformes"
+        },
+        {
+          "id": "c",
+          "text": "Sustituye a un auditor legal"
+        },
+        {
+          "id": "d",
+          "text": "Ayuda a recoger evidencia pero no evalúa el cumplimiento por sí mismo, y ya no está abierto a nuevos clientes"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Audit Manager automatiza la recolección de evidencia; no sustituye a asesores de cumplimiento.",
+      "reference": "https://docs.aws.amazon.com/audit-manager/latest/userguide/what-is.html"
+    },
+    {
+      "id": "GOV-040",
+      "type": "single",
+      "topic": "audit-manager-artifact",
+      "question": "¿Qué permiso necesita un usuario no administrador para aceptar un acuerdo en AWS Artifact?",
+      "options": [
+        {
+          "id": "a",
+          "text": "s3:GetObject"
+        },
+        {
+          "id": "b",
+          "text": "organizations:CloseAccount"
+        },
+        {
+          "id": "c",
+          "text": "iam:PassRole"
+        },
+        {
+          "id": "d",
+          "text": "artifact:AcceptAgreement"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Root y administradores pueden descargar todo; los demás necesitan permisos como artifact:AcceptAgreement o artifact:DownloadAgreement.",
+      "reference": "https://docs.aws.amazon.com/audit-manager/latest/userguide/what-is.html"
+    },
+    {
+      "id": "GOV-041",
+      "type": "single",
+      "topic": "iac-validacion",
+      "question": "Una plantilla de CloudFormation tiene un tipo de recurso mal escrito. ¿Qué herramienta detecta el error estructural?",
+      "options": [
+        {
+          "id": "a",
+          "text": "CloudFormation Guard"
+        },
+        {
+          "id": "b",
+          "text": "cfn-lint"
+        },
+        {
+          "id": "c",
+          "text": "Macie"
+        },
+        {
+          "id": "d",
+          "text": "Detective"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "cfn-lint inspecciona la estructura de plantillas; Guard evalúa reglas de política propias.",
+      "reference": "https://docs.aws.amazon.com/cfn-guard/latest/ug/what-is-guard.html"
+    },
+    {
+      "id": "GOV-042",
+      "type": "single",
+      "topic": "iac-validacion",
+      "question": "Cada cuenta nueva debe recibir automáticamente una línea base de roles de seguridad. ¿Qué se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Tag policies"
+        },
+        {
+          "id": "b",
+          "text": "Un conformance pack"
+        },
+        {
+          "id": "c",
+          "text": "Una plantilla manual por cuenta"
+        },
+        {
+          "id": "d",
+          "text": "StackSets con permisos administrados por servicio y despliegue automático"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "StackSets despliega a cuentas y Regiones objetivo y puede incorporar automáticamente cuentas nuevas de la OU.",
+      "reference": "https://docs.aws.amazon.com/cfn-guard/latest/ug/what-is-guard.html"
+    },
+    {
+      "id": "GOV-043",
+      "type": "single",
+      "topic": "etiquetado-gobierno",
+      "question": "Se debe exigir que todo recurso nuevo lleve la etiqueta CostCenter con valores válidos. ¿Qué combinación?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una regla de WAF"
+        },
+        {
+          "id": "b",
+          "text": "SCP para exigir la presencia de la etiqueta y tag policy para los valores permitidos"
+        },
+        {
+          "id": "c",
+          "text": "Solo tag policy"
+        },
+        {
+          "id": "d",
+          "text": "Solo Config"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Las tag policies no exigen la presencia de la etiqueta; las SCP sí pueden denegar la creación sin ella.",
+      "reference": "https://aws.amazon.com/blogs/mt/implement-aws-resource-tagging-strategy-using-aws-tag-policies-and-service-control-policies-scps"
+    },
+    {
+      "id": "GOV-044",
+      "type": "multiple",
+      "topic": "organizations-estructura",
+      "question": "¿Qué recomendaciones aplican a la cuenta de administración de la organización? (Elige TRES)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Delegar la administración de servicios siempre que sea posible"
+        },
+        {
+          "id": "b",
+          "text": "Usar SCP para restringir a su propio usuario administrador"
+        },
+        {
+          "id": "c",
+          "text": "Ejecutar aquí las aplicaciones de producción"
+        },
+        {
+          "id": "d",
+          "text": "Usar un correo administrado por la empresa y MFA para todos"
+        },
+        {
+          "id": "e",
+          "text": "Mantener cargas de trabajo mínimas"
+        }
+      ],
+      "correct": [
+        "a",
+        "d",
+        "e"
+      ],
+      "explanation": "Las SCP no afectan a la cuenta de administración, por lo que debe minimizarse su uso y delegarse la administración.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/org-management.html"
+    },
+    {
+      "id": "GOV-045",
+      "type": "multiple",
+      "topic": "control-tower",
+      "question": "¿Qué afirmaciones sobre los controles de Control Tower son correctas? (Elige TRES)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Los detectivos usan reglas de AWS Config"
+        },
+        {
+          "id": "b",
+          "text": "Los preventivos usan SCP, RCP y políticas declarativas"
+        },
+        {
+          "id": "c",
+          "text": "Los proactivos usan GuardDuty"
+        },
+        {
+          "id": "d",
+          "text": "Los proactivos usan CloudFormation Hooks"
+        },
+        {
+          "id": "e",
+          "text": "Los preventivos usan Macie"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "d"
+      ],
+      "explanation": "Cada comportamiento tiene su mecanismo; la guía (obligatoria, muy recomendada, electiva) es independiente del comportamiento.",
+      "reference": "https://docs.aws.amazon.com/controltower/latest/controlreference/control-behavior.html"
+    },
+    {
+      "id": "GOV-046",
+      "type": "ordering",
+      "topic": "control-tower",
+      "question": "Ordena el ciclo de uso de un control proactivo de Control Tower al aprovisionar un recurso con CloudFormation.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un desarrollador crea una pila de CloudFormation"
+        },
+        {
+          "id": "b",
+          "text": "El Hook evalúa la plantilla antes de aprovisionar"
+        },
+        {
+          "id": "c",
+          "text": "El control devuelve PASS, FAIL o SKIP"
+        },
+        {
+          "id": "d",
+          "text": "Si el resultado es FAIL, se bloquea el recurso no conforme"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "Los controles proactivos escanean los recursos antes de aprovisionarlos y bloquean los no conformes.",
+      "reference": "https://docs.aws.amazon.com/controltower/latest/controlreference/control-behavior.html"
+    },
+    {
+      "id": "GOV-047",
+      "type": "matching",
+      "topic": "firewall-manager",
+      "question": "Empareja cada política de Firewall Manager con lo que aplica.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "AWS WAF"
+        },
+        {
+          "id": "p2",
+          "text": "Grupos de seguridad de VPC"
+        },
+        {
+          "id": "p3",
+          "text": "Network Firewall"
+        },
+        {
+          "id": "p4",
+          "text": "Shield Advanced"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Cifrado de volúmenes EBS"
+        },
+        {
+          "id": "b",
+          "text": "Protecciones DDoS para los tipos de recurso indicados"
+        },
+        {
+          "id": "c",
+          "text": "Una web ACL a los recursos protegidos"
+        },
+        {
+          "id": "d",
+          "text": "Protección de red en las VPC de la organización"
+        },
+        {
+          "id": "e",
+          "text": "Un conjunto base de reglas y control de los SG en uso"
+        }
+      ],
+      "correct": {
+        "p1": "c",
+        "p2": "e",
+        "p3": "d",
+        "p4": "b"
+      },
+      "explanation": "Cada política es de un solo tipo; el cifrado de EBS no es una política de Firewall Manager.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/working-with-policies"
+    },
+    {
+      "id": "GOV-048",
+      "type": "matching",
+      "topic": "audit-manager-artifact",
+      "question": "Empareja cada necesidad con el servicio de cumplimiento.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Descargar el informe SOC o ISO de AWS"
+        },
+        {
+          "id": "p2",
+          "text": "Recolectar evidencia continua de tus controles"
+        },
+        {
+          "id": "p3",
+          "text": "Puntuar tu postura frente a estándares"
+        },
+        {
+          "id": "p4",
+          "text": "Revisar una carga de trabajo frente a buenas prácticas"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Well-Architected Tool"
+        },
+        {
+          "id": "b",
+          "text": "Amazon Macie"
+        },
+        {
+          "id": "c",
+          "text": "AWS Artifact"
+        },
+        {
+          "id": "d",
+          "text": "Security Hub CSPM"
+        },
+        {
+          "id": "e",
+          "text": "AWS Audit Manager"
+        }
+      ],
+      "correct": {
+        "p1": "c",
+        "p2": "e",
+        "p3": "d",
+        "p4": "a"
+      },
+      "explanation": "Artifact da evidencia de AWS; Audit Manager recoge tu evidencia; Security Hub puntúa postura; la Well-Architected Tool es una revisión basada en preguntas.",
+      "reference": "https://docs.aws.amazon.com/audit-manager/latest/userguide/what-is.html"
     }
   ]
 }

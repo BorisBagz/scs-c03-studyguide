@@ -556,6 +556,620 @@
       },
       "explanation": "Detective investiga, SSM Automation ejecuta runbooks, FIS inyecta fallos y Resilience Hub evalúa políticas de resiliencia (RTO/RPO).",
       "reference": "https://docs.aws.eu/systems-manager/latest/userguide/OpsCenter.html"
+    },
+    {
+      "id": "INC-019",
+      "type": "single",
+      "topic": "correlacion-validacion",
+      "question": "Se debe determinar el alcance de una credencial comprometida. ¿Qué se busca?",
+      "options": [
+        {
+          "id": "a",
+          "text": "En Config sin CloudTrail"
+        },
+        {
+          "id": "b",
+          "text": "Solo en la Región de la instancia"
+        },
+        {
+          "id": "c",
+          "text": "En los logs de ALB únicamente"
+        },
+        {
+          "id": "d",
+          "text": "En CloudTrail, por accessKeyId o ARN de la sesión, en todas las Regiones y cuentas"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "CloudTrail registra cada llamada de API; buscar por la credencial revela qué hizo el actor.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings-severity.html"
+    },
+    {
+      "id": "INC-020",
+      "type": "single",
+      "topic": "correlacion-validacion",
+      "question": "Un hallazgo de GuardDuty parece benigno. ¿Cómo se confirma si es un falso positivo?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Deshabilitando GuardDuty"
+        },
+        {
+          "id": "b",
+          "text": "Cambiando el trail"
+        },
+        {
+          "id": "c",
+          "text": "Eliminándolo sin investigar"
+        },
+        {
+          "id": "d",
+          "text": "Revisando el contexto en Detective y CloudTrail y, si es benigno, suprimiendo con una regla acotada"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Validar con contexto evita tanto ignorar un ataque real como suprimir en exceso.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings-severity.html"
+    },
+    {
+      "id": "INC-021",
+      "type": "single",
+      "topic": "correlacion-validacion",
+      "question": "Se quiere correlacionar el acceso a S3 con el tráfico de red de un actor. ¿Qué fuentes se combinan?",
+      "options": [
+        {
+          "id": "a",
+          "text": "CloudTrail data events de S3 y VPC Flow Logs"
+        },
+        {
+          "id": "b",
+          "text": "Solo Config"
+        },
+        {
+          "id": "c",
+          "text": "Solo Artifact"
+        },
+        {
+          "id": "d",
+          "text": "Solo Macie"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los data events muestran qué objetos se accedieron y los flow logs, desde dónde y con qué tráfico.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings-severity.html"
+    },
+    {
+      "id": "INC-022",
+      "type": "single",
+      "topic": "correlacion-validacion",
+      "question": "Se necesita consultar logs antiguos de forma económica durante una investigación. ¿Qué servicio?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Amazon Athena sobre los logs en S3"
+        },
+        {
+          "id": "b",
+          "text": "Una consulta manual descargando archivos"
+        },
+        {
+          "id": "c",
+          "text": "AWS Backup"
+        },
+        {
+          "id": "d",
+          "text": "Un clúster permanente de OpenSearch"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Athena consulta logs en S3 sin infraestructura y se paga por consulta.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings-severity.html"
+    },
+    {
+      "id": "INC-023",
+      "type": "single",
+      "topic": "detective-causa-raiz",
+      "question": "Se quiere ver todos los hallazgos relacionados con el mismo ataque. ¿Qué característica de Detective?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Auditoría de Config"
+        },
+        {
+          "id": "b",
+          "text": "Finding groups"
+        },
+        {
+          "id": "c",
+          "text": "Trusted Advisor"
+        },
+        {
+          "id": "d",
+          "text": "Resource Explorer"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Los finding groups agrupan hallazgos relacionados para investigarlos como una sola actividad.",
+      "reference": "https://docs.aws.amazon.com/detective/latest/userguide/detective-terms-concepts.html"
+    },
+    {
+      "id": "INC-024",
+      "type": "single",
+      "topic": "detective-causa-raiz",
+      "question": "Se quiere habilitar Detective en toda la organización. ¿Cómo?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Con un administrador delegado de Detective desde Organizations"
+        },
+        {
+          "id": "b",
+          "text": "Con una tag policy"
+        },
+        {
+          "id": "c",
+          "text": "Cuenta por cuenta sin delegación"
+        },
+        {
+          "id": "d",
+          "text": "Con una SCP"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "El administrador delegado habilita y gestiona Detective para las cuentas miembro.",
+      "reference": "https://docs.aws.amazon.com/detective/latest/userguide/detective-terms-concepts.html"
+    },
+    {
+      "id": "INC-025",
+      "type": "single",
+      "topic": "ir-plan-runbooks",
+      "question": "Se quiere estandarizar la respuesta a un hallazgo recurrente de GuardDuty. ¿Qué diseño?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un playbook con un runbook de Systems Manager Automation disparado por EventBridge"
+        },
+        {
+          "id": "b",
+          "text": "Un documento PDF"
+        },
+        {
+          "id": "c",
+          "text": "Una revisión manual semanal"
+        },
+        {
+          "id": "d",
+          "text": "Una regla de Config periódica"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "El runbook ejecutable es repetible y deja historial de ejecuciones auditable.",
+      "reference": "https://docs.aws.eu/systems-manager/latest/userguide/OpsCenter.html"
+    },
+    {
+      "id": "INC-026",
+      "type": "single",
+      "topic": "ir-plan-runbooks",
+      "question": "Se necesita centralizar elementos de trabajo operativos y de seguridad con acciones de remediación. ¿Qué se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Systems Manager OpsCenter (con integración a Security Hub)"
+        },
+        {
+          "id": "b",
+          "text": "Macie"
+        },
+        {
+          "id": "c",
+          "text": "AWS Artifact"
+        },
+        {
+          "id": "d",
+          "text": "CloudFront"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "OpsCenter consolida OpsItems con acciones de remediación asociadas.",
+      "reference": "https://docs.aws.eu/systems-manager/latest/userguide/OpsCenter.html"
+    },
+    {
+      "id": "INC-027",
+      "type": "single",
+      "topic": "ir-preparacion",
+      "question": "Los respondedores deben poder actuar rápido en cualquier cuenta. ¿Qué se prepara?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Crear los roles durante el incidente"
+        },
+        {
+          "id": "b",
+          "text": "Claves de acceso compartidas entre analistas"
+        },
+        {
+          "id": "c",
+          "text": "Roles de respuesta entre cuentas preaprovisionados y probados, con acceso monitoreado"
+        },
+        {
+          "id": "d",
+          "text": "Acceso root para todos"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Tener roles preparados reduce el tiempo de respuesta y mantiene trazabilidad.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/preparation-summary.html"
+    },
+    {
+      "id": "INC-028",
+      "type": "single",
+      "topic": "ir-preparacion",
+      "question": "Se quiere preservar evidencia aunque la cuenta de la carga de trabajo se comprometa. ¿Qué diseño?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Logs solo en la misma cuenta"
+        },
+        {
+          "id": "b",
+          "text": "Logs en una cuenta de archivo y análisis forense en una cuenta aislada"
+        },
+        {
+          "id": "c",
+          "text": "Almacenar la evidencia en una instancia de producción"
+        },
+        {
+          "id": "d",
+          "text": "Eliminar logs tras 24 horas"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Separar cuentas evita que un atacante altere o borre la evidencia.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/preparation-summary.html"
+    },
+    {
+      "id": "INC-029",
+      "type": "single",
+      "topic": "ir-preparacion",
+      "question": "Se quiere aplicar Shield Advanced a todas las cuentas nuevas de la organización. ¿Qué servicio?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Macie"
+        },
+        {
+          "id": "b",
+          "text": "AWS Artifact"
+        },
+        {
+          "id": "c",
+          "text": "Detective"
+        },
+        {
+          "id": "d",
+          "text": "AWS Firewall Manager"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Firewall Manager aplica políticas de Shield Advanced a recursos y cuentas de la organización.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/preparation-summary.html"
+    },
+    {
+      "id": "INC-030",
+      "type": "single",
+      "topic": "ir-preparacion",
+      "question": "Se quiere evitar una factura inesperada por un ataque DDoS. ¿Qué característica?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una alarma de CloudWatch"
+        },
+        {
+          "id": "b",
+          "text": "Un presupuesto de Billing"
+        },
+        {
+          "id": "c",
+          "text": "Cost protection de Shield Advanced"
+        },
+        {
+          "id": "d",
+          "text": "Shield Standard"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Shield Advanced incluye protección de costos para picos causados por un ataque DDoS en recursos protegidos.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/preparation-summary.html"
+    },
+    {
+      "id": "INC-031",
+      "type": "single",
+      "topic": "remediacion-automatica",
+      "question": "Se quiere aislar y capturar evidencia de instancias EC2 comprometidas sin intervención manual. ¿Qué solución?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Automated Forensics Orchestrator"
+        },
+        {
+          "id": "b",
+          "text": "Una política de bucket"
+        },
+        {
+          "id": "c",
+          "text": "Un script manual"
+        },
+        {
+          "id": "d",
+          "text": "Una regla de WAF"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "La solución orquesta aislamiento y captura de evidencia automáticamente.",
+      "reference": "https://docs.aws.eu/systems-manager/latest/userguide/automation-action-approve.html"
+    },
+    {
+      "id": "INC-032",
+      "type": "single",
+      "topic": "remediacion-automatica",
+      "question": "Una acción destructiva de un runbook requiere autorización humana. ¿Qué acción de SSM Automation se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "aws:waitForAwsResourceProperty"
+        },
+        {
+          "id": "b",
+          "text": "aws:executeScript"
+        },
+        {
+          "id": "c",
+          "text": "aws:sleep"
+        },
+        {
+          "id": "d",
+          "text": "aws:approve"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "aws:approve pausa la automatización hasta que un aprobador autorizado la acepte.",
+      "reference": "https://docs.aws.eu/systems-manager/latest/userguide/automation-action-approve.html"
+    },
+    {
+      "id": "INC-033",
+      "type": "single",
+      "topic": "pruebas-fis-resilience",
+      "question": "Se desea comprobar que las alarmas detectan un fallo y que el runbook recupera el servicio. ¿Qué se ejecuta?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una consulta de Athena"
+        },
+        {
+          "id": "b",
+          "text": "Un conformance pack"
+        },
+        {
+          "id": "c",
+          "text": "Un trail de datos"
+        },
+        {
+          "id": "d",
+          "text": "Experimentos de AWS FIS, por ejemplo los recomendados por Resilience Hub"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "FIS inyecta fallos controlados para validar detección y recuperación.",
+      "reference": "https://docs.aws.amazon.com/en_us/fis/latest/userguide/experiment-templates.html"
+    },
+    {
+      "id": "INC-034",
+      "type": "single",
+      "topic": "pruebas-fis-resilience",
+      "question": "¿Qué detecta la detección de deriva (drift) de Resilience Hub?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Cambios que rompen la política de resiliencia de la aplicación"
+        },
+        {
+          "id": "b",
+          "text": "Contraseñas débiles"
+        },
+        {
+          "id": "c",
+          "text": "Certificados caducados"
+        },
+        {
+          "id": "d",
+          "text": "Archivos infectados con malware"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Resilience Hub compara la aplicación con su política de resiliencia (RTO/RPO) y detecta cambios que la incumplen.",
+      "reference": "https://docs.aws.amazon.com/en_us/fis/latest/userguide/experiment-templates.html"
+    },
+    {
+      "id": "INC-035",
+      "type": "single",
+      "topic": "contencion-recuperacion",
+      "question": "Se quiere restaurar datos de S3 tras un borrado malicioso con versionado activo. ¿Qué se hace?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Habilitar CloudFront"
+        },
+        {
+          "id": "b",
+          "text": "Recuperar las versiones anteriores de los objetos"
+        },
+        {
+          "id": "c",
+          "text": "Reiniciar el bucket"
+        },
+        {
+          "id": "d",
+          "text": "Cambiar el nombre del bucket"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "El versionado conserva versiones previas, y Object Lock impide su eliminación.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/source-containment.html"
+    },
+    {
+      "id": "INC-036",
+      "type": "multiple",
+      "topic": "contencion-recuperacion",
+      "question": "¿Qué acciones contienen un incidente con credenciales de rol comprometidas? (Elige TRES)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Eliminar el trail para reducir ruido"
+        },
+        {
+          "id": "b",
+          "text": "Corregir el origen de la fuga"
+        },
+        {
+          "id": "c",
+          "text": "Esperar a que expiren sin acción"
+        },
+        {
+          "id": "d",
+          "text": "Revocar las sesiones activas con una denegación por aws:TokenIssueTime"
+        },
+        {
+          "id": "e",
+          "text": "Investigar la actividad en CloudTrail"
+        }
+      ],
+      "correct": [
+        "b",
+        "d",
+        "e"
+      ],
+      "explanation": "La contención combina revocar sesiones, corregir el origen y analizar el alcance con CloudTrail.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/source-containment.html"
+    },
+    {
+      "id": "INC-037",
+      "type": "ordering",
+      "topic": "ir-preparacion",
+      "question": "Ordena el ciclo de mejora continua del plan de respuesta a incidentes.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Preparar roles, runbooks y registros"
+        },
+        {
+          "id": "b",
+          "text": "Detectar y analizar el incidente"
+        },
+        {
+          "id": "c",
+          "text": "Contener, erradicar y recuperar"
+        },
+        {
+          "id": "d",
+          "text": "Documentar lecciones aprendidas y actualizar el plan"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "El ciclo se repite con simulaciones periódicas para mejorar la preparación.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/preparation-summary.html"
+    },
+    {
+      "id": "INC-038",
+      "type": "matching",
+      "topic": "contencion-recuperacion",
+      "question": "Empareja cada situación con la contención adecuada.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Bloquear una IP maliciosa contra una app web"
+        },
+        {
+          "id": "p2",
+          "text": "Impedir la resolución de dominios maliciosos"
+        },
+        {
+          "id": "p3",
+          "text": "Invalidar credenciales temporales robadas"
+        },
+        {
+          "id": "p4",
+          "text": "Restaurar tras ransomware"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "IP set de AWS WAF"
+        },
+        {
+          "id": "b",
+          "text": "Denegación por aws:TokenIssueTime"
+        },
+        {
+          "id": "c",
+          "text": "Amazon Macie"
+        },
+        {
+          "id": "d",
+          "text": "AWS Backup con Vault Lock en otra cuenta"
+        },
+        {
+          "id": "e",
+          "text": "Route 53 Resolver DNS Firewall"
+        }
+      ],
+      "correct": {
+        "p1": "a",
+        "p2": "e",
+        "p3": "b",
+        "p4": "d"
+      },
+      "explanation": "Cada contención actúa en una capa distinta; Macie no contiene incidentes.",
+      "reference": "https://docs.aws.amazon.com/security-ir/latest/userguide/source-containment.html"
     }
   ]
 }
