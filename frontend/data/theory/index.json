@@ -1,379 +1,596 @@
 {
- "version": 1,
- "source": "AWS Certified Security - Specialty Exam Guide (SCS-C03) v1.0, marzo 2026",
- "domains": {
-  "detection": {
-   "tasks": [
-    {
-     "id": "1.1",
-     "title": "Diseñar e implementar monitoreo y alertas para una cuenta u organización"
+  "version": 1,
+  "source": "AWS Certified Security - Specialty Exam Guide (SCS-C03) v1.0, marzo 2026",
+  "domains": {
+    "detection": {
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Diseñar e implementar monitoreo y alertas para una cuenta u organización"
+        },
+        {
+          "id": "1.2",
+          "title": "Diseñar e implementar soluciones de logging"
+        },
+        {
+          "id": "1.3",
+          "title": "Solucionar problemas de monitoreo, logging y alertas"
+        }
+      ],
+      "topics": [
+        {
+          "id": "cloudwatch-monitoreo",
+          "title": "CloudWatch: métricas, alarmas y dashboards",
+          "summary": "Cómo detectar eventos anómalos con métricas, filtros de métricas, alarmas y health checks.",
+          "tasks": [
+            "1.1"
+          ],
+          "services": [
+            "CloudWatch",
+            "Metric filters",
+            "Alarms"
+          ]
+        },
+        {
+          "id": "alertas-eventbridge-sns",
+          "title": "Alertas y automatización: EventBridge, SNS y User Notifications",
+          "summary": "Enrutar hallazgos y eventos a notificaciones y respuestas automáticas.",
+          "tasks": [
+            "1.1"
+          ],
+          "services": [
+            "EventBridge",
+            "SNS",
+            "User Notifications"
+          ]
+        },
+        {
+          "id": "guardduty",
+          "title": "Amazon GuardDuty",
+          "summary": "Detección de amenazas: fuentes de datos, planes de protección, hallazgos y administración multicuenta.",
+          "tasks": [
+            "1.1"
+          ],
+          "services": [
+            "GuardDuty"
+          ]
+        },
+        {
+          "id": "security-hub",
+          "title": "AWS Security Hub",
+          "summary": "Agregación de hallazgos, estándares de seguridad, automatizaciones y administración central.",
+          "tasks": [
+            "1.1"
+          ],
+          "services": [
+            "Security Hub"
+          ]
+        },
+        {
+          "id": "macie",
+          "title": "Amazon Macie",
+          "summary": "Descubrimiento y clasificación de datos sensibles en S3 y hallazgos de política.",
+          "tasks": [
+            "1.1"
+          ],
+          "services": [
+            "Macie",
+            "S3"
+          ]
+        },
+        {
+          "id": "config-ssm-evaluaciones",
+          "title": "Evaluaciones automáticas: Config, conformance packs y State Manager",
+          "summary": "Evaluar configuración de forma continua y automatizar investigaciones periódicas.",
+          "tasks": [
+            "1.1"
+          ],
+          "services": [
+            "AWS Config",
+            "Systems Manager"
+          ]
+        },
+        {
+          "id": "cloudtrail",
+          "title": "AWS CloudTrail",
+          "summary": "Tipos de eventos, trails de organización, integridad de logs y almacenamiento.",
+          "tasks": [
+            "1.2"
+          ],
+          "services": [
+            "CloudTrail",
+            "S3",
+            "KMS"
+          ]
+        },
+        {
+          "id": "cloudtrail-lake",
+          "title": "CloudTrail Lake",
+          "summary": "Data store administrado de eventos con consultas SQL y federación.",
+          "tasks": [
+            "1.2"
+          ],
+          "services": [
+            "CloudTrail Lake"
+          ]
+        },
+        {
+          "id": "cloudwatch-logs",
+          "title": "CloudWatch Logs y agentes",
+          "summary": "Ingesta, retención, Logs Insights, suscripciones y cuenta central de logging.",
+          "tasks": [
+            "1.2"
+          ],
+          "services": [
+            "CloudWatch Logs",
+            "CloudWatch Agent"
+          ]
+        },
+        {
+          "id": "logs-de-red",
+          "title": "Logs de red y servicios",
+          "summary": "VPC Flow Logs, Transit Gateway, Route 53 Resolver y logs de WAF, ELB y CloudFront.",
+          "tasks": [
+            "1.2"
+          ],
+          "services": [
+            "VPC Flow Logs",
+            "Route 53 Resolver",
+            "WAF"
+          ]
+        },
+        {
+          "id": "security-lake",
+          "title": "Amazon Security Lake",
+          "summary": "Data lake de seguridad en formato OCSF con suscriptores y agregación entre regiones.",
+          "tasks": [
+            "1.2"
+          ],
+          "services": [
+            "Security Lake",
+            "OCSF"
+          ]
+        },
+        {
+          "id": "analisis-de-logs",
+          "title": "Analizar, normalizar y correlacionar logs",
+          "summary": "Athena, Logs Insights, OpenSearch Service, Lambda y Managed Grafana.",
+          "tasks": [
+            "1.2"
+          ],
+          "services": [
+            "Athena",
+            "OpenSearch",
+            "Managed Grafana"
+          ]
+        },
+        {
+          "id": "troubleshooting-deteccion",
+          "title": "Troubleshooting de monitoreo y logging",
+          "summary": "Por qué faltan logs o alertas: permisos, agentes, configuración y destinos.",
+          "tasks": [
+            "1.3"
+          ],
+          "services": [
+            "CloudWatch Agent",
+            "Lambda",
+            "API Gateway"
+          ]
+        }
+      ]
     },
-    {
-     "id": "1.2",
-     "title": "Diseñar e implementar soluciones de logging"
+    "incident-response": {
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Diseñar y probar un plan de respuesta a incidentes"
+        },
+        {
+          "id": "2.2",
+          "title": "Responder a eventos de seguridad"
+        }
+      ],
+      "topics": [
+        {
+          "id": "ir-plan-runbooks",
+          "title": "Plan de respuesta, playbooks y runbooks",
+          "summary": "Cómo documentar y automatizar la respuesta: RACI, playbooks, OpsCenter y notebooks.",
+          "tasks": [
+            "2.1"
+          ],
+          "services": [
+            "OpsCenter",
+            "Systems Manager",
+            "SageMaker AI"
+          ]
+        },
+        {
+          "id": "ir-preparacion",
+          "title": "Preparación: acceso, herramientas, blast radius y Shield Advanced",
+          "summary": "Estructura de cuentas, acceso de respondedores, minimizar el radio de impacto y protección DDoS.",
+          "tasks": [
+            "2.1"
+          ],
+          "services": [
+            "Shield Advanced",
+            "Organizations",
+            "IAM"
+          ]
+        },
+        {
+          "id": "pruebas-fis-resilience",
+          "title": "Probar el plan: FIS y Resilience Hub",
+          "summary": "Experimentos de caos con stop conditions y evaluación de RTO/RPO.",
+          "tasks": [
+            "2.1"
+          ],
+          "services": [
+            "Fault Injection Service",
+            "Resilience Hub"
+          ]
+        },
+        {
+          "id": "remediacion-automatica",
+          "title": "Remediación automática: SSM, Step Functions, Lambda y ARC",
+          "summary": "Qué herramienta usar para automatizar la respuesta y recuperar disponibilidad.",
+          "tasks": [
+            "2.1"
+          ],
+          "services": [
+            "SSM Automation",
+            "Step Functions",
+            "Lambda",
+            "ARC"
+          ]
+        },
+        {
+          "id": "forense-automatizada-ec2",
+          "title": "Automated Forensics Orchestrator para EC2",
+          "summary": "Adquisición de memoria y disco, aislamiento e investigación en una cuenta forense.",
+          "tasks": [
+            "2.1"
+          ],
+          "services": [
+            "Step Functions",
+            "EventBridge",
+            "Security Hub"
+          ]
+        },
+        {
+          "id": "evidencia-forense",
+          "title": "Capturar y preservar evidencia forense",
+          "summary": "Orden de volatilidad, snapshots, memoria, cadena de custodia y cuenta forense.",
+          "tasks": [
+            "2.2"
+          ],
+          "services": [
+            "EBS",
+            "S3 Object Lock",
+            "KMS"
+          ]
+        },
+        {
+          "id": "correlacion-validacion",
+          "title": "Correlacionar logs y validar hallazgos",
+          "summary": "Determinar alcance e impacto de un evento uniendo CloudTrail, flow logs y servicios de seguridad.",
+          "tasks": [
+            "2.2"
+          ],
+          "services": [
+            "CloudTrail",
+            "Athena",
+            "Logs Insights",
+            "Security Hub"
+          ]
+        },
+        {
+          "id": "detective-causa-raiz",
+          "title": "Amazon Detective y análisis de causa raíz",
+          "summary": "Behavior graph, finding groups, perfiles de entidad y método de RCA.",
+          "tasks": [
+            "2.2"
+          ],
+          "services": [
+            "Detective",
+            "GuardDuty"
+          ]
+        },
+        {
+          "id": "contencion-recuperacion",
+          "title": "Contención, erradicación y recuperación",
+          "summary": "Aislar EC2, contener credenciales, erradicar persistencia y restaurar con AWS Backup.",
+          "tasks": [
+            "2.2"
+          ],
+          "services": [
+            "Security groups",
+            "NACL",
+            "AWS Backup",
+            "WAF"
+          ]
+        }
+      ]
     },
-    {
-     "id": "1.3",
-     "title": "Solucionar problemas de monitoreo, logging y alertas"
+    "infrastructure-security": {
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Controles de seguridad para servicios de borde de red"
+        },
+        {
+          "id": "3.2",
+          "title": "Controles de seguridad para cargas de trabajo de cómputo"
+        },
+        {
+          "id": "3.3",
+          "title": "Diseñar y solucionar problemas de controles de red"
+        }
+      ],
+      "topics": [
+        {
+          "id": "estrategia-borde",
+          "title": "Estrategia de borde: Shield, CloudFront y puntos de control",
+          "summary": "Dónde colocar los controles de borde, Shield Standard vs Advanced y cómo evitar el bypass del origen.",
+          "tasks": [
+            "3.1"
+          ],
+          "services": [
+            "Shield",
+            "CloudFront",
+            "Global Accelerator",
+            "Route 53",
+            "WAF"
+          ]
+        },
+        {
+          "id": "waf",
+          "title": "AWS WAF",
+          "summary": "Web ACL, acciones, reglas rate-based, grupos administrados, bots, huellas JA3/JA4 y logging.",
+          "tasks": [
+            "3.1"
+          ],
+          "services": [
+            "WAF",
+            "Firewall Manager"
+          ]
+        },
+        {
+          "id": "cloudfront-borde",
+          "title": "CloudFront: contenido privado, OAC y CORS",
+          "summary": "Signed URLs/cookies, OAC, geo restriction, field-level encryption, response headers y CORS en S3.",
+          "tasks": [
+            "3.1"
+          ],
+          "services": [
+            "CloudFront",
+            "S3"
+          ]
+        },
+        {
+          "id": "iot-core-seguridad",
+          "title": "Seguridad de AWS IoT Core",
+          "summary": "Certificados X.509, políticas de IoT con mínimo privilegio, variables de política y monitoreo.",
+          "tasks": [
+            "3.1"
+          ],
+          "services": [
+            "IoT Core",
+            "IoT Device Defender"
+          ]
+        },
+        {
+          "id": "ami-imagenes-endurecidas",
+          "title": "AMIs e imágenes endurecidas",
+          "summary": "EC2 Image Builder, componentes STIG/CIS, distribución y gobierno de imágenes y contenedores.",
+          "tasks": [
+            "3.2"
+          ],
+          "services": [
+            "EC2 Image Builder",
+            "Systems Manager",
+            "ECR"
+          ]
+        },
+        {
+          "id": "roles-computo",
+          "title": "Roles de cómputo e IMDSv2",
+          "summary": "Instance profiles, execution/task/service roles, IRSA y obligatoriedad de IMDSv2.",
+          "tasks": [
+            "3.2"
+          ],
+          "services": [
+            "IAM",
+            "EC2",
+            "ECS",
+            "EKS",
+            "Lambda"
+          ]
+        },
+        {
+          "id": "inspector",
+          "title": "Amazon Inspector",
+          "summary": "Escaneo continuo de EC2, ECR y Lambda, Inspector score y alcanzabilidad de red.",
+          "tasks": [
+            "3.2",
+            "3.3"
+          ],
+          "services": [
+            "Inspector"
+          ]
+        },
+        {
+          "id": "patch-manager",
+          "title": "Patch Manager",
+          "summary": "Baselines, patch groups, Scan vs Install, ventanas de mantenimiento y patch policies.",
+          "tasks": [
+            "3.2"
+          ],
+          "services": [
+            "Systems Manager",
+            "Patch Manager"
+          ]
+        },
+        {
+          "id": "acceso-administrativo",
+          "title": "Acceso administrativo: Session Manager e Instance Connect",
+          "summary": "Administración sin bastión ni claves SSH permanentes, con auditoría.",
+          "tasks": [
+            "3.2"
+          ],
+          "services": [
+            "Session Manager",
+            "EC2 Instance Connect"
+          ]
+        },
+        {
+          "id": "seguridad-pipeline",
+          "title": "Seguridad en el pipeline de código",
+          "summary": "Escaneo de código en IDE y CI/CD con Amazon Q Developer, CodeGuru Security e Inspector.",
+          "tasks": [
+            "3.2"
+          ],
+          "services": [
+            "Q Developer",
+            "CodeGuru Security",
+            "CodeBuild"
+          ]
+        },
+        {
+          "id": "genai-guardrails",
+          "title": "GenAI: Bedrock Guardrails y OWASP LLM",
+          "summary": "Filtros de contenido, temas denegados, PII, grounding y mapeo al OWASP Top 10 para LLM.",
+          "tasks": [
+            "3.2"
+          ],
+          "services": [
+            "Bedrock",
+            "Guardrails"
+          ]
+        },
+        {
+          "id": "sg-nacl",
+          "title": "Security groups y NACL",
+          "summary": "Stateful vs stateless, evaluación de reglas, puertos efímeros y troubleshooting.",
+          "tasks": [
+            "3.3"
+          ],
+          "services": [
+            "VPC",
+            "Security Groups",
+            "NACL",
+            "Firewall Manager"
+          ]
+        },
+        {
+          "id": "network-firewall",
+          "title": "Network Firewall y DNS Firewall",
+          "summary": "Reglas stateless/stateful, listas de dominios, inspección TLS, despliegue centralizado y filtrado DNS.",
+          "tasks": [
+            "3.3"
+          ],
+          "services": [
+            "Network Firewall",
+            "Route 53 Resolver DNS Firewall"
+          ]
+        },
+        {
+          "id": "conectividad-hibrida",
+          "title": "Conectividad híbrida: VPN, Direct Connect y MACsec",
+          "summary": "Site-to-Site VPN, private IP VPN, MACsec y Client VPN.",
+          "tasks": [
+            "3.3"
+          ],
+          "services": [
+            "Site-to-Site VPN",
+            "Direct Connect",
+            "Client VPN"
+          ]
+        },
+        {
+          "id": "verified-access",
+          "title": "AWS Verified Access",
+          "summary": "Acceso Zero Trust a aplicaciones sin VPN con identidad y postura del dispositivo.",
+          "tasks": [
+            "3.3"
+          ],
+          "services": [
+            "Verified Access"
+          ]
+        },
+        {
+          "id": "segmentacion-red",
+          "title": "Segmentación de red",
+          "summary": "Norte-sur vs este-oeste, subredes aisladas, VPC endpoints, PrivateLink y Transit Gateway.",
+          "tasks": [
+            "3.3"
+          ],
+          "services": [
+            "VPC",
+            "PrivateLink",
+            "Transit Gateway"
+          ]
+        },
+        {
+          "id": "acceso-innecesario",
+          "title": "Acceso innecesario a la red",
+          "summary": "Network Access Analyzer, Reachability Analyzer y alcanzabilidad de Inspector.",
+          "tasks": [
+            "3.3"
+          ],
+          "services": [
+            "Network Access Analyzer",
+            "Reachability Analyzer",
+            "Inspector"
+          ]
+        }
+      ]
+    },
+    "iam": {
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Estrategias de autenticación"
+        },
+        {
+          "id": "4.2",
+          "title": "Estrategias de autorización"
+        }
+      ],
+      "topics": []
+    },
+    "data-protection": {
+      "tasks": [
+        {
+          "id": "5.1",
+          "title": "Controles para datos en tránsito"
+        },
+        {
+          "id": "5.2",
+          "title": "Controles para datos en reposo"
+        },
+        {
+          "id": "5.3",
+          "title": "Proteger datos confidenciales, credenciales, secretos y llaves criptográficas"
+        }
+      ],
+      "topics": []
+    },
+    "governance": {
+      "tasks": [
+        {
+          "id": "6.1",
+          "title": "Estrategia para desplegar y administrar cuentas de forma central"
+        },
+        {
+          "id": "6.2",
+          "title": "Estrategia de despliegue seguro y consistente de recursos"
+        },
+        {
+          "id": "6.3",
+          "title": "Evaluar el cumplimiento de los recursos"
+        }
+      ],
+      "topics": []
     }
-   ],
-   "topics": [
-    {
-     "id": "cloudwatch-monitoreo",
-     "title": "CloudWatch: métricas, alarmas y dashboards",
-     "summary": "Cómo detectar eventos anómalos con métricas, filtros de métricas, alarmas y health checks.",
-     "tasks": [
-      "1.1"
-     ],
-     "services": [
-      "CloudWatch",
-      "Metric filters",
-      "Alarms"
-     ]
-    },
-    {
-     "id": "alertas-eventbridge-sns",
-     "title": "Alertas y automatización: EventBridge, SNS y User Notifications",
-     "summary": "Enrutar hallazgos y eventos a notificaciones y respuestas automáticas.",
-     "tasks": [
-      "1.1"
-     ],
-     "services": [
-      "EventBridge",
-      "SNS",
-      "User Notifications"
-     ]
-    },
-    {
-     "id": "guardduty",
-     "title": "Amazon GuardDuty",
-     "summary": "Detección de amenazas: fuentes de datos, planes de protección, hallazgos y administración multicuenta.",
-     "tasks": [
-      "1.1"
-     ],
-     "services": [
-      "GuardDuty"
-     ]
-    },
-    {
-     "id": "security-hub",
-     "title": "AWS Security Hub",
-     "summary": "Agregación de hallazgos, estándares de seguridad, automatizaciones y administración central.",
-     "tasks": [
-      "1.1"
-     ],
-     "services": [
-      "Security Hub"
-     ]
-    },
-    {
-     "id": "macie",
-     "title": "Amazon Macie",
-     "summary": "Descubrimiento y clasificación de datos sensibles en S3 y hallazgos de política.",
-     "tasks": [
-      "1.1"
-     ],
-     "services": [
-      "Macie",
-      "S3"
-     ]
-    },
-    {
-     "id": "config-ssm-evaluaciones",
-     "title": "Evaluaciones automáticas: Config, conformance packs y State Manager",
-     "summary": "Evaluar configuración de forma continua y automatizar investigaciones periódicas.",
-     "tasks": [
-      "1.1"
-     ],
-     "services": [
-      "AWS Config",
-      "Systems Manager"
-     ]
-    },
-    {
-     "id": "cloudtrail",
-     "title": "AWS CloudTrail",
-     "summary": "Tipos de eventos, trails de organización, integridad de logs y almacenamiento.",
-     "tasks": [
-      "1.2"
-     ],
-     "services": [
-      "CloudTrail",
-      "S3",
-      "KMS"
-     ]
-    },
-    {
-     "id": "cloudtrail-lake",
-     "title": "CloudTrail Lake",
-     "summary": "Data store administrado de eventos con consultas SQL y federación.",
-     "tasks": [
-      "1.2"
-     ],
-     "services": [
-      "CloudTrail Lake"
-     ]
-    },
-    {
-     "id": "cloudwatch-logs",
-     "title": "CloudWatch Logs y agentes",
-     "summary": "Ingesta, retención, Logs Insights, suscripciones y cuenta central de logging.",
-     "tasks": [
-      "1.2"
-     ],
-     "services": [
-      "CloudWatch Logs",
-      "CloudWatch Agent"
-     ]
-    },
-    {
-     "id": "logs-de-red",
-     "title": "Logs de red y servicios",
-     "summary": "VPC Flow Logs, Transit Gateway, Route 53 Resolver y logs de WAF, ELB y CloudFront.",
-     "tasks": [
-      "1.2"
-     ],
-     "services": [
-      "VPC Flow Logs",
-      "Route 53 Resolver",
-      "WAF"
-     ]
-    },
-    {
-     "id": "security-lake",
-     "title": "Amazon Security Lake",
-     "summary": "Data lake de seguridad en formato OCSF con suscriptores y agregación entre regiones.",
-     "tasks": [
-      "1.2"
-     ],
-     "services": [
-      "Security Lake",
-      "OCSF"
-     ]
-    },
-    {
-     "id": "analisis-de-logs",
-     "title": "Analizar, normalizar y correlacionar logs",
-     "summary": "Athena, Logs Insights, OpenSearch Service, Lambda y Managed Grafana.",
-     "tasks": [
-      "1.2"
-     ],
-     "services": [
-      "Athena",
-      "OpenSearch",
-      "Managed Grafana"
-     ]
-    },
-    {
-     "id": "troubleshooting-deteccion",
-     "title": "Troubleshooting de monitoreo y logging",
-     "summary": "Por qué faltan logs o alertas: permisos, agentes, configuración y destinos.",
-     "tasks": [
-      "1.3"
-     ],
-     "services": [
-      "CloudWatch Agent",
-      "Lambda",
-      "API Gateway"
-     ]
-    }
-   ]
-  },
-  "incident-response": {
-   "tasks": [
-    {
-     "id": "2.1",
-     "title": "Diseñar y probar un plan de respuesta a incidentes"
-    },
-    {
-     "id": "2.2",
-     "title": "Responder a eventos de seguridad"
-    }
-   ],
-   "topics": [
-    {
-     "id": "ir-plan-runbooks",
-     "title": "Plan de respuesta, playbooks y runbooks",
-     "summary": "Cómo documentar y automatizar la respuesta: RACI, playbooks, OpsCenter y notebooks.",
-     "tasks": [
-      "2.1"
-     ],
-     "services": [
-      "OpsCenter",
-      "Systems Manager",
-      "SageMaker AI"
-     ]
-    },
-    {
-     "id": "ir-preparacion",
-     "title": "Preparación: acceso, herramientas, blast radius y Shield Advanced",
-     "summary": "Estructura de cuentas, acceso de respondedores, minimizar el radio de impacto y protección DDoS.",
-     "tasks": [
-      "2.1"
-     ],
-     "services": [
-      "Shield Advanced",
-      "Organizations",
-      "IAM"
-     ]
-    },
-    {
-     "id": "pruebas-fis-resilience",
-     "title": "Probar el plan: FIS y Resilience Hub",
-     "summary": "Experimentos de caos con stop conditions y evaluación de RTO/RPO.",
-     "tasks": [
-      "2.1"
-     ],
-     "services": [
-      "Fault Injection Service",
-      "Resilience Hub"
-     ]
-    },
-    {
-     "id": "remediacion-automatica",
-     "title": "Remediación automática: SSM, Step Functions, Lambda y ARC",
-     "summary": "Qué herramienta usar para automatizar la respuesta y recuperar disponibilidad.",
-     "tasks": [
-      "2.1"
-     ],
-     "services": [
-      "SSM Automation",
-      "Step Functions",
-      "Lambda",
-      "ARC"
-     ]
-    },
-    {
-     "id": "forense-automatizada-ec2",
-     "title": "Automated Forensics Orchestrator para EC2",
-     "summary": "Adquisición de memoria y disco, aislamiento e investigación en una cuenta forense.",
-     "tasks": [
-      "2.1"
-     ],
-     "services": [
-      "Step Functions",
-      "EventBridge",
-      "Security Hub"
-     ]
-    },
-    {
-     "id": "evidencia-forense",
-     "title": "Capturar y preservar evidencia forense",
-     "summary": "Orden de volatilidad, snapshots, memoria, cadena de custodia y cuenta forense.",
-     "tasks": [
-      "2.2"
-     ],
-     "services": [
-      "EBS",
-      "S3 Object Lock",
-      "KMS"
-     ]
-    },
-    {
-     "id": "correlacion-validacion",
-     "title": "Correlacionar logs y validar hallazgos",
-     "summary": "Determinar alcance e impacto de un evento uniendo CloudTrail, flow logs y servicios de seguridad.",
-     "tasks": [
-      "2.2"
-     ],
-     "services": [
-      "CloudTrail",
-      "Athena",
-      "Logs Insights",
-      "Security Hub"
-     ]
-    },
-    {
-     "id": "detective-causa-raiz",
-     "title": "Amazon Detective y análisis de causa raíz",
-     "summary": "Behavior graph, finding groups, perfiles de entidad y método de RCA.",
-     "tasks": [
-      "2.2"
-     ],
-     "services": [
-      "Detective",
-      "GuardDuty"
-     ]
-    },
-    {
-     "id": "contencion-recuperacion",
-     "title": "Contención, erradicación y recuperación",
-     "summary": "Aislar EC2, contener credenciales, erradicar persistencia y restaurar con AWS Backup.",
-     "tasks": [
-      "2.2"
-     ],
-     "services": [
-      "Security groups",
-      "NACL",
-      "AWS Backup",
-      "WAF"
-     ]
-    }
-   ]
-  },
-  "infrastructure-security": {
-   "tasks": [
-    {
-     "id": "3.1",
-     "title": "Controles de seguridad para servicios de borde de red"
-    },
-    {
-     "id": "3.2",
-     "title": "Controles de seguridad para cargas de trabajo de cómputo"
-    },
-    {
-     "id": "3.3",
-     "title": "Diseñar y solucionar problemas de controles de red"
-    }
-   ],
-   "topics": []
-  },
-  "iam": {
-   "tasks": [
-    {
-     "id": "4.1",
-     "title": "Estrategias de autenticación"
-    },
-    {
-     "id": "4.2",
-     "title": "Estrategias de autorización"
-    }
-   ],
-   "topics": []
-  },
-  "data-protection": {
-   "tasks": [
-    {
-     "id": "5.1",
-     "title": "Controles para datos en tránsito"
-    },
-    {
-     "id": "5.2",
-     "title": "Controles para datos en reposo"
-    },
-    {
-     "id": "5.3",
-     "title": "Proteger datos confidenciales, credenciales, secretos y llaves criptográficas"
-    }
-   ],
-   "topics": []
-  },
-  "governance": {
-   "tasks": [
-    {
-     "id": "6.1",
-     "title": "Estrategia para desplegar y administrar cuentas de forma central"
-    },
-    {
-     "id": "6.2",
-     "title": "Estrategia de despliegue seguro y consistente de recursos"
-    },
-    {
-     "id": "6.3",
-     "title": "Evaluar el cumplimiento de los recursos"
-    }
-   ],
-   "topics": []
   }
- }
 }
