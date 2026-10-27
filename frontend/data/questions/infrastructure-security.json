@@ -1,4 +1,706 @@
 {
   "domain": "infrastructure-security",
-  "questions": []
+  "questions": [
+    {
+      "id": "INF-001",
+      "type": "single",
+      "topic": "waf",
+      "question": "Se quiere probar una regla nueva de AWS WAF sin bloquear tráfico legítimo. ¿Qué acción se configura inicialmente?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Deshabilitar el web ACL"
+        },
+        {
+          "id": "b",
+          "text": "Allow para todo el tráfico"
+        },
+        {
+          "id": "c",
+          "text": "Block directamente en producción"
+        },
+        {
+          "id": "d",
+          "text": "Count, con registro y revisión de sampled requests antes de pasar a Block"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "El modo Count registra las coincidencias sin bloquear; permite validar falsos positivos antes de aplicar Block.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_Statement.html"
+    },
+    {
+      "id": "INF-002",
+      "type": "single",
+      "topic": "waf",
+      "question": "Se debe limitar los intentos de inicio de sesión por IP a una URL concreta. ¿Qué regla de WAF corresponde?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una restricción de CloudFront por país"
+        },
+        {
+          "id": "b",
+          "text": "Un managed rule group de SQLi"
+        },
+        {
+          "id": "c",
+          "text": "Una regla GeoMatch"
+        },
+        {
+          "id": "d",
+          "text": "Una regla rate-based con scope-down a la URI de login, agregando por IP (o IP reenviada si hay proxy)"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las reglas rate-based cuentan solicitudes por clave de agregación; el scope-down limita la regla a la ruta de login.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_Statement.html"
+    },
+    {
+      "id": "INF-003",
+      "type": "single",
+      "topic": "waf",
+      "question": "Un managed rule group genera falsos positivos en una regla concreta. ¿Qué se recomienda?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Sobrescribir la acción de esa regla a Count en lugar de quitar el grupo completo"
+        },
+        {
+          "id": "b",
+          "text": "Eliminar el web ACL"
+        },
+        {
+          "id": "c",
+          "text": "Agregar la IP del atacante a una allow list global"
+        },
+        {
+          "id": "d",
+          "text": "Deshabilitar el logging"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Se mantiene la protección del grupo y solo se relaja la regla problemática, monitoreando sus coincidencias.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_Statement.html"
+    },
+    {
+      "id": "INF-004",
+      "type": "scenario",
+      "topic": "cloudfront-borde",
+      "question": "Un bucket de S3 debe ser accesible solo a través de CloudFront. ¿Qué configuración se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Origin Access Control (OAC) con una bucket policy para el servicio CloudFront y Block Public Access habilitado"
+        },
+        {
+          "id": "b",
+          "text": "Una regla de WAF sobre el bucket"
+        },
+        {
+          "id": "c",
+          "text": "Compartir las claves de acceso del bucket con CloudFront"
+        },
+        {
+          "id": "d",
+          "text": "Hacer el bucket público y confiar en la URL"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "OAC es el método recomendado (reemplaza a OAI), soporta SSE-KMS y todas las regiones.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
+    },
+    {
+      "id": "INF-005",
+      "type": "single",
+      "topic": "estrategia-borde",
+      "question": "Un ALB está siendo atacado directamente, saltándose CloudFront y WAF. ¿Cómo se fuerza el tráfico por CloudFront?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Abrir el security group a 0.0.0.0/0"
+        },
+        {
+          "id": "b",
+          "text": "Aumentar el tamaño de la instancia"
+        },
+        {
+          "id": "c",
+          "text": "Quitar el WAF"
+        },
+        {
+          "id": "d",
+          "text": "Un encabezado secreto personalizado verificado en el ALB y el security group que solo permite la prefix list administrada de CloudFront"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "La prefix list de CloudFront restringe el origen a sus IPs y el encabezado secreto evita que otras distribuciones usen el ALB.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/ddos-advanced-summary-capabilities.html"
+    },
+    {
+      "id": "INF-006",
+      "type": "single",
+      "topic": "cloudfront-borde",
+      "question": "Contenido de pago debe ser accesible solo por tiempo limitado. ¿Qué se usa en CloudFront?",
+      "options": [
+        {
+          "id": "a",
+          "text": "URLs o cookies firmadas con un key group"
+        },
+        {
+          "id": "b",
+          "text": "Geo restriction"
+        },
+        {
+          "id": "c",
+          "text": "Un bucket público con nombre difícil de adivinar"
+        },
+        {
+          "id": "d",
+          "text": "Un response headers policy"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las URLs y cookies firmadas restringen el acceso a contenido privado con caducidad.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
+    },
+    {
+      "id": "INF-007",
+      "type": "single",
+      "topic": "cloudfront-borde",
+      "question": "Se debe cifrar un campo de formulario sensible en el borde de modo que solo lo descifre el backend. ¿Qué característica?",
+      "options": [
+        {
+          "id": "a",
+          "text": "HSTS"
+        },
+        {
+          "id": "b",
+          "text": "Un response headers policy"
+        },
+        {
+          "id": "c",
+          "text": "Origin Shield"
+        },
+        {
+          "id": "d",
+          "text": "Field-level encryption de CloudFront"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Field-level encryption cifra campos específicos en el borde con una clave pública; solo quien tiene la privada los descifra.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
+    },
+    {
+      "id": "INF-008",
+      "type": "single",
+      "topic": "sg-nacl",
+      "question": "Se quiere bloquear explícitamente una dirección IP maliciosa en la red. ¿Qué control permite una regla de denegación?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una network ACL (los security groups solo tienen reglas de permitir)"
+        },
+        {
+          "id": "b",
+          "text": "Una route table"
+        },
+        {
+          "id": "c",
+          "text": "Un VPC endpoint"
+        },
+        {
+          "id": "d",
+          "text": "Un security group con regla deny"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las NACL admiten reglas Allow y Deny evaluadas en orden; los security groups solo permiten.",
+      "reference": "https://docs.aws.eu/vpc/latest/userguide/nacl-examples.html"
+    },
+    {
+      "id": "INF-009",
+      "type": "single",
+      "topic": "sg-nacl",
+      "question": "El tráfico llega a la instancia pero las respuestas no salen. La subred tiene una NACL restrictiva. ¿Qué falta?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un NAT gateway"
+        },
+        {
+          "id": "b",
+          "text": "Una regla de entrada en el security group para puertos efímeros"
+        },
+        {
+          "id": "c",
+          "text": "Una regla de salida de la NACL que permita los puertos efímeros"
+        },
+        {
+          "id": "d",
+          "text": "Habilitar el reenvío DNS"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Las NACL no tienen estado: la respuesta debe estar permitida explícitamente en la salida, normalmente en puertos efímeros.",
+      "reference": "https://docs.aws.eu/vpc/latest/userguide/nacl-examples.html"
+    },
+    {
+      "id": "INF-010",
+      "type": "single",
+      "topic": "roles-computo",
+      "question": "Para impedir que una vulnerabilidad SSRF exponga credenciales de instancia, ¿qué se configura?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un security group abierto"
+        },
+        {
+          "id": "b",
+          "text": "IMDSv2 obligatorio (con token y hop limit), reforzado con SCP y Config"
+        },
+        {
+          "id": "c",
+          "text": "Claves de acceso en variables de entorno"
+        },
+        {
+          "id": "d",
+          "text": "IMDSv1 con firewall del sistema operativo"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "IMDSv2 exige un token de sesión; el hop limit evita su reenvío fuera de la instancia.",
+      "reference": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html"
+    },
+    {
+      "id": "INF-011",
+      "type": "single",
+      "topic": "acceso-administrativo",
+      "question": "Se quiere eliminar bastiones y claves SSH para administrar instancias. ¿Qué se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Abrir el puerto 22 a la oficina"
+        },
+        {
+          "id": "b",
+          "text": "Un bastión con IP elástica"
+        },
+        {
+          "id": "c",
+          "text": "AWS Systems Manager Session Manager"
+        },
+        {
+          "id": "d",
+          "text": "Compartir un par de claves"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Session Manager da acceso por IAM sin puertos de entrada ni claves, con registro de sesiones.",
+      "reference": "https://docs.aws.amazon.com/ec2-instance-connect/latest/APIReference/API_SendSSHPublicKey.html"
+    },
+    {
+      "id": "INF-012",
+      "type": "single",
+      "topic": "network-firewall",
+      "question": "Se debe permitir salida a internet solo hacia una lista de dominios aprobados. ¿Qué diseño?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Security group con nombres de dominio"
+        },
+        {
+          "id": "b",
+          "text": "Una NACL con dominios"
+        },
+        {
+          "id": "c",
+          "text": "AWS Network Firewall con una regla de lista de dominios Allow, orden STRICT_ORDER y acción por defecto drop"
+        },
+        {
+          "id": "d",
+          "text": "Un WAF en el NAT gateway"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Network Firewall filtra por dominio (SNI/HTTP host); con orden estricto y drop por defecto solo pasa lo permitido.",
+      "reference": "https://docs.aws.amazon.com/network-firewall/latest/developerguide/stateful-rule-groups-domain-names.html"
+    },
+    {
+      "id": "INF-013",
+      "type": "single",
+      "topic": "network-firewall",
+      "question": "Se necesita inspeccionar el contenido de tráfico cifrado con TLS en el firewall. ¿Qué se configura?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Reglas de security group"
+        },
+        {
+          "id": "b",
+          "text": "VPC Flow Logs"
+        },
+        {
+          "id": "c",
+          "text": "Una TLS inspection configuration en AWS Network Firewall"
+        },
+        {
+          "id": "d",
+          "text": "Un WAF en el ALB"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "La inspección TLS descifra, inspecciona y vuelve a cifrar el tráfico usando certificados de ACM.",
+      "reference": "https://docs.aws.amazon.com/network-firewall/latest/developerguide/stateful-rule-groups-domain-names.html"
+    },
+    {
+      "id": "INF-014",
+      "type": "single",
+      "topic": "conectividad-hibrida",
+      "question": "Se debe cifrar el enlace físico de 10 o 100 Gbps entre el centro de datos y AWS Direct Connect. ¿Qué opción?",
+      "options": [
+        {
+          "id": "a",
+          "text": "MACsec en la conexión dedicada"
+        },
+        {
+          "id": "b",
+          "text": "Una VPN de cliente"
+        },
+        {
+          "id": "c",
+          "text": "ACM en el ALB"
+        },
+        {
+          "id": "d",
+          "text": "AWS WAF"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "MACsec cifra a nivel de capa 2 en conexiones dedicadas; con must_encrypt no se tolera tráfico sin cifrar.",
+      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
+    },
+    {
+      "id": "INF-015",
+      "type": "single",
+      "topic": "conectividad-hibrida",
+      "question": "El cumplimiento exige cifrar el tráfico sobre Direct Connect sin usar IP públicas. ¿Qué se implementa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una VPN Site-to-Site por internet público"
+        },
+        {
+          "id": "b",
+          "text": "Un NAT gateway"
+        },
+        {
+          "id": "c",
+          "text": "Una VPN de IP privada (private IP VPN) sobre la transit VIF"
+        },
+        {
+          "id": "d",
+          "text": "Un peering de VPC"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "La VPN de IP privada cifra con IPsec sobre Direct Connect sin exponer direcciones públicas.",
+      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
+    },
+    {
+      "id": "INF-016",
+      "type": "single",
+      "topic": "verified-access",
+      "question": "Se quiere que los empleados accedan a aplicaciones internas sin VPN, con SSO y comprobación del estado del dispositivo. ¿Qué servicio?",
+      "options": [
+        {
+          "id": "a",
+          "text": "AWS Artifact"
+        },
+        {
+          "id": "b",
+          "text": "AWS Verified Access"
+        },
+        {
+          "id": "c",
+          "text": "AWS Client VPN con clave compartida"
+        },
+        {
+          "id": "d",
+          "text": "Amazon Macie"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Verified Access evalúa identidad y postura del dispositivo por solicitud con políticas Cedar y registra cada intento.",
+      "reference": "https://docs.aws.amazon.com/verified-access/latest/ug/how-it-works.html"
+    },
+    {
+      "id": "INF-017",
+      "type": "single",
+      "topic": "acceso-innecesario",
+      "question": "Una instancia no puede alcanzar a otra y se sospecha de reglas de red. ¿Qué herramienta analiza la ruta?",
+      "options": [
+        {
+          "id": "a",
+          "text": "IAM Access Analyzer"
+        },
+        {
+          "id": "b",
+          "text": "Amazon Macie"
+        },
+        {
+          "id": "c",
+          "text": "AWS Config conformance pack"
+        },
+        {
+          "id": "d",
+          "text": "VPC Reachability Analyzer"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Reachability Analyzer comprueba la conectividad entre dos puntos y señala el componente que la bloquea.",
+      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
+    },
+    {
+      "id": "INF-018",
+      "type": "single",
+      "topic": "genai-guardrails",
+      "question": "Un chatbot de Bedrock no debe tratar asesoría legal. ¿Qué componente de Guardrails se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Contextual grounding checks"
+        },
+        {
+          "id": "b",
+          "text": "Sensitive information filters"
+        },
+        {
+          "id": "c",
+          "text": "Denied topics"
+        },
+        {
+          "id": "d",
+          "text": "Word filters para insultos únicamente"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Los denied topics definen temas que el modelo no debe tratar; ApplyGuardrail permite usarlos con modelos externos a Bedrock.",
+      "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-components.html"
+    },
+    {
+      "id": "INF-019",
+      "type": "single",
+      "topic": "inspector",
+      "question": "Se necesita escanear imágenes de contenedor al hacer push a ECR y reaccionar a hallazgos críticos. ¿Qué diseño?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Macie sobre el repositorio"
+        },
+        {
+          "id": "b",
+          "text": "Amazon Inspector con escaneo mejorado de ECR y una regla de EventBridge sobre hallazgos críticos"
+        },
+        {
+          "id": "c",
+          "text": "Un conformance pack de Config"
+        },
+        {
+          "id": "d",
+          "text": "Una NACL"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Inspector escanea continuamente ECR y emite hallazgos que EventBridge puede enrutar a notificación o remediación.",
+      "reference": "https://aws.amazon.com/inspector/features/"
+    },
+    {
+      "id": "INF-020",
+      "type": "single",
+      "topic": "patch-manager",
+      "question": "Se quiere instalar de inmediato un parche urgente concreto en la flota. ¿Qué parámetro de Patch Manager?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un nuevo patch group"
+        },
+        {
+          "id": "b",
+          "text": "InstallOverrideList"
+        },
+        {
+          "id": "c",
+          "text": "Un nuevo maintenance window"
+        },
+        {
+          "id": "d",
+          "text": "Quitar el baseline"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "InstallOverrideList permite instalar parches específicos al margen del baseline.",
+      "reference": "https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-aws-runpatchbaseline.html"
+    },
+    {
+      "id": "INF-021",
+      "type": "multiple",
+      "topic": "roles-computo",
+      "question": "¿Qué medidas ayudan a proteger las credenciales de instancia EC2 frente a SSRF? (Elige TRES)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Limitar el hop limit de metadatos"
+        },
+        {
+          "id": "b",
+          "text": "Guardar claves de acceso en la AMI"
+        },
+        {
+          "id": "c",
+          "text": "Reforzar con una SCP y reglas de Config que exijan IMDSv2"
+        },
+        {
+          "id": "d",
+          "text": "Exigir IMDSv2"
+        },
+        {
+          "id": "e",
+          "text": "Mantener IMDSv1 habilitado por compatibilidad"
+        }
+      ],
+      "correct": [
+        "a",
+        "c",
+        "d"
+      ],
+      "explanation": "IMDSv2 con token, el hop limit y el enforcement organizacional reducen el riesgo; IMDSv1 y las claves incrustadas lo aumentan.",
+      "reference": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html"
+    },
+    {
+      "id": "INF-022",
+      "type": "matching",
+      "topic": "estrategia-borde",
+      "question": "Empareja cada necesidad con el servicio adecuado.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Bloquear inyección SQL y XSS con reglas gestionadas"
+        },
+        {
+          "id": "p2",
+          "text": "Mitigar DDoS de capa 7 con apoyo del SRT"
+        },
+        {
+          "id": "p3",
+          "text": "Filtrar salida por lista de dominios"
+        },
+        {
+          "id": "p4",
+          "text": "Aplicar la misma política de WAF o security groups en todas las cuentas"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Amazon Macie"
+        },
+        {
+          "id": "b",
+          "text": "AWS Network Firewall"
+        },
+        {
+          "id": "c",
+          "text": "AWS Shield Advanced"
+        },
+        {
+          "id": "d",
+          "text": "AWS Firewall Manager"
+        },
+        {
+          "id": "e",
+          "text": "AWS WAF"
+        }
+      ],
+      "correct": {
+        "p1": "e",
+        "p2": "c",
+        "p3": "b",
+        "p4": "d"
+      },
+      "explanation": "WAF filtra solicitudes web, Shield Advanced protege contra DDoS con SRT, Network Firewall filtra salida y Firewall Manager gobierna políticas en la organización.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/ddos-advanced-summary-capabilities.html"
+    },
+    {
+      "id": "INF-023",
+      "type": "ordering",
+      "topic": "ami-imagenes-endurecidas",
+      "question": "Ordena los pasos para producir imágenes endurecidas de forma repetible con EC2 Image Builder.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Crear una receta con la imagen base y los componentes de endurecimiento"
+        },
+        {
+          "id": "b",
+          "text": "Crear un pipeline con programación"
+        },
+        {
+          "id": "c",
+          "text": "Ejecutar la compilación y las pruebas de la imagen"
+        },
+        {
+          "id": "d",
+          "text": "Distribuir la AMI aprobada a otras Regiones y cuentas"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "La receta define la imagen, el pipeline la ejecuta con calendario, las pruebas validan y la distribución comparte la AMI final.",
+      "reference": "https://aws.amazon.com/blogs/security/quickly-build-stig-compliant-amazon-machine-images-using-amazon-ec2-image-builder"
+    }
+  ]
 }

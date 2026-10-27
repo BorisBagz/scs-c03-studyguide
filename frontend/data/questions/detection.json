@@ -6,12 +6,26 @@
       "type": "single",
       "question": "¿Cuál de las siguientes es una fuente de datos FUNDACIONAL (foundational) que Amazon GuardDuty analiza de forma nativa, sin necesidad de habilitarla ni configurarla explícitamente?",
       "options": [
-        { "id": "a", "text": "Logs de acceso de Application Load Balancer (ALB)" },
-        { "id": "b", "text": "VPC Flow Logs" },
-        { "id": "c", "text": "Logs de auditoría de EKS" },
-        { "id": "d", "text": "Eventos de datos de S3 (S3 Protection)" }
+        {
+          "id": "a",
+          "text": "Logs de acceso de Application Load Balancer (ALB)"
+        },
+        {
+          "id": "b",
+          "text": "VPC Flow Logs"
+        },
+        {
+          "id": "c",
+          "text": "Logs de auditoría de EKS"
+        },
+        {
+          "id": "d",
+          "text": "Eventos de datos de S3 (S3 Protection)"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "GuardDuty tiene 3 fuentes de datos fundacionales que analiza automáticamente sin configuración adicional: eventos de administración de AWS CloudTrail, VPC Flow Logs y logs de consultas DNS de Route 53 Resolver (solo si se usa el resolver DNS por defecto de AWS). EKS audit logs y S3 data events son 'protection plans' adicionales que deben habilitarse explícitamente. GuardDuty no analiza logs de ALB.",
       "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_data-sources.html"
     },
@@ -20,14 +34,555 @@
       "type": "single",
       "question": "Una organización quiere que GuardDuty detecte actividad maliciosa relacionada con operaciones de lectura/escritura sospechosas sobre buckets S3 (por ejemplo, acceso desde una IP maliciosa conocida). ¿Qué se debe hacer?",
       "options": [
-        { "id": "a", "text": "Nada: S3 Protection está habilitado por defecto como fuente fundacional" },
-        { "id": "b", "text": "Habilitar explícitamente S3 Protection dentro de GuardDuty, ya que es un protection plan opcional" },
-        { "id": "c", "text": "Configurar AWS Config para enviar eventos a GuardDuty" },
-        { "id": "d", "text": "Activar Macie, que reemplaza la funcionalidad de monitoreo de S3 en GuardDuty" }
+        {
+          "id": "a",
+          "text": "Nada: S3 Protection está habilitado por defecto como fuente fundacional"
+        },
+        {
+          "id": "b",
+          "text": "Habilitar explícitamente S3 Protection dentro de GuardDuty, ya que es un protection plan opcional"
+        },
+        {
+          "id": "c",
+          "text": "Configurar AWS Config para enviar eventos a GuardDuty"
+        },
+        {
+          "id": "d",
+          "text": "Activar Macie, que reemplaza la funcionalidad de monitoreo de S3 en GuardDuty"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "El monitoreo de eventos de datos de S3 (S3 Protection) es un protection plan opcional de GuardDuty, no una fuente fundacional; debe habilitarse explícitamente por cuenta o a nivel de organización. Macie es un servicio complementario enfocado en clasificación de datos sensibles, no reemplaza esta funcionalidad de GuardDuty.",
       "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/s3-protection.html"
+    },
+    {
+      "id": "DET-003",
+      "type": "scenario",
+      "topic": "cloudtrail",
+      "question": "Se necesita auditar las acciones de API de todas las cuentas de la organización, incluidas las que se creen en el futuro, con un registro centralizado. ¿Qué se configura?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un trail independiente en cada cuenta, creado manualmente"
+        },
+        {
+          "id": "b",
+          "text": "Un agregador de AWS Config"
+        },
+        {
+          "id": "c",
+          "text": "Un organization trail multi-región con el bucket en una cuenta de logging dedicada, cifrado con KMS y con validación de integridad"
+        },
+        {
+          "id": "d",
+          "text": "Un grupo de logs de CloudWatch por cuenta sin trail"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Un organization trail registra todas las cuentas miembro (también las futuras) y las cuentas miembro no pueden modificarlo. Lo recomendable es entregar a una cuenta de logging dedicada con KMS y validación de integridad.",
+      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
+    },
+    {
+      "id": "DET-004",
+      "type": "single",
+      "topic": "cloudtrail",
+      "question": "Se debe saber quién leyó objetos concretos de un bucket de S3. ¿Qué hay que habilitar?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Data events de S3 en el trail (por defecto no se registran)"
+        },
+        {
+          "id": "b",
+          "text": "Config con regla s3-bucket-logging"
+        },
+        {
+          "id": "c",
+          "text": "VPC Flow Logs"
+        },
+        {
+          "id": "d",
+          "text": "Solo management events"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "CloudTrail registra por defecto eventos de administración. Las lecturas y escrituras de objetos (GetObject, PutObject) son data events y deben habilitarse explícitamente.",
+      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
+    },
+    {
+      "id": "DET-005",
+      "type": "single",
+      "topic": "cloudtrail",
+      "question": "Un auditor pide demostrar que los archivos de log de CloudTrail no fueron alterados. ¿Qué característica se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Log file integrity validation (con Object Lock en el bucket como refuerzo)"
+        },
+        {
+          "id": "b",
+          "text": "Cifrar el trail con SSE-S3 únicamente"
+        },
+        {
+          "id": "c",
+          "text": "Habilitar Insights"
+        },
+        {
+          "id": "d",
+          "text": "Activar data events"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "La validación de integridad genera resúmenes firmados que permiten comprobar que los logs no cambiaron; Object Lock impide además su eliminación o modificación.",
+      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
+    },
+    {
+      "id": "DET-006",
+      "type": "single",
+      "topic": "alertas-eventbridge-sns",
+      "question": "Se quiere reactivar automáticamente un trail cuando alguien ejecute StopLogging. ¿Qué diseño responde en casi tiempo real?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Una política de bucket que impida StopLogging"
+        },
+        {
+          "id": "b",
+          "text": "Una regla de EventBridge sobre el evento de CloudTrail StopLogging que invoque una Lambda que reactive el trail"
+        },
+        {
+          "id": "c",
+          "text": "Una alarma de Config evaluada cada 24 horas"
+        },
+        {
+          "id": "d",
+          "text": "Una consulta semanal de Athena"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "EventBridge reacciona a llamadas de API registradas por CloudTrail casi en tiempo real; la acción (Lambda/SSM) puede reactivar el trail. Para contar ocurrencias o usar umbrales se emplea metric filter + alarma.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings_eventbridge.html"
+    },
+    {
+      "id": "DET-007",
+      "type": "ordering",
+      "topic": "cloudwatch-monitoreo",
+      "question": "Ordena el flujo para alertar por correo cuando se use la cuenta root.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Entregar los eventos de CloudTrail a CloudWatch Logs"
+        },
+        {
+          "id": "b",
+          "text": "Crear un metric filter que coincida con eventos del usuario root"
+        },
+        {
+          "id": "c",
+          "text": "Crear una alarma de CloudWatch sobre la métrica del filtro"
+        },
+        {
+          "id": "d",
+          "text": "Configurar como acción de la alarma un tema de SNS con suscripción de correo"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "explanation": "El flujo CloudTrail → CloudWatch Logs → metric filter → alarma → SNS es el patrón clásico de alertas basadas en logs. Alternativa casi en tiempo real: una regla de EventBridge sobre el evento.",
+      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/monitoring/alarm-actions.html"
+    },
+    {
+      "id": "DET-008",
+      "type": "single",
+      "topic": "logs-de-red",
+      "question": "Se necesita detectar consultas DNS a dominios maliciosos desde las instancias. ¿Qué registro sirve?",
+      "options": [
+        {
+          "id": "a",
+          "text": "CloudTrail data events"
+        },
+        {
+          "id": "b",
+          "text": "VPC Flow Logs, porque capturan todo el tráfico incluido DNS de Amazon"
+        },
+        {
+          "id": "c",
+          "text": "Registros de acceso del ALB"
+        },
+        {
+          "id": "d",
+          "text": "Route 53 Resolver query logging"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Los VPC Flow Logs no registran el tráfico hacia el DNS de Amazon; las consultas DNS se registran con Route 53 Resolver query logging.",
+      "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
+    },
+    {
+      "id": "DET-009",
+      "type": "single",
+      "topic": "cloudwatch-logs",
+      "question": "Los logs de todas las cuentas deben llegar en tiempo real a una cuenta central de seguridad. ¿Qué mecanismo se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un agregador de Config"
+        },
+        {
+          "id": "b",
+          "text": "Un metric filter por cuenta"
+        },
+        {
+          "id": "c",
+          "text": "Exportaciones manuales a S3 cada semana"
+        },
+        {
+          "id": "d",
+          "text": "Subscription filters hacia un destino lógico (Kinesis Data Streams o Firehose) en la cuenta de logging"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Los subscription filters transmiten eventos de log en tiempo real a un destino; el destino lógico en la cuenta central requiere una política que permita a las cuentas origen.",
+      "reference": "https://docs.aws.eu/AmazonCloudWatchLogs/latest/APIReference/API_PutSubscriptionFilter.html"
+    },
+    {
+      "id": "DET-010",
+      "type": "single",
+      "topic": "macie",
+      "question": "Se debe encontrar información personal (PII) almacenada en buckets de S3. ¿Qué servicio?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Amazon Macie"
+        },
+        {
+          "id": "b",
+          "text": "AWS Config"
+        },
+        {
+          "id": "c",
+          "text": "Amazon Inspector"
+        },
+        {
+          "id": "d",
+          "text": "Amazon Detective"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Macie descubre y clasifica datos sensibles en S3. No analiza directamente otros almacenes como RDS o DynamoDB.",
+      "reference": "https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html"
+    },
+    {
+      "id": "DET-011",
+      "type": "single",
+      "topic": "security-lake",
+      "question": "Se quiere centralizar logs de seguridad de toda la organización en un formato estándar para que un SIEM de terceros los consuma. ¿Qué servicio?",
+      "options": [
+        {
+          "id": "a",
+          "text": "AWS Artifact"
+        },
+        {
+          "id": "b",
+          "text": "CloudWatch Logs Insights"
+        },
+        {
+          "id": "c",
+          "text": "Amazon Security Lake (formato OCSF) con un suscriptor de acceso a datos"
+        },
+        {
+          "id": "d",
+          "text": "Amazon Inspector"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Security Lake centraliza y normaliza logs multicuenta y multirregión en OCSF; los suscriptores consumen los datos (data access) o los consultan con SQL (query access).",
+      "reference": "https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html"
+    },
+    {
+      "id": "DET-012",
+      "type": "multiple",
+      "topic": "guardduty",
+      "question": "¿Qué afirmaciones sobre Amazon GuardDuty son correctas? (Elige TRES)",
+      "options": [
+        {
+          "id": "a",
+          "text": "S3 Protection viene habilitado por defecto como fuente fundacional"
+        },
+        {
+          "id": "b",
+          "text": "Analiza los logs de acceso de los Application Load Balancer"
+        },
+        {
+          "id": "c",
+          "text": "Detecta actividad sospechosa pero no bloquea ni remedia por sí mismo"
+        },
+        {
+          "id": "d",
+          "text": "Sus fuentes fundacionales incluyen eventos de administración de CloudTrail, VPC Flow Logs y logs de DNS"
+        },
+        {
+          "id": "e",
+          "text": "Se puede habilitar en toda la organización con un administrador delegado y autohabilitación"
+        }
+      ],
+      "correct": [
+        "c",
+        "d",
+        "e"
+      ],
+      "explanation": "GuardDuty detecta; el bloqueo o la remediación se hacen con otros servicios o automatizaciones. S3 Protection es un plan opcional y GuardDuty no analiza logs de ALB.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+    },
+    {
+      "id": "DET-013",
+      "type": "matching",
+      "topic": "logs-de-red",
+      "question": "Empareja cada pregunta de investigación con la fuente de registro que la responde.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "¿Quién llamó a esta API y desde dónde?"
+        },
+        {
+          "id": "p2",
+          "text": "¿Qué conexiones de red se aceptaron o rechazaron?"
+        },
+        {
+          "id": "p3",
+          "text": "¿Qué dominios consultó una instancia?"
+        },
+        {
+          "id": "p4",
+          "text": "¿Cómo cambió la configuración de un recurso a lo largo del tiempo?"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "VPC Flow Logs"
+        },
+        {
+          "id": "b",
+          "text": "AWS Config"
+        },
+        {
+          "id": "c",
+          "text": "Route 53 Resolver query logs"
+        },
+        {
+          "id": "d",
+          "text": "AWS CloudTrail"
+        },
+        {
+          "id": "e",
+          "text": "AWS Artifact"
+        }
+      ],
+      "correct": {
+        "p1": "d",
+        "p2": "a",
+        "p3": "c",
+        "p4": "b"
+      },
+      "explanation": "CloudTrail registra la actividad de API, los flow logs el tráfico de red, Resolver query logs las consultas DNS y Config el historial de configuración. Artifact no es una fuente de registros.",
+      "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
+    },
+    {
+      "id": "DET-014",
+      "type": "single",
+      "topic": "config-ssm-evaluaciones",
+      "question": "Se quiere aplicar el mismo conjunto de reglas de cumplimiento a todas las cuentas, incluidas las nuevas, sin que las cuentas miembro puedan modificarlas. ¿Qué se usa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Un organization conformance pack de AWS Config desplegado desde la cuenta de administración o delegada"
+        },
+        {
+          "id": "b",
+          "text": "Reglas de Config creadas manualmente en cada cuenta"
+        },
+        {
+          "id": "c",
+          "text": "Un agregador de Config"
+        },
+        {
+          "id": "d",
+          "text": "Tag policies"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los conformance packs de organización despliegan reglas y remediaciones y las cuentas miembro no pueden modificar ni eliminar sus reglas. El agregador solo reúne datos para reporte.",
+      "reference": "https://aws.amazon.com/config/faq/"
+    },
+    {
+      "id": "DET-015",
+      "type": "single",
+      "topic": "security-hub",
+      "question": "Se quiere validar la postura de las cuentas frente a CIS o PCI DSS y ver los hallazgos de GuardDuty, Inspector y Macie en un solo lugar. ¿Qué servicio?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Amazon Detective únicamente"
+        },
+        {
+          "id": "b",
+          "text": "AWS Security Hub (CSPM), con el estándar habilitado y AWS Config activo"
+        },
+        {
+          "id": "c",
+          "text": "AWS Artifact"
+        },
+        {
+          "id": "d",
+          "text": "AWS Audit Manager únicamente"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Security Hub CSPM ejecuta comprobaciones de estándares (basadas en Config) y agrega hallazgos de otros servicios de seguridad.",
+      "reference": "https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-standards.html"
+    },
+    {
+      "id": "DET-016",
+      "type": "single",
+      "topic": "troubleshooting-deteccion",
+      "question": "Una alarma de CloudWatch permanece en estado INSUFFICIENT_DATA. ¿Cuál es la causa más probable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "El tema de SNS está cifrado"
+        },
+        {
+          "id": "b",
+          "text": "La métrica no se está publicando o los datos faltantes están mal tratados en la configuración de la alarma"
+        },
+        {
+          "id": "c",
+          "text": "El log group no tiene retención"
+        },
+        {
+          "id": "d",
+          "text": "La alarma tiene demasiadas acciones"
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "INSUFFICIENT_DATA indica que no hay datos suficientes para evaluar: revisa que la métrica se publique y el tratamiento de datos faltantes.",
+      "reference": "https://repost.aws/knowledge-center/troubleshoot-cloudwatch-log-ingestion"
+    },
+    {
+      "id": "DET-017",
+      "type": "single",
+      "topic": "alertas-eventbridge-sns",
+      "question": "Una regla de EventBridge coincide con los hallazgos pero los correos de SNS nunca llegan. ¿Qué se revisa?",
+      "options": [
+        {
+          "id": "a",
+          "text": "La política de recursos del tema de SNS y, si está cifrado, la política de la clave KMS"
+        },
+        {
+          "id": "b",
+          "text": "La versión del agente de CloudWatch"
+        },
+        {
+          "id": "c",
+          "text": "El estándar de Security Hub"
+        },
+        {
+          "id": "d",
+          "text": "La retención del trail"
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "EventBridge necesita permiso para publicar en el tema; si el tema usa una clave KMS administrada por AWS, EventBridge no puede usarla y hay que emplear una clave propia con permisos adecuados.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings_eventbridge.html"
+    },
+    {
+      "id": "DET-018",
+      "type": "single",
+      "topic": "cloudtrail",
+      "question": "Se desea detectar picos anómalos de llamadas de API (por ejemplo, un aumento brusco de RunInstances). ¿Qué característica de CloudTrail?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Log file integrity validation"
+        },
+        {
+          "id": "b",
+          "text": "Data events de Lambda"
+        },
+        {
+          "id": "c",
+          "text": "CloudTrail Insights"
+        },
+        {
+          "id": "d",
+          "text": "Un trail multi-región"
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "CloudTrail Insights analiza la actividad de administración y detecta volúmenes de llamadas inusuales.",
+      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
+    },
+    {
+      "id": "DET-019",
+      "type": "single",
+      "topic": "guardduty",
+      "question": "GuardDuty reporta que credenciales temporales de un rol de instancia se usan desde fuera de AWS. ¿Cuál es una acción de contención adecuada?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Cambiar la región del trail"
+        },
+        {
+          "id": "b",
+          "text": "Eliminar solo el grupo de logs"
+        },
+        {
+          "id": "c",
+          "text": "Desactivar GuardDuty para evitar más alertas"
+        },
+        {
+          "id": "d",
+          "text": "Revocar las sesiones activas del rol (política de denegación con aws:TokenIssueTime), aislar la instancia e investigar con CloudTrail y Detective"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las credenciales temporales robadas se invalidan revocando las sesiones del rol con una política de denegación condicionada a aws:TokenIssueTime; luego se corrige el origen y se investiga.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
     }
   ]
 }
