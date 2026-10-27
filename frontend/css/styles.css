@@ -1530,3 +1530,30 @@ a.btn {
 .exam-actions .btn {
   flex: 1 1 140px;
 }
+
+/* Contexto de preguntas tipo escenario */
+.q-context {
+  margin: 0 0 14px;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.q-context p {
+  margin: 0 0 12px;
+  white-space: pre-line;
+}
+.q-context + .q-text {
+  font-size: 18px;
+  font-weight: 650;
+}
+@media (min-width: 720px) {
+  .q-context + .q-text {
+    font-size: 19px;
+  }
+}
+.q-context,
+.q-text,
+.opt,
+.feedback-body {
+  overflow-wrap: anywhere;
+}

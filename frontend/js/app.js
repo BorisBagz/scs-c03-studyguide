@@ -307,11 +307,17 @@ function renderQuestion() {
   $("#quiz-progress-label").textContent = `${QuizEngine.getCurrentIndex() + 1} de ${QuizEngine.getTotal()}`;
   renderSteps();
 
-  $("#quiz-question-card").innerHTML = `<article class="q">
-    ${kind ? `<p class="q-kind">${kind}</p>` : ""}
-    <h2 class="q-text" id="q-text" tabindex="-1">${fmt(q.question)}</h2>
+  // Escenarios largos: párrafos de contexto + la pregunta final destacada.
+  const paras = q.question.split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean);
+  const ask = paras.pop();
+  const lang = /[¿¡áéíóúñ]/i.test(q.question) ? "es" : "en";
+
+  $("#quiz-question-card").innerHTML = `<article class="q" lang="${lang}">
+    ${kind ? `<p class="q-kind" lang="es">${kind}</p>` : ""}
+    ${paras.length ? `<div class="q-context">${paras.map((x) => `<p>${fmt(x)}</p>`).join("")}</div>` : ""}
+    <h2 class="q-text" id="q-text" tabindex="-1">${fmt(ask)}</h2>
     ${questionBodyHTML(q, multi)}
-    <div id="quiz-feedback" class="feedback hidden" role="status" aria-live="polite"></div>
+    <div id="quiz-feedback" class="feedback hidden" role="status" aria-live="polite" lang="es"></div>
   </article>`;
 
   const submit = $("#quiz-submit-btn");

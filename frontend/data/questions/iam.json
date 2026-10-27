@@ -2,520 +2,1110 @@
   "domain": "iam",
   "questions": [
     {
-      "id": "IAM-001",
-      "type": "single",
-      "topic": "limites-permisos",
-      "question": "Un usuario IAM tiene una política de identidad que concede iam:CreateUser y un permissions boundary que solo permite s3:*, cloudwatch:* y ec2:*. ¿Qué ocurre cuando intenta crear un usuario?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Tiene éxito: la política de identidad concede la acción"
-        },
-        {
-          "id": "b",
-          "text": "Falla: el boundary no incluye iam:CreateUser y el permiso efectivo es la intersección"
-        },
-        {
-          "id": "c",
-          "text": "Tiene éxito solo si la cuenta no tiene SCP"
-        },
-        {
-          "id": "d",
-          "text": "Falla únicamente si existe un Deny explícito en la política de identidad"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Un permissions boundary no concede permisos: fija el máximo. La acción solo se permite si tanto la política de identidad como el boundary la permiten. Como el boundary no incluye IAM, la acción falla aunque la política de identidad la conceda.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
-    },
-    {
-      "id": "IAM-002",
+      "id": "IAM-101",
       "type": "scenario",
-      "topic": "limites-permisos",
-      "question": "Los desarrolladores deben poder crear roles IAM para sus aplicaciones, pero sin posibilidad de otorgarles más permisos de los que ellos tienen ni de saltarse los límites corporativos. ¿Qué diseño cumple el requisito?",
+      "topic": "evaluacion-politicas",
+      "question": "A company has an IAM role named Analytics in Account A (111111111111). The role has an identity-based policy that allows s3:GetObject on arn:aws:s3:::reports-bucket/*. The reports-bucket bucket is in Account B (222222222222) and has a bucket policy that does not mention Account A. Objects are encrypted with SSE-S3. When the role tries to download an object, it receives an AccessDenied error.\n\nWhat should a security engineer do to grant access while following the principle of least privilege?",
       "options": [
         {
           "id": "a",
-          "text": "Darles iam:* y confiar en revisiones periódicas con Access Analyzer"
+          "text": "Add a statement to the bucket policy in Account B that allows s3:GetObject on reports-bucket/* for the principal arn:aws:iam::111111111111:role/Analytics."
         },
         {
           "id": "b",
-          "text": "Permitir iam:CreateRole y iam:AttachRolePolicy solo con la condición iam:PermissionsBoundary apuntando al boundary corporativo, y denegar la eliminación o edición del boundary"
+          "text": "Add a statement to the bucket policy in Account B that allows s3:GetObject on reports-bucket/* for the principal arn:aws:iam::111111111111:root."
         },
         {
           "id": "c",
-          "text": "Aplicar una SCP que deniegue iam:CreateRole en la cuenta"
+          "text": "Attach a permissions boundary to the Analytics role that allows s3:GetObject on reports-bucket/*."
         },
         {
           "id": "d",
-          "text": "Usar session policies en cada rol creado"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "El patrón de delegación segura exige que todo rol nuevo lleve el boundary corporativo (condición iam:PermissionsBoundary) y que no se pueda borrar ni modificar el boundary. Así los roles creados nunca superan el techo definido.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
-    },
-    {
-      "id": "IAM-003",
-      "type": "single",
-      "topic": "limites-permisos",
-      "question": "Un rol tiene AdministratorAccess, pero una aplicación debe asumirlo entregando a cada usuario acceso solo a su prefijo de S3. ¿Qué mecanismo se usa al llamar a AssumeRole?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una session policy"
-        },
-        {
-          "id": "b",
-          "text": "Un permissions boundary en el usuario final"
-        },
-        {
-          "id": "c",
-          "text": "Una SCP por usuario"
-        },
-        {
-          "id": "d",
-          "text": "Una política de recursos en el rol"
+          "text": "Create an SCP in the organization that explicitly allows s3:GetObject on reports-bucket/* and attach it to Account A."
         }
       ],
       "correct": [
         "a"
       ],
-      "explanation": "Las session policies se pasan en AssumeRole y reducen los permisos de esa sesión (intersección con la política de identidad del rol). Nunca amplían permisos.",
-      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
+      "explanation": "En acceso entre cuentas se necesitan DOS permisos: la política de identidad en la cuenta del principal (ya existe) y la política de recurso en la cuenta dueña (falta). Conceder al ARN del rol es más restrictivo que a :root, que delega en cualquier principal de la cuenta A. Una SCP o un permissions boundary solo limitan; nunca otorgan permisos.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/AccessPolicyLanguage_EvaluationLogic.html"
     },
     {
-      "id": "IAM-004",
-      "type": "single",
-      "topic": "abac-rbac",
-      "question": "Se quiere que cada equipo gestione solo los recursos de su proyecto sin editar políticas cada vez que se añade un recurso o persona. ¿Qué estrategia aplica?",
+      "id": "IAM-102",
+      "type": "scenario",
+      "topic": "politicas-recursos-confianza",
+      "question": "A security engineer has already updated a bucket policy in Account B so that a role in Account A can read objects. The bucket uses SSE-KMS with a customer managed key that is in Account B. The role still receives AccessDenied when it calls GetObject. CloudTrail in Account B shows a kms:Decrypt denial.\n\nWhich combination of changes will resolve the issue?",
       "options": [
         {
           "id": "a",
-          "text": "RBAC con un rol por recurso"
+          "text": "Update only the role's identity-based policy in Account A to allow kms:Decrypt on the key ARN in Account B."
         },
         {
           "id": "b",
-          "text": "ABAC comparando aws:PrincipalTag con aws:ResourceTag"
+          "text": "Update the key policy in Account B to allow kms:Decrypt for the role in Account A, and add kms:Decrypt on the key ARN to the role's identity-based policy in Account A."
         },
         {
           "id": "c",
-          "text": "Una política de bucket por proyecto"
+          "text": "Create a grant on the AWS managed key aws/s3 in Account B for the role in Account A."
         },
         {
           "id": "d",
-          "text": "Grupos IAM anidados"
+          "text": "Change the default encryption of the bucket to SSE-S3; existing objects will be re-encrypted automatically."
         }
       ],
       "correct": [
         "b"
       ],
-      "explanation": "ABAC usa etiquetas: una misma política concede acceso cuando las etiquetas del principal coinciden con las del recurso, por lo que escala sin modificar la política.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html"
+      "explanation": "Para usar una KMS key de otra cuenta, la key policy (cuenta B) debe permitir a la cuenta/rol externo Y la política de identidad del rol (cuenta A) debe permitir kms:Decrypt sobre el ARN de la key. Las AWS managed keys no se pueden compartir entre cuentas, y cambiar el cifrado por defecto no recifra objetos existentes.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/AccessPolicyLanguage_EvaluationLogic.html"
     },
     {
-      "id": "IAM-005",
-      "type": "multiple",
-      "topic": "abac-rbac",
-      "question": "En una implementación ABAC, ¿qué controles evitan que un desarrollador se auto-conceda acceso modificando etiquetas? (Elige DOS)",
+      "id": "IAM-103",
+      "type": "scenario",
+      "topic": "evaluacion-politicas",
+      "question": "A company wants to prevent all accounts in its organization from using any AWS Region other than us-east-1 and eu-west-1. A security engineer attaches an SCP that denies all actions when aws:RequestedRegion is not one of those two Regions. After the change, administrators can no longer manage IAM roles or view CloudFront distributions.\n\nHow should the engineer modify the SCP?",
       "options": [
         {
           "id": "a",
-          "text": "Denegar TagResource/UntagResource sobre las claves de control de acceso salvo a roles de administración"
+          "text": "Attach the SCP to the management account only, so that member accounts can still use global services."
         },
         {
           "id": "b",
-          "text": "Una SCP que impida modificar las etiquetas de control de acceso fuera de los roles de administración"
+          "text": "Change the deny statement to use NotAction and list the global services (for example, IAM, AWS STS, CloudFront, Route 53, and AWS Support) so they are exempt from the Region condition."
         },
         {
           "id": "c",
-          "text": "Habilitar versionado en S3"
+          "text": "Add an Allow statement for iam:* and cloudfront:* to the same SCP, because an explicit allow overrides the Region deny."
         },
         {
           "id": "d",
-          "text": "Activar MFA Delete"
+          "text": "Replace aws:RequestedRegion with ec2:Region so that the condition applies only to regional services."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Los servicios globales envían sus solicitudes a un endpoint en us-east-1 u otra Región, por lo que un deny por Región puede bloquearlos. El patrón documentado es Deny + NotAction con los servicios globales exentos. Un Allow nunca anula un Deny explícito, y las SCP no afectan a la cuenta de administración.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/AccessPolicyLanguage_EvaluationLogic.html"
+    },
+    {
+      "id": "IAM-104",
+      "type": "single",
+      "topic": "evaluacion-politicas",
+      "question": "An organization has an SCP attached to the root OU that denies s3:DeleteBucket. A developer who has the AdministratorAccess policy in the organization's management account successfully deletes a bucket.\n\nWhat is the reason?",
+      "options": [
+        {
+          "id": "a",
+          "text": "SCPs apply only to IAM roles, not to IAM users."
+        },
+        {
+          "id": "b",
+          "text": "SCPs do not affect users or roles in the management account."
+        },
+        {
+          "id": "c",
+          "text": "AdministratorAccess includes an explicit allow that overrides SCPs."
+        },
+        {
+          "id": "d",
+          "text": "SCPs attached to the root OU are inherited only by nested OUs, not by accounts directly under the root."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Las SCP nunca restringen a la cuenta de administración; por eso AWS recomienda no ejecutar cargas de trabajo en ella. Las SCP sí aplican a usuarios y roles (incluido root) de las cuentas miembro, y se heredan por todas las cuentas bajo el root.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/AccessPolicyLanguage_EvaluationLogic.html"
+    },
+    {
+      "id": "IAM-105",
+      "type": "single",
+      "topic": "evaluacion-politicas",
+      "question": "In a single AWS account, an IAM user has no identity-based policies attached. A bucket policy on a bucket in the same account allows s3:GetObject for the user's ARN. No SCPs, permissions boundaries, or session policies apply.\n\nWhat happens when the user calls GetObject on an object in the bucket?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The request is denied because the user needs an identity-based policy that allows s3:GetObject."
+        },
+        {
+          "id": "b",
+          "text": "The request is allowed only if the object ACL also grants READ to the user."
+        },
+        {
+          "id": "c",
+          "text": "The request is denied because bucket policies can grant access only to other AWS accounts."
+        },
+        {
+          "id": "d",
+          "text": "The request is allowed because, within the same account, an allow in the resource-based policy is sufficient."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Dentro de la misma cuenta, la evaluación es una unión: basta con un Allow en la política de identidad O en la de recurso (si no hay Deny explícito). Entre cuentas, en cambio, se requieren ambos.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/AccessPolicyLanguage_EvaluationLogic.html"
+    },
+    {
+      "id": "IAM-106",
+      "type": "scenario",
+      "topic": "limites-permisos",
+      "question": "A company wants developers to create IAM roles for their AWS Lambda functions without the involvement of the security team. The security team must ensure that developers cannot create roles with more permissions than an approved policy named DevBoundary, and that developers cannot escalate their own privileges.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Allow iam:CreateRole for developers and use an AWS Config rule to delete roles that have AdministratorAccess attached."
+        },
+        {
+          "id": "b",
+          "text": "Create an SCP that allows iam:CreateRole only for the developers' OU and denies iam:AttachRolePolicy."
+        },
+        {
+          "id": "c",
+          "text": "Attach DevBoundary as a permissions boundary to the developers' IAM users and allow iam:* actions."
+        },
+        {
+          "id": "d",
+          "text": "Allow iam:CreateRole and iam:PutRolePolicy only when the iam:PermissionsBoundary condition key equals the DevBoundary ARN, and deny changes to DevBoundary and the removal of permissions boundaries."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "El patrón de delegación segura exige el boundary en cada rol creado (condición iam:PermissionsBoundary) y protege el boundary: deny de iam:CreatePolicyVersion/DeletePolicy sobre DevBoundary y de iam:DeleteRolePermissionsBoundary. Un boundary solo en los desarrolladores no limita los roles que crean, y Config es detectivo, no preventivo.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
+    },
+    {
+      "id": "IAM-107",
+      "type": "multiple",
+      "topic": "limites-permisos",
+      "question": "An IAM role has the AWS managed policy AdministratorAccess attached. The role also has a permissions boundary that allows only s3:* and cloudwatch:*. An SCP on the account allows all actions except cloudwatch:DeleteAlarms.\n\nWhich actions can the role perform? (Select TWO.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "ec2:DescribeInstances"
+        },
+        {
+          "id": "b",
+          "text": "cloudwatch:PutMetricAlarm"
+        },
+        {
+          "id": "c",
+          "text": "iam:CreateUser"
+        },
+        {
+          "id": "d",
+          "text": "cloudwatch:DeleteAlarms"
         },
         {
           "id": "e",
-          "text": "Crear un permissions boundary que conceda iam:* a todos los desarrolladores"
+          "text": "s3:PutObject"
+        }
+      ],
+      "correct": [
+        "b",
+        "e"
+      ],
+      "explanation": "Los permisos efectivos son la intersección de identidad, boundary y SCP. EC2 e IAM quedan fuera del boundary, y DeleteAlarms lo niega la SCP. Solo S3 y las acciones de CloudWatch no denegadas sobreviven.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
+    },
+    {
+      "id": "IAM-108",
+      "type": "multiple",
+      "topic": "abac-rbac",
+      "question": "A company uses ABAC for EC2. Engineers can start and stop only the instances whose project tag matches their aws:PrincipalTag/project. The security team discovered that an engineer gained access to another project's instances by changing the instance tag.\n\nWhich actions should the security engineer take to prevent this? (Select TWO.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Deny ec2:CreateTags and ec2:DeleteTags on existing instances unless ec2:ResourceTag/project matches aws:PrincipalTag/project and aws:RequestTag/project also matches aws:PrincipalTag/project."
+        },
+        {
+          "id": "b",
+          "text": "Use a tag policy in AWS Organizations to make the project tag key case-sensitive."
+        },
+        {
+          "id": "c",
+          "text": "Require that the aws:RequestTag/project key in ec2:RunInstances equals aws:PrincipalTag/project, and restrict the allowed tag keys with aws:TagKeys."
+        },
+        {
+          "id": "d",
+          "text": "Enable AWS Config to record tag changes on EC2 instances."
+        },
+        {
+          "id": "e",
+          "text": "Replace the ABAC policy with one inline policy per engineer that lists instance IDs."
         }
       ],
       "correct": [
         "a",
-        "b"
+        "c"
       ],
-      "explanation": "En ABAC quien controla las etiquetas controla el acceso. Se protege restringiendo TagResource/UntagResource sobre las claves reservadas y reforzándolo con una SCP.",
+      "explanation": "ABAC depende de que los tags no puedan manipularse: hay que controlar quién crea o cambia tags (ResourceTag/RequestTag/TagKeys) y exigir el tag correcto al crear. Config solo detecta, y las tag policies estandarizan valores pero no impiden el cambio de un tag permitido.",
       "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html"
     },
     {
-      "id": "IAM-006",
+      "id": "IAM-109",
       "type": "single",
       "topic": "abac-rbac",
-      "question": "Con ABAC y sesiones federadas, ¿qué limitación indica la documentación sobre las etiquetas de sesión?",
+      "question": "A company federates its workforce into AWS through SAML 2.0. To implement ABAC, the identity provider now sends the attribute https://aws.amazon.com/SAML/Attributes/PrincipalTag:costcenter. After the change, all federated sign-ins fail with an AccessDenied error on AssumeRoleWithSAML.\n\nWhat should the security engineer do?",
       "options": [
         {
           "id": "a",
-          "text": "Pueden tener varios valores por clave"
+          "text": "Add an iam:TagRole permission to the identity-based policy of the role."
         },
         {
           "id": "b",
-          "text": "No se admiten etiquetas multivaluadas: si un usuario trabaja en dos proyectos hay que listar explícitamente los dos roles"
+          "text": "Add the aws:RequestTag/costcenter condition to the SAML provider metadata document."
         },
         {
           "id": "c",
-          "text": "Solo funcionan con usuarios IAM"
+          "text": "Add the sts:TagSession action to the trust policy of the role that federated users assume."
         },
         {
           "id": "d",
-          "text": "No se pueden usar en políticas de recursos"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "IAM/STS exige un único valor por etiqueta de sesión; para usuarios en varios proyectos hay que enumerar explícitamente los roles permitidos.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html"
-    },
-    {
-      "id": "IAM-007",
-      "type": "single",
-      "topic": "verified-permissions",
-      "question": "En Amazon Verified Permissions (Cedar), una política permit y una política forbid se satisfacen para la misma solicitud. ¿Cuál es el resultado?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Allow, porque permit tiene prioridad"
-        },
-        {
-          "id": "b",
-          "text": "Deny: forbid prevalece sobre permit"
-        },
-        {
-          "id": "c",
-          "text": "Se evalúa en orden alfabético"
-        },
-        {
-          "id": "d",
-          "text": "Error de conflicto de políticas"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Cedar deniega por defecto y forbid siempre gana sobre permit.",
-      "reference": "https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/terminology.html"
-    },
-    {
-      "id": "IAM-008",
-      "type": "single",
-      "topic": "verified-permissions",
-      "question": "Verified Permissions devuelve Deny, pero la aplicación igual entrega los datos al usuario. ¿Cuál es la causa más probable?",
-      "options": [
-        {
-          "id": "a",
-          "text": "El policy store no tiene schema"
-        },
-        {
-          "id": "b",
-          "text": "La aplicación no aplica la decisión: Verified Permissions solo devuelve la decisión y el código debe hacerla cumplir"
-        },
-        {
-          "id": "c",
-          "text": "Falta una SCP"
-        },
-        {
-          "id": "d",
-          "text": "El token de Cognito expiró"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Verified Permissions no hace enforcement: la aplicación (o su authorizer) debe bloquear cuando la respuesta es Deny.",
-      "reference": "https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/terminology.html"
-    },
-    {
-      "id": "IAM-009",
-      "type": "single",
-      "topic": "access-analyzer",
-      "question": "Se necesita alertar cuando un bucket de S3 o una clave KMS quede accesible desde fuera de la organización. ¿Qué función de IAM Access Analyzer se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Unused access analyzer"
-        },
-        {
-          "id": "b",
-          "text": "Policy generation"
-        },
-        {
-          "id": "c",
-          "text": "External access analyzer"
-        },
-        {
-          "id": "d",
-          "text": "Custom policy checks"
+          "text": "Enable the costcenter tag as a cost allocation tag in AWS Billing."
         }
       ],
       "correct": [
         "c"
       ],
-      "explanation": "El analizador de acceso externo monitorea continuamente los permisos de recursos y genera hallazgos cuando son accesibles públicamente o desde otras cuentas; los eventos se pueden enviar a EventBridge/Security Hub.",
-      "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
+      "explanation": "Para pasar session tags al asumir un rol, la trust policy debe permitir sts:TagSession además de la acción de assume. Sin ese permiso, la solicitud que incluye tags falla.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html"
     },
     {
-      "id": "IAM-010",
+      "id": "IAM-110",
       "type": "single",
-      "topic": "access-analyzer",
-      "question": "Un rol de aplicación tiene una política demasiado amplia y nadie sabe qué permisos usa realmente. ¿Cómo se obtiene una política de mínimo privilegio basada en su actividad?",
+      "topic": "sts-federacion",
+      "question": "A company grants a third-party monitoring vendor access to its account through an IAM role. The vendor uses the same AWS account to access the accounts of many customers. The company wants to make sure that another customer of the vendor cannot trick the vendor into accessing the company's account.\n\nWhat should the security engineer add to the role's trust policy?",
       "options": [
         {
           "id": "a",
-          "text": "Policy generation de Access Analyzer a partir de CloudTrail"
+          "text": "A condition that requires aws:MultiFactorAuthPresent to be true."
         },
         {
           "id": "b",
-          "text": "Policy Simulator"
+          "text": "A condition that requires a unique sts:ExternalId value that the vendor generates for the company."
         },
         {
           "id": "c",
-          "text": "Credential report"
+          "text": "A condition on aws:SourceArn that matches the vendor's account ARN."
         },
         {
           "id": "d",
-          "text": "Permissions boundary"
+          "text": "A condition on aws:PrincipalOrgID that matches the company's organization ID."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Es el problema del confused deputy entre cuentas: el external ID único por cliente impide que otro cliente del proveedor haga que este asuma el rol equivocado. aws:SourceArn aplica a service principals; MFA no aplica a un proceso automatizado; PrincipalOrgID no sirve porque el proveedor está fuera de la organización.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html"
+    },
+    {
+      "id": "IAM-111",
+      "type": "single",
+      "topic": "sts-federacion",
+      "question": "A security engineer discovers that temporary credentials for an IAM role used by an application on EC2 were exfiltrated. The role must remain available to the application, and the engineer must invalidate the stolen credentials as quickly as possible.\n\nWhich action should the engineer take FIRST?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Rotate the access keys of the role in the IAM console."
+        },
+        {
+          "id": "b",
+          "text": "Use the Revoke active sessions option for the role, which adds a policy that denies all actions for sessions issued before the current time (aws:TokenIssueTime)."
+        },
+        {
+          "id": "c",
+          "text": "Detach all policies from the role until the investigation is complete."
+        },
+        {
+          "id": "d",
+          "text": "Delete the role and re-create it with the same name and policies."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Las credenciales temporales no se pueden revocar individualmente, pero la revocación de sesiones niega todo a los tokens emitidos antes de cierta hora. La aplicación vuelve a obtener credenciales nuevas del instance profile. Los roles no tienen access keys, y borrar o vaciar el rol interrumpe el servicio.",
+      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
+    },
+    {
+      "id": "IAM-112",
+      "type": "single",
+      "topic": "sts-federacion",
+      "question": "A script uses credentials from role A to assume role B. Role B has a maximum session duration of 8 hours. The script calls AssumeRole with DurationSeconds set to 14400 (4 hours), and the call fails with a validation error.\n\nWhat is the cause?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Role chaining limits the session duration to a maximum of 1 hour, regardless of the role's maximum session duration."
+        },
+        {
+          "id": "b",
+          "text": "Role B must have MFA required in its trust policy to allow sessions longer than 1 hour."
+        },
+        {
+          "id": "c",
+          "text": "DurationSeconds cannot exceed 3600 unless the role trust policy includes sts:SetSourceIdentity."
+        },
+        {
+          "id": "d",
+          "text": "The maximum session duration of role A must also be at least 4 hours."
         }
       ],
       "correct": [
         "a"
       ],
-      "explanation": "Policy generation genera políticas granulares según la actividad registrada en CloudTrail.",
-      "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
+      "explanation": "Cuando se asume un rol usando credenciales de otro rol (role chaining), la sesión resultante tiene como máximo 1 hora.",
+      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
     },
     {
-      "id": "IAM-011",
-      "type": "scenario",
-      "topic": "access-analyzer",
-      "question": "El pipeline de CI/CD debe bloquear automáticamente cualquier cambio de plantilla que otorgue más acceso que la versión actual de la política. ¿Qué se implementa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Access Analyzer unused access"
-        },
-        {
-          "id": "b",
-          "text": "Custom policy checks de Access Analyzer integrados en el pipeline"
-        },
-        {
-          "id": "c",
-          "text": "AWS Config rule periódica"
-        },
-        {
-          "id": "d",
-          "text": "Credential report semanal"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Las custom policy checks validan políticas contra tus estándares y marcan cambios más permisivos que la versión anterior; se integran en CI/CD, por ejemplo validando plantillas de CloudFormation.",
-      "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
-    },
-    {
-      "id": "IAM-012",
+      "id": "IAM-113",
       "type": "single",
-      "topic": "evaluacion-politicas",
-      "question": "Una política de recursos con NotPrincipal + Deny bloquea a todos los roles que tienen permissions boundary. ¿Cuál es la alternativa recomendada?",
+      "topic": "politicas-recursos-confianza",
+      "question": "An S3 bucket is configured to send event notifications to an SNS topic in the same account. The security engineer must update the topic's access policy so that only that specific bucket can publish to the topic, preventing a confused deputy problem.\n\nWhich policy statement should be used?",
       "options": [
         {
           "id": "a",
-          "text": "Usar Principal: \"*\" con Allow"
+          "text": "Allow sns:Publish to the service principal s3.amazonaws.com with a condition on sts:ExternalId."
         },
         {
           "id": "b",
-          "text": "Usar ArnNotEquals con aws:PrincipalArn en una condición"
+          "text": "Allow sns:Publish to the principal arn:aws:iam::<account-id>:root with a condition on aws:SourceVpce."
         },
         {
           "id": "c",
-          "text": "Eliminar el boundary"
+          "text": "Allow sns:Publish to the service principal s3.amazonaws.com with conditions on aws:SourceArn (the bucket ARN) and aws:SourceAccount (the account ID)."
         },
         {
           "id": "d",
-          "text": "Usar una SCP en lugar de la política"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "La documentación advierte que NotPrincipal con Deny siempre deniega a los principales con boundary; se recomienda ArnNotEquals sobre aws:PrincipalArn.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
-    },
-    {
-      "id": "IAM-013",
-      "type": "single",
-      "topic": "limites-permisos",
-      "question": "Se quiere aplicar a todas las cuentas de la organización la regla \"nunca desactivar CloudTrail\". ¿Qué mecanismo corresponde?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Permissions boundary"
-        },
-        {
-          "id": "b",
-          "text": "Session policy"
-        },
-        {
-          "id": "c",
-          "text": "SCP"
-        },
-        {
-          "id": "d",
-          "text": "Política de grupo IAM"
+          "text": "Allow sns:Publish to * with a condition on aws:PrincipalOrgID."
         }
       ],
       "correct": [
         "c"
       ],
-      "explanation": "Una SCP fija el máximo de permisos para todas las cuentas miembro; un boundary solo afecta a una identidad y una session policy a una sesión.",
-      "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+      "explanation": "Cuando un servicio de AWS actúa en tu nombre, se limita con aws:SourceArn y aws:SourceAccount, que es la mitigación del confused deputy entre servicios. sts:ExternalId es para roles asumidos por terceros, y PrincipalOrgID no aplica a service principals.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html"
     },
     {
-      "id": "IAM-014",
-      "type": "matching",
+      "id": "IAM-114",
+      "type": "single",
+      "topic": "politicas-recursos-confianza",
+      "question": "A company has more than 300 accounts in AWS Organizations, and accounts are added every week. A central S3 bucket must be readable by any IAM principal in the organization and by no one else.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Add a bucket policy statement that allows s3:GetObject to Principal \"*\" with the condition aws:PrincipalOrgID equal to the organization ID."
+        },
+        {
+          "id": "b",
+          "text": "Create a role in the bucket's account and require all accounts to assume it through role chaining."
+        },
+        {
+          "id": "c",
+          "text": "Add every account ID to the Principal element of the bucket policy and update it with a Lambda function when accounts are created."
+        },
+        {
+          "id": "d",
+          "text": "Use S3 ACLs to grant READ to the canonical user ID of each account in the organization."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "aws:PrincipalOrgID limita el acceso a principales de la organización y se actualiza solo al agregar cuentas. Las ACLs están desaconsejadas (Object Ownership: bucket owner enforced).",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html"
+    },
+    {
+      "id": "IAM-115",
+      "type": "single",
+      "topic": "politicas-recursos-confianza",
+      "question": "The trust policy of a role in Account B contains \"Principal\": {\"AWS\": \"arn:aws:iam::111111111111:root\"} and allows sts:AssumeRole.\n\nWhich statement correctly describes who can assume the role?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Only principals in account 111111111111 that have signed in with MFA."
+        },
+        {
+          "id": "b",
+          "text": "Any IAM user or role in account 111111111111, even without an identity-based policy that allows sts:AssumeRole."
+        },
+        {
+          "id": "c",
+          "text": "Only the root user of account 111111111111."
+        },
+        {
+          "id": "d",
+          "text": "Any IAM user or role in account 111111111111 whose identity-based policies allow sts:AssumeRole on the role."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": ":root en Principal delega la decisión en la cuenta A: cualquier principal de esa cuenta al que su administrador le permita sts:AssumeRole. No se refiere solo al usuario root.",
+      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
+    },
+    {
+      "id": "IAM-116",
+      "type": "single",
       "topic": "access-analyzer",
-      "question": "Empareja cada pregunta de seguridad con la función de IAM Access Analyzer que la responde.",
+      "question": "A company uses IAM Access Analyzer with the organization as the zone of trust. The analyzer generates an active finding for a bucket that is intentionally shared with a partner's AWS account (444444444444). The security team wants to stop seeing findings for this intended access but continue to be notified about any other external access.\n\nWhat should the security engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Disable Access Analyzer findings for Amazon S3 in the analyzer settings."
+        },
+        {
+          "id": "b",
+          "text": "Add account 444444444444 to the organization so the access is no longer external."
+        },
+        {
+          "id": "c",
+          "text": "Delete the analyzer and create a new analyzer with the account as the zone of trust."
+        },
+        {
+          "id": "d",
+          "text": "Create an archive rule that matches findings where the resource is the bucket and the external principal is account 444444444444."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las archive rules archivan automáticamente hallazgos que coinciden con criterios de acceso esperado, sin perder visibilidad sobre nuevos accesos externos.",
+      "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
+    },
+    {
+      "id": "IAM-117",
+      "type": "single",
+      "topic": "access-analyzer",
+      "question": "A security team must identify IAM roles, IAM user passwords, and access keys that have not been used in the last 90 days, as well as permissions that roles have but never use, across all accounts in the organization.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create an IAM Access Analyzer external access analyzer for the organization."
+        },
+        {
+          "id": "b",
+          "text": "Enable AWS Config in all accounts and use the iam-user-unused-credentials-check managed rule."
+        },
+        {
+          "id": "c",
+          "text": "Create an IAM Access Analyzer unused access analyzer for the organization with a 90-day tracking period."
+        },
+        {
+          "id": "d",
+          "text": "Download the IAM credential report from each account and combine them with Amazon Athena."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "El analizador de acceso no usado reporta roles, credenciales y permisos no usados de forma centralizada. El credential report es por cuenta y no cubre permisos no usados de roles; el analizador externo detecta accesos públicos o entre cuentas.",
+      "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
+    },
+    {
+      "id": "IAM-118",
+      "type": "single",
+      "topic": "access-analyzer",
+      "question": "A development team has an IAM role with broad permissions for a new application. After the application has run in production for 30 days, the security team wants to replace the role's policy with a least-privilege policy based on the actions the application actually used.\n\nWhich approach should the security engineer use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use IAM Access Analyzer policy generation, which analyzes the role's CloudTrail activity and generates a policy template."
+        },
+        {
+          "id": "b",
+          "text": "Use AWS Trusted Advisor to recommend actions to remove from the role."
+        },
+        {
+          "id": "c",
+          "text": "Use the IAM policy simulator to test every action in the current policy."
+        },
+        {
+          "id": "d",
+          "text": "Use IAM Access Analyzer policy validation to remove unused actions from the policy."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "La generación de políticas de Access Analyzer usa la actividad registrada en CloudTrail para crear una política basada en el uso real. La validación revisa sintaxis y buenas prácticas, y el simulador prueba permisos pero no genera políticas.",
+      "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
+    },
+    {
+      "id": "IAM-119",
+      "type": "single",
+      "topic": "access-analyzer",
+      "question": "A company deploys IAM policies through a CI/CD pipeline. The security team wants the pipeline to fail automatically if a new or updated policy grants iam:PassRole or s3:DeleteBucket.\n\nWhich solution meets this requirement?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Add a step that runs the IAM Access Analyzer CheckAccessNotGranted custom policy check against each policy."
+        },
+        {
+          "id": "b",
+          "text": "Create an SCP that denies iam:PassRole and s3:DeleteBucket in all accounts."
+        },
+        {
+          "id": "c",
+          "text": "Add a step that runs IAM Access Analyzer ValidatePolicy and fails on ERROR findings."
+        },
+        {
+          "id": "d",
+          "text": "Create an AWS Config rule that flags policies with iam:PassRole."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "CheckAccessNotGranted verifica que una política no conceda acciones específicas y se integra en pipelines. ValidatePolicy revisa sintaxis y buenas prácticas, no acciones concretas; Config detecta después del despliegue; una SCP bloquearía el uso legítimo en toda la cuenta.",
+      "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
+    },
+    {
+      "id": "IAM-120",
+      "type": "single",
+      "topic": "mfa-credenciales",
+      "question": "A security engineer must require MFA for any ec2:StopInstances or ec2:TerminateInstances call made by IAM users. The policy must also block these calls when they are made with long-term access keys without MFA.\n\nWhich condition should the Deny statement use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "\"Null\": {\"aws:MultiFactorAuthAge\": \"false\"}"
+        },
+        {
+          "id": "b",
+          "text": "\"Bool\": {\"aws:MultiFactorAuthPresent\": \"false\"}"
+        },
+        {
+          "id": "c",
+          "text": "\"Bool\": {\"aws:SecureTransport\": \"false\"}"
+        },
+        {
+          "id": "d",
+          "text": "\"BoolIfExists\": {\"aws:MultiFactorAuthPresent\": \"false\"}"
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las solicitudes firmadas con access keys de largo plazo no incluyen la clave aws:MultiFactorAuthPresent. Con Bool la condición no coincide y el Deny no se aplica; con BoolIfExists, la ausencia de la clave también activa el Deny.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingMFA.html"
+    },
+    {
+      "id": "IAM-121",
+      "type": "single",
+      "topic": "mfa-credenciales",
+      "question": "IAM users must use MFA for privileged actions from the AWS CLI. The users already have virtual MFA devices and access keys.\n\nHow should the users obtain credentials that satisfy MFA-protected policies?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Generate a new access key pair after signing in to the console with MFA."
+        },
+        {
+          "id": "b",
+          "text": "Add the MFA serial number to the ~/.aws/config file without calling AWS STS."
+        },
+        {
+          "id": "c",
+          "text": "Call sts get-session-token with the --serial-number and --token-code parameters and use the returned temporary credentials."
+        },
+        {
+          "id": "d",
+          "text": "Call sts get-caller-identity with the MFA code to activate MFA on the access key."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "GetSessionToken con el código MFA devuelve credenciales temporales en las que aws:MultiFactorAuthPresent es true. (Con un perfil que asume un rol, mfa_serial en la config hace la llamada a STS automáticamente.)",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingMFA.html"
+    },
+    {
+      "id": "IAM-122",
+      "type": "single",
+      "topic": "mfa-credenciales",
+      "question": "An auditor asks for evidence of every IAM user in an account whose access keys have not been rotated in more than 90 days, including when each key was last used.\n\nWhat is the MOST efficient way to obtain this information?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Query CloudTrail for CreateAccessKey events from the last 90 days."
+        },
+        {
+          "id": "b",
+          "text": "Generate and download the IAM credential report for the account."
+        },
+        {
+          "id": "c",
+          "text": "Use AWS Trusted Advisor to list all IAM users in the account."
+        },
+        {
+          "id": "d",
+          "text": "Run IAM Access Analyzer policy validation on each user's policies."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "El credential report lista todos los usuarios con estado de contraseña, MFA, fecha de rotación y último uso de cada access key.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/credential-reports.html"
+    },
+    {
+      "id": "IAM-123",
+      "type": "scenario",
+      "topic": "cognito",
+      "question": "A mobile application signs users in with an Amazon Cognito user pool. Each user must be able to upload files directly to an S3 bucket, but only under a prefix that belongs to that user.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use the user pool ID token as a bearer token in direct S3 PUT requests."
+        },
+        {
+          "id": "b",
+          "text": "Grant the user pool app client permission to call s3:PutObject in the bucket policy."
+        },
+        {
+          "id": "c",
+          "text": "Use a Cognito identity pool to exchange the user pool token for temporary AWS credentials, and use the ${cognito-identity.amazonaws.com:sub} policy variable in the authenticated role's policy."
+        },
+        {
+          "id": "d",
+          "text": "Create an IAM user for each application user and store the access keys in the mobile application."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "El user pool autentica; el identity pool entrega credenciales AWS temporales. La variable de política con el identity ID limita a cada usuario a su propio prefijo. S3 no acepta tokens JWT de Cognito directamente.",
+      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
+    },
+    {
+      "id": "IAM-124",
+      "type": "single",
+      "topic": "cognito",
+      "question": "An identity pool maps all authenticated users to one IAM role. The company now needs administrators (members of the user pool group Admins) to receive a role with more permissions, while other users keep the standard role.\n\nWhat should the security engineer configure?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Assign an IAM role to the Admins group in the user pool and configure the identity pool to choose the role from the token (cognito:preferred_role)."
+        },
+        {
+          "id": "b",
+          "text": "Use a Lambda authorizer in the identity pool to return the role ARN."
+        },
+        {
+          "id": "c",
+          "text": "Add an aws:PrincipalTag/Admins condition to the trust policy of the standard role."
+        },
+        {
+          "id": "d",
+          "text": "Create a second identity pool for administrators and a separate mobile application."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los grupos del user pool pueden tener un rol IAM; con 'Choose role from token' el identity pool usa cognito:preferred_role del token. También existen reglas de mapeo basadas en claims.",
+      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
+    },
+    {
+      "id": "IAM-125",
+      "type": "single",
+      "topic": "cognito",
+      "question": "A REST API in Amazon API Gateway must accept only requests from users who signed in to a Cognito user pool. The company wants to avoid writing custom authorization code.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create a Lambda authorizer that calls the Cognito AdminGetUser API for every request."
+        },
+        {
+          "id": "b",
+          "text": "Configure a Cognito user pool authorizer on the API methods so that API Gateway validates the JWT in the Authorization header."
+        },
+        {
+          "id": "c",
+          "text": "Use an API key per user and store the key as a custom attribute in the user pool."
+        },
+        {
+          "id": "d",
+          "text": "Configure IAM authorization on the API methods and send the user pool ID token as the SigV4 signature."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "El autorizador de Cognito user pool valida firma, expiración y emisor del token sin código. Un Lambda authorizer requiere código, y las API keys no autentican usuarios.",
+      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
+    },
+    {
+      "id": "IAM-126",
+      "type": "multiple",
+      "topic": "cognito",
+      "question": "A company's consumer application uses a Cognito user pool. The security team detects credential-stuffing attempts that use leaked passwords from other websites.\n\nWhich features should the security engineer enable to reduce the risk? (Select TWO.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Unauthenticated (guest) access in the identity pool."
+        },
+        {
+          "id": "b",
+          "text": "Multi-factor authentication for user pool users."
+        },
+        {
+          "id": "c",
+          "text": "A longer refresh token expiration."
+        },
+        {
+          "id": "d",
+          "text": "Case-insensitive usernames."
+        },
+        {
+          "id": "e",
+          "text": "Cognito threat protection (compromised-credentials detection and adaptive authentication)."
+        }
+      ],
+      "correct": [
+        "b",
+        "e"
+      ],
+      "explanation": "La protección contra amenazas de Cognito detecta credenciales filtradas y aplica autenticación adaptativa según el riesgo; MFA impide el acceso solo con contraseña. Las otras opciones no mitigan el ataque.",
+      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
+    },
+    {
+      "id": "IAM-127",
+      "type": "single",
+      "topic": "presigned-urls",
+      "question": "An application running on AWS Lambda generates S3 presigned URLs with an expiration of 7 days. Users report that the URLs stop working after a few hours.\n\nWhat is the MOST likely cause?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The bucket policy must include the s3:signatureAge condition to allow 7-day URLs."
+        },
+        {
+          "id": "b",
+          "text": "SigV4 presigned URLs cannot be valid for more than 12 hours."
+        },
+        {
+          "id": "c",
+          "text": "S3 limits presigned URLs created by Lambda to 1 hour."
+        },
+        {
+          "id": "d",
+          "text": "The URLs are signed with the temporary credentials of the Lambda execution role, so they become invalid when those credentials expire."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Una URL prefirmada nunca dura más que las credenciales que la firmaron: con credenciales temporales de un rol, expira cuando expira la sesión aunque se pida más. El máximo con SigV4 es 7 días.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html"
+    },
+    {
+      "id": "IAM-128",
+      "type": "single",
+      "topic": "presigned-urls",
+      "question": "A security engineer discovers that an IAM user generated presigned URLs for confidential objects and shared them externally. The URLs are still within their expiration time.\n\nWhat is the FASTEST way to make all of these URLs stop working?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Rotate the bucket's SSE-S3 encryption key."
+        },
+        {
+          "id": "b",
+          "text": "Enable S3 Block Public Access on the bucket."
+        },
+        {
+          "id": "c",
+          "text": "Remove the s3:GetObject permission from the IAM user (or deactivate the access key used to sign the URLs)."
+        },
+        {
+          "id": "d",
+          "text": "Enable S3 Versioning on the bucket."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Una URL prefirmada actúa con los permisos de quien la firmó. Si se le retiran los permisos o se desactiva la clave que firmó, la URL deja de funcionar. Block Public Access no afecta solicitudes firmadas.",
+      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html"
+    },
+    {
+      "id": "IAM-129",
+      "type": "single",
+      "topic": "verified-permissions",
+      "question": "A SaaS company is building a document management application. The company needs fine-grained authorization rules such as \"a user can edit a document only if the user belongs to the document's team and the document is not locked.\" The rules must be managed outside the application code and audited centrally.\n\nWhich AWS service should the company use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Amazon Verified Permissions with policies written in Cedar."
+        },
+        {
+          "id": "b",
+          "text": "Amazon Cognito user pool groups."
+        },
+        {
+          "id": "c",
+          "text": "IAM identity-based policies with a policy per application user."
+        },
+        {
+          "id": "d",
+          "text": "AWS IAM Identity Center permission sets."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Verified Permissions externaliza la autorización de aplicaciones propias con políticas Cedar evaluadas por solicitud. IAM autoriza acceso a APIs de AWS, no a recursos de la aplicación.",
+      "reference": "https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/terminology.html"
+    },
+    {
+      "id": "IAM-130",
+      "type": "matching",
+      "topic": "verified-permissions",
+      "question": "Match each Amazon Verified Permissions concept with its description.",
       "prompts": [
         {
           "id": "p1",
-          "text": "¿Qué recursos están compartidos con el público o con otras cuentas?"
+          "text": "Policy store"
         },
         {
           "id": "p2",
-          "text": "¿Qué roles, claves de acceso y permisos no se usan?"
+          "text": "Schema"
         },
         {
           "id": "p3",
-          "text": "¿Esta política es más permisiva que la versión anterior?"
+          "text": "Policy template"
         },
         {
           "id": "p4",
-          "text": "¿Qué permisos usa realmente esta aplicación según su actividad?"
+          "text": "Identity source"
         }
       ],
       "options": [
         {
           "id": "a",
-          "text": "External access analyzer"
+          "text": "Container for the policies and schema of one application"
         },
         {
           "id": "b",
-          "text": "Unused access analyzer"
+          "text": "Role that the application assumes to call AWS APIs"
         },
         {
           "id": "c",
-          "text": "Custom policy checks"
+          "text": "Policy with placeholders for principal or resource that is linked to create policies"
         },
         {
           "id": "d",
-          "text": "Policy generation (CloudTrail)"
+          "text": "Defines entity types, attributes, and actions"
         },
         {
           "id": "e",
-          "text": "Credential report"
+          "text": "Integration that maps users from a provider such as Cognito into principals"
         }
       ],
       "correct": {
         "p1": "a",
-        "p2": "b",
+        "p2": "d",
         "p3": "c",
-        "p4": "d"
+        "p4": "e"
       },
-      "explanation": "El acceso externo detecta exposición pública o entre cuentas; el acceso no utilizado señala permisos y credenciales sin uso; las custom policy checks marcan cambios más permisivos (CI/CD); policy generation crea políticas a partir de la actividad en CloudTrail. El credential report no corresponde a ninguna de estas preguntas.",
-      "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
+      "explanation": "Son los componentes básicos de Verified Permissions. El rol IAM no forma parte del modelo de autorización Cedar.",
+      "reference": "https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/terminology.html"
     },
     {
-      "id": "IAM-015",
+      "id": "IAM-131",
       "type": "single",
-      "topic": "cognito",
-      "question": "Una aplicación web con login de clientes debe permitir también iniciar sesión con Google y Azure AD. ¿Qué se configura en Amazon Cognito?",
+      "topic": "directory-service",
+      "question": "A company wants employees to sign in to IAM Identity Center with their on-premises Active Directory credentials. The company does not want to store users or password hashes in AWS or run domain controllers in AWS.\n\nWhich solution meets these requirements?",
       "options": [
         {
           "id": "a",
-          "text": "Una política de bucket con aws:PrincipalOrgID"
+          "text": "Deploy AWS Managed Microsoft AD and create a one-way trust to the on-premises domain."
         },
         {
           "id": "b",
-          "text": "Un user pool con proveedores de identidad federados"
+          "text": "Use Simple AD and synchronize the users from on premises."
         },
         {
           "id": "c",
-          "text": "Un trust anchor de Roles Anywhere"
+          "text": "Use AD Connector as the identity source for IAM Identity Center."
         },
         {
           "id": "d",
-          "text": "Un identity pool sin user pool para autenticar usuarios"
+          "text": "Create IAM users that match each Active Directory username."
         }
       ],
       "correct": [
-        "b"
+        "c"
       ],
-      "explanation": "El user pool es el directorio y emisor de tokens de la aplicación y puede federarse con IdP externos (OIDC/SAML y sociales).",
-      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
+      "explanation": "AD Connector es un proxy hacia el AD existente: no almacena usuarios ni requiere controladores en AWS. AWS Managed Microsoft AD sí despliega controladores de dominio.",
+      "reference": "https://docs.aws.eu/directoryservice/latest/admin-guide/ad_connector_best_practices.html"
     },
     {
-      "id": "IAM-016",
-      "type": "scenario",
-      "topic": "cognito",
-      "question": "Cada usuario de la aplicación solo debe acceder a su propia carpeta de S3. ¿Qué se usa?",
+      "id": "IAM-132",
+      "type": "single",
+      "topic": "directory-service",
+      "question": "A company is migrating Windows workloads and Amazon RDS for SQL Server databases that require Windows authentication to AWS. Users exist in the on-premises Active Directory, and the workloads in AWS must keep working if the on-premises connection fails.\n\nWhich solution meets these requirements?",
       "options": [
         {
           "id": "a",
-          "text": "Un identity pool que entregue credenciales temporales y una política con variables de la identidad del usuario"
+          "text": "Deploy AWS Managed Microsoft AD in AWS and create a trust relationship with the on-premises domain."
         },
         {
           "id": "b",
-          "text": "Un bucket público con prefijos aleatorios"
+          "text": "Use Amazon Cognito user pools with a SAML federation to Active Directory."
         },
         {
           "id": "c",
-          "text": "Una SCP por usuario"
+          "text": "Use AD Connector to proxy all authentication requests to the on-premises domain."
         },
         {
           "id": "d",
-          "text": "Un user pool con un rol por usuario creado manualmente"
+          "text": "Use IAM Roles Anywhere to authenticate the Windows workloads."
         }
       ],
       "correct": [
         "a"
       ],
-      "explanation": "El identity pool intercambia tokens por credenciales AWS temporales y las políticas pueden usar variables de identidad para limitar el prefijo.",
-      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
+      "explanation": "AWS Managed Microsoft AD ofrece un AD real en AWS (unión a dominio, RDS SQL Server con autenticación Windows) y puede funcionar aunque falle el enlace. Con AD Connector todo depende de la conectividad con on-premises.",
+      "reference": "https://docs.aws.eu/directoryservice/latest/admin-guide/ad_connector_best_practices.html"
     },
     {
-      "id": "IAM-017",
-      "type": "ordering",
-      "topic": "cognito",
-      "question": "Ordena el flujo para que un usuario de una app obtenga acceso a S3 con Cognito.",
+      "id": "IAM-133",
+      "type": "single",
+      "topic": "identity-center",
+      "question": "A company has 40 AWS accounts in AWS Organizations. A team of database administrators needs the same set of permissions in 25 of those accounts. Users sign in through an external identity provider.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
       "options": [
         {
           "id": "a",
-          "text": "El usuario se autentica en el user pool"
+          "text": "Create an SCP that grants the DBA permissions and attach it to the 25 accounts."
         },
         {
           "id": "b",
-          "text": "La aplicación recibe los tokens del user pool"
+          "text": "Use IAM Identity Center: create a permission set for the DBAs and assign it to the DBA group in the 25 accounts."
         },
         {
           "id": "c",
-          "text": "La aplicación intercambia los tokens en el identity pool"
+          "text": "Create an IAM role in each of the 25 accounts and a SAML provider in each account."
         },
         {
           "id": "d",
-          "text": "El identity pool devuelve credenciales temporales de AWS con las que se accede a S3"
+          "text": "Create IAM users for each DBA in a central account and allow them to assume roles in the 25 accounts."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Identity Center provisiona automáticamente roles en cada cuenta a partir del permission set y centraliza las asignaciones. Las SCP no conceden permisos.",
+      "reference": "https://docs.aws.amazon.com/singlesignon/latest/userguide/delegated-admin.html"
+    },
+    {
+      "id": "IAM-134",
+      "type": "single",
+      "topic": "identity-center",
+      "question": "A company uses Microsoft Entra ID as the identity provider for IAM Identity Center. When employees join or leave, administrators must manually create and remove users in Identity Center.\n\nHow can the company automate this process?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Configure a Lambda function that calls CreateUser in IAM for each new employee."
+        },
+        {
+          "id": "b",
+          "text": "Configure an AD Connector pointing to Microsoft Entra ID."
+        },
+        {
+          "id": "c",
+          "text": "Change the identity source to the Identity Center directory and import users with a CSV file."
+        },
+        {
+          "id": "d",
+          "text": "Enable automatic provisioning with SCIM between Microsoft Entra ID and IAM Identity Center."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "SCIM sincroniza usuarios y grupos desde el IdP externo hacia Identity Center. SAML cubre la autenticación, pero no el aprovisionamiento.",
+      "reference": "https://docs.aws.amazon.com/singlesignon/latest/userguide/delegated-admin.html"
+    },
+    {
+      "id": "IAM-135",
+      "type": "single",
+      "topic": "roles-anywhere",
+      "question": "A company runs scripts on on-premises servers that upload files to Amazon S3 with long-term IAM user access keys. The company has an internal certificate authority that issues X.509 certificates to every server. The security team wants to eliminate long-term credentials.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use IAM Roles Anywhere with a trust anchor for the internal CA, a profile that references an IAM role, and the credential helper on each server."
+        },
+        {
+          "id": "b",
+          "text": "Store the access keys in AWS Secrets Manager and rotate them every 30 days."
+        },
+        {
+          "id": "c",
+          "text": "Install the SSM Agent on each server and use the instance profile of a hybrid activation for S3 access."
+        },
+        {
+          "id": "d",
+          "text": "Create a Cognito identity pool with unauthenticated access for the servers."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Roles Anywhere intercambia un certificado X.509 de una CA de confianza por credenciales temporales de un rol, sin claves de largo plazo. Rotar claves sigue dejando credenciales de largo plazo.",
+      "reference": "https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html"
+    },
+    {
+      "id": "IAM-136",
+      "type": "single",
+      "topic": "roles-anywhere",
+      "question": "A company uses IAM Roles Anywhere. Many servers have certificates from the same CA, but only servers whose certificate Common Name is backup-server must be able to assume the Backup role.\n\nHow should the security engineer restrict access?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create a separate trust anchor for each server."
+        },
+        {
+          "id": "b",
+          "text": "Add the certificate serial number to the Principal element of the trust policy."
+        },
+        {
+          "id": "c",
+          "text": "Add a condition to the role's trust policy on aws:PrincipalTag/x509Subject/CN equal to backup-server."
+        },
+        {
+          "id": "d",
+          "text": "Add an aws:SourceIp condition with the server IP addresses to the profile."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Roles Anywhere expone atributos del certificado (subject, issuer, SAN) como principal tags que se usan en condiciones de la trust policy.",
+      "reference": "https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html"
+    },
+    {
+      "id": "IAM-137",
+      "type": "ordering",
+      "topic": "roles-anywhere",
+      "question": "A security engineer is configuring IAM Roles Anywhere for an on-premises server. Order the steps.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create a trust anchor that references the certificate authority"
+        },
+        {
+          "id": "b",
+          "text": "Create an IAM role whose trust policy allows rolesanywhere.amazonaws.com"
+        },
+        {
+          "id": "c",
+          "text": "Create a profile that references the role"
+        },
+        {
+          "id": "d",
+          "text": "Configure the credential helper on the server with the certificate, private key, and ARNs"
         }
       ],
       "correct": [
@@ -524,806 +1114,310 @@
         "c",
         "d"
       ],
-      "explanation": "El user pool autentica y emite tokens; el identity pool los canjea por credenciales temporales vía STS con el rol asociado.",
-      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
+      "explanation": "Primero la confianza (CA), luego el rol que se asumirá, el profile que lo vincula y por último el cliente que obtiene credenciales.",
+      "reference": "https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html"
     },
     {
-      "id": "IAM-018",
-      "type": "single",
-      "topic": "cognito",
-      "question": "Se quiere detectar credenciales comprometidas y bloquear inicios de sesión sospechosos en un user pool de Cognito. ¿Qué característica?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Threat protection (plan Plus)"
-        },
-        {
-          "id": "b",
-          "text": "Security Hub"
-        },
-        {
-          "id": "c",
-          "text": "Amazon Macie"
-        },
-        {
-          "id": "d",
-          "text": "AWS Config"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "La protección frente a amenazas de Cognito evalúa el riesgo de cada inicio de sesión y detecta credenciales comprometidas.",
-      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
-    },
-    {
-      "id": "IAM-019",
-      "type": "single",
-      "topic": "cognito",
-      "question": "Se necesita proteger el endpoint de inicio de sesión de un user pool contra bots y abuso. ¿Qué se asocia?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una NACL"
-        },
-        {
-          "id": "b",
-          "text": "Una web ACL de AWS WAF asociada al user pool"
-        },
-        {
-          "id": "c",
-          "text": "Un endpoint de VPC de S3"
-        },
-        {
-          "id": "d",
-          "text": "Un security group"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Los user pools pueden asociarse a AWS WAF para filtrar y limitar tráfico abusivo.",
-      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
-    },
-    {
-      "id": "IAM-020",
-      "type": "single",
-      "topic": "directory-service",
-      "question": "Los usuarios corporativos deben acceder a WorkSpaces con sus credenciales del AD on-premises sin crear un directorio nuevo en AWS. ¿Qué opción?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un user pool de Cognito"
-        },
-        {
-          "id": "b",
-          "text": "AD Connector"
-        },
-        {
-          "id": "c",
-          "text": "Roles Anywhere"
-        },
-        {
-          "id": "d",
-          "text": "AWS Managed Microsoft AD con réplica completa"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "AD Connector actúa de proxy hacia el Active Directory existente sin almacenar datos de directorio en AWS.",
-      "reference": "https://docs.aws.eu/directoryservice/latest/admin-guide/ad_connector_best_practices.html"
-    },
-    {
-      "id": "IAM-021",
-      "type": "single",
-      "topic": "directory-service",
-      "question": "Se necesita un directorio Active Directory en AWS que establezca una relación de confianza con el AD on-premises. ¿Qué servicio?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Amazon Cognito identity pools"
-        },
-        {
-          "id": "b",
-          "text": "AD Connector"
-        },
-        {
-          "id": "c",
-          "text": "AWS Verified Access"
-        },
-        {
-          "id": "d",
-          "text": "AWS Managed Microsoft AD"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Managed Microsoft AD es un directorio real alojado en AWS que admite trusts con el AD corporativo.",
-      "reference": "https://docs.aws.eu/directoryservice/latest/admin-guide/ad_connector_best_practices.html"
-    },
-    {
-      "id": "IAM-022",
-      "type": "single",
-      "topic": "evaluacion-politicas",
-      "question": "Un usuario tiene s3:* en su política de identidad pero recibe AccessDenied al leer un bucket. ¿Qué se debe revisar?",
-      "options": [
-        {
-          "id": "a",
-          "text": "El tamaño del objeto"
-        },
-        {
-          "id": "b",
-          "text": "La versión del SDK"
-        },
-        {
-          "id": "c",
-          "text": "Denegaciones explícitas, SCP/RCP, permissions boundary, session policy o una bucket policy con Deny"
-        },
-        {
-          "id": "d",
-          "text": "Solo la región del bucket"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "El permiso efectivo es la intersección de todas las capas y un Deny explícito en cualquiera prevalece.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/AccessPolicyLanguage_EvaluationLogic.html"
-    },
-    {
-      "id": "IAM-023",
-      "type": "single",
-      "topic": "evaluacion-politicas",
-      "question": "El administrador de una cuenta miembro no puede crear un recurso aunque su política de identidad lo permite. ¿Qué es lo más probable?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Falta una política de recursos en el servicio"
-        },
-        {
-          "id": "b",
-          "text": "El usuario no tiene etiquetas"
-        },
-        {
-          "id": "c",
-          "text": "La cuenta no tiene facturación"
-        },
-        {
-          "id": "d",
-          "text": "Una SCP de la organización bloquea la acción"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Las SCP limitan el máximo de permisos incluso para administradores de las cuentas miembro.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/AccessPolicyLanguage_EvaluationLogic.html"
-    },
-    {
-      "id": "IAM-024",
-      "type": "single",
-      "topic": "mfa-credenciales",
-      "question": "Se quiere exigir MFA para cualquier acción excepto las necesarias para configurar el propio MFA. ¿Qué patrón de política?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un Deny con NotAction y la condición BoolIfExists aws:MultiFactorAuthPresent igual a false"
-        },
-        {
-          "id": "b",
-          "text": "Una SCP que deniegue iam:*"
-        },
-        {
-          "id": "c",
-          "text": "Un permissions boundary sin condiciones"
-        },
-        {
-          "id": "d",
-          "text": "Un Allow con aws:SourceIp"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "El Deny con NotAction bloquea todo lo demás cuando no hay MFA; las condiciones de un Deny tienen prioridad.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingMFA.html"
-    },
-    {
-      "id": "IAM-025",
-      "type": "single",
-      "topic": "mfa-credenciales",
-      "question": "Se debe auditar qué usuarios IAM tienen consola habilitada pero no MFA, y qué claves de acceso no se rotan. ¿Qué herramienta?",
-      "options": [
-        {
-          "id": "a",
-          "text": "CloudFront access logs"
-        },
-        {
-          "id": "b",
-          "text": "Macie"
-        },
-        {
-          "id": "c",
-          "text": "El credential report de IAM"
-        },
-        {
-          "id": "d",
-          "text": "VPC Flow Logs"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "El credential report lista el estado de contraseñas, MFA y claves de todos los usuarios de la cuenta.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingMFA.html"
-    },
-    {
-      "id": "IAM-026",
-      "type": "single",
-      "topic": "mfa-credenciales",
-      "question": "¿Cómo se alerta casi en tiempo real cuando se inicia sesión con el usuario raíz?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un conformance pack de Config"
-        },
-        {
-          "id": "b",
-          "text": "Una regla de EventBridge sobre el evento ConsoleLogin del usuario raíz registrado en CloudTrail"
-        },
-        {
-          "id": "c",
-          "text": "Una revisión mensual del credential report"
-        },
-        {
-          "id": "d",
-          "text": "Una política de bucket"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "CloudTrail registra el inicio de sesión raíz y EventBridge puede disparar la notificación.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingMFA.html"
-    },
-    {
-      "id": "IAM-027",
-      "type": "single",
-      "topic": "politicas-recursos-confianza",
-      "question": "Todas las cuentas de la organización, presentes y futuras, deben acceder a un bucket sin listar cuentas una por una. ¿Qué condición se usa en la bucket policy?",
-      "options": [
-        {
-          "id": "a",
-          "text": "aws:PrincipalOrgID"
-        },
-        {
-          "id": "b",
-          "text": "aws:RequestedRegion"
-        },
-        {
-          "id": "c",
-          "text": "aws:SourceIp"
-        },
-        {
-          "id": "d",
-          "text": "aws:TokenIssueTime"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "aws:PrincipalOrgID restringe el acceso a principales de la organización indicada sin enumerar cuentas.",
-      "reference": "https://docs.aws.eu/IAM/latest/UserGuide/confused-deputy.html"
-    },
-    {
-      "id": "IAM-028",
-      "type": "single",
-      "topic": "politicas-recursos-confianza",
-      "question": "Un proveedor externo debe asumir un rol en tu cuenta y quieres evitar el problema del confused deputy. ¿Qué se añade a la trust policy?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un bucket policy"
-        },
-        {
-          "id": "b",
-          "text": "Un permissions boundary en el rol"
-        },
-        {
-          "id": "c",
-          "text": "Una condición con sts:ExternalId"
-        },
-        {
-          "id": "d",
-          "text": "Una SCP en la cuenta del proveedor"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "El External ID evita que un tercero use su rol para actuar en nombre de otro cliente.",
-      "reference": "https://docs.aws.eu/IAM/latest/UserGuide/confused-deputy.html"
-    },
-    {
-      "id": "IAM-029",
-      "type": "single",
-      "topic": "politicas-recursos-confianza",
-      "question": "Un servicio de AWS debe escribir logs en tu bucket. ¿Cómo se evita el confused deputy?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Hacer el bucket público"
-        },
-        {
-          "id": "b",
-          "text": "Quitar el cifrado del bucket"
-        },
-        {
-          "id": "c",
-          "text": "Bucket policy con el principal del servicio y condiciones aws:SourceArn y aws:SourceAccount"
-        },
-        {
-          "id": "d",
-          "text": "Usar claves de acceso del servicio"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Las condiciones de origen aseguran que solo el recurso/cuenta esperados puedan usar al servicio para escribir.",
-      "reference": "https://docs.aws.eu/IAM/latest/UserGuide/confused-deputy.html"
-    },
-    {
-      "id": "IAM-030",
-      "type": "single",
-      "topic": "presigned-urls",
-      "question": "Una aplicación permite subir archivos directo a S3 sin pasar por el servidor. ¿Cómo?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Se abre el bucket a escritura pública"
-        },
-        {
-          "id": "b",
-          "text": "El backend genera una presigned URL PUT de corta duración"
-        },
-        {
-          "id": "c",
-          "text": "Se usa un NAT gateway"
-        },
-        {
-          "id": "d",
-          "text": "El backend entrega las claves de acceso permanentes al cliente"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Las presigned URLs delegan una operación concreta con vigencia limitada y los permisos del firmante.",
-      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html"
-    },
-    {
-      "id": "IAM-031",
+      "id": "IAM-138",
       "type": "ordering",
-      "topic": "presigned-urls",
-      "question": "Ordena el flujo de subida de un archivo con presigned URL.",
+      "topic": "evaluacion-politicas",
+      "question": "Order how AWS evaluates the policy types for a request made by a role session within a single account, from the first evaluation to the last.",
       "options": [
         {
           "id": "a",
-          "text": "El cliente solicita al backend permiso para subir"
+          "text": "Explicit Deny statements in any policy"
         },
         {
           "id": "b",
-          "text": "El backend genera una presigned URL PUT de corta duración"
+          "text": "AWS Organizations SCPs"
         },
         {
           "id": "c",
-          "text": "El cliente sube el archivo directamente a S3 con esa URL"
+          "text": "Resource-based policies"
         },
         {
           "id": "d",
-          "text": "S3 valida la firma y los permisos de quien firmó antes de aceptar el objeto"
-        }
-      ],
-      "correct": [
-        "a",
-        "b",
-        "c",
-        "d"
-      ],
-      "explanation": "El backend firma la URL con sus credenciales; S3 comprueba la firma y que el firmante tenga permiso.",
-      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html"
-    },
-    {
-      "id": "IAM-032",
-      "type": "single",
-      "topic": "presigned-urls",
-      "question": "Una presigned URL generada desde una Lambda deja de funcionar antes de su expiración. ¿Causa probable?",
-      "options": [
-        {
-          "id": "a",
-          "text": "El bucket no tiene versionado"
-        },
-        {
-          "id": "b",
-          "text": "Vence la vigencia de las credenciales temporales del rol con el que se firmó"
-        },
-        {
-          "id": "c",
-          "text": "La URL solo funciona una vez por Región"
-        },
-        {
-          "id": "d",
-          "text": "S3 limita todas las URLs a 5 minutos"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Una presigned URL firmada con credenciales temporales deja de ser válida cuando estas expiran.",
-      "reference": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html"
-    },
-    {
-      "id": "IAM-033",
-      "type": "single",
-      "topic": "roles-anywhere",
-      "question": "Servidores on-premises acceden a S3 con claves de acceso de larga duración. ¿Cómo se eliminan las claves?",
-      "options": [
-        {
-          "id": "a",
-          "text": "IAM Roles Anywhere con certificados de la PKI corporativa"
-        },
-        {
-          "id": "b",
-          "text": "Compartir las claves por un parámetro de SSM"
-        },
-        {
-          "id": "c",
-          "text": "Crear un usuario IAM por servidor"
-        },
-        {
-          "id": "d",
-          "text": "Rotar las claves cada 90 días"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Roles Anywhere intercambia certificados X.509 por credenciales temporales de un rol.",
-      "reference": "https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html"
-    },
-    {
-      "id": "IAM-034",
-      "type": "single",
-      "topic": "roles-anywhere",
-      "question": "Se quiere usar AWS Private CA como emisor de confianza para Roles Anywhere. ¿Qué se crea?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un key group de CloudFront"
-        },
-        {
-          "id": "b",
-          "text": "Un trust anchor que apunte a la CA privada"
-        },
-        {
-          "id": "c",
-          "text": "Un identity pool"
-        },
-        {
-          "id": "d",
-          "text": "Una web ACL"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "El trust anchor define en qué CA confía Roles Anywhere para validar certificados.",
-      "reference": "https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html"
-    },
-    {
-      "id": "IAM-035",
-      "type": "single",
-      "topic": "sts-federacion",
-      "question": "Un rol de administración solo debe poder asumirse con MFA. ¿Qué se agrega a la trust policy?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Condición aws:MultiFactorAuthPresent igual a true"
-        },
-        {
-          "id": "b",
-          "text": "Un boundary sobre el grupo"
-        },
-        {
-          "id": "c",
-          "text": "Condición aws:SourceVpce"
-        },
-        {
-          "id": "d",
-          "text": "Condición s3:signatureAge"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "La trust policy puede exigir que la sesión de origen haya usado MFA.",
-      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
-    },
-    {
-      "id": "IAM-036",
-      "type": "single",
-      "topic": "sts-federacion",
-      "question": "Se quiere atribuir las acciones a una persona concreta aunque se encadenen roles. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "ExternalId"
-        },
-        {
-          "id": "b",
-          "text": "SourceIdentity"
-        },
-        {
-          "id": "c",
-          "text": "Session policy"
-        },
-        {
-          "id": "d",
-          "text": "Permissions boundary"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "SourceIdentity persiste a través de role chaining y aparece en CloudTrail.",
-      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
-    },
-    {
-      "id": "IAM-037",
-      "type": "single",
-      "topic": "sts-federacion",
-      "question": "Un pipeline de CI/CD debe desplegar en AWS sin claves de larga duración. ¿Qué se configura?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un AD Connector"
-        },
-        {
-          "id": "b",
-          "text": "Un bucket con las claves"
-        },
-        {
-          "id": "c",
-          "text": "Un usuario IAM con claves rotadas manualmente"
-        },
-        {
-          "id": "d",
-          "text": "Un proveedor OIDC y AssumeRoleWithWebIdentity"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "El pipeline presenta su token OIDC y obtiene credenciales temporales de un rol.",
-      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
-    },
-    {
-      "id": "IAM-038",
-      "type": "single",
-      "topic": "sts-federacion",
-      "question": "Una sesión obtenida por role chaining falla al solicitar 2 horas. ¿Por qué?",
-      "options": [
-        {
-          "id": "a",
-          "text": "El rol no tiene boundary"
-        },
-        {
-          "id": "b",
-          "text": "STS no admite más de 15 minutos"
-        },
-        {
-          "id": "c",
-          "text": "Falta MFA"
-        },
-        {
-          "id": "d",
-          "text": "El encadenamiento de roles limita la sesión a 1 hora"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Con role chaining la duración máxima de la sesión es de 1 hora.",
-      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
-    },
-    {
-      "id": "IAM-039",
-      "type": "multiple",
-      "topic": "abac-rbac",
-      "question": "¿Qué elementos forman parte de una implementación segura de ABAC? (Elige TRES)",
-      "options": [
-        {
-          "id": "a",
-          "text": "Session tags enviadas desde el IdP (SAML/OIDC) o Identity Center"
-        },
-        {
-          "id": "b",
-          "text": "Etiquetas multivaluadas en la sesión de STS"
-        },
-        {
-          "id": "c",
-          "text": "Conceder AdministratorAccess a todos los roles"
-        },
-        {
-          "id": "d",
-          "text": "Controles que impiden modificar las etiquetas de control de acceso"
+          "text": "Identity-based policies"
         },
         {
           "id": "e",
-          "text": "Políticas que comparan aws:PrincipalTag con aws:ResourceTag"
+          "text": "Permissions boundaries"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e"
+      ],
+      "explanation": "Según la lógica de evaluación documentada: primero cualquier Deny explícito, luego SCP (y RCP), políticas de recurso, de identidad, permissions boundaries y finalmente session policies.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/AccessPolicyLanguage_EvaluationLogic.html"
+    },
+    {
+      "id": "IAM-139",
+      "type": "ordering",
+      "topic": "cognito",
+      "question": "Order the steps for a mobile app user to obtain temporary AWS credentials with Amazon Cognito.",
+      "options": [
+        {
+          "id": "a",
+          "text": "The user authenticates against the user pool"
+        },
+        {
+          "id": "b",
+          "text": "The app receives the ID token from the user pool"
+        },
+        {
+          "id": "c",
+          "text": "The app sends the token to the identity pool"
+        },
+        {
+          "id": "d",
+          "text": "The identity pool obtains temporary credentials from AWS STS for the mapped IAM role"
+        },
+        {
+          "id": "e",
+          "text": "The app calls AWS services with the temporary credentials"
+        }
+      ],
+      "correct": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e"
+      ],
+      "explanation": "User pool = autenticación (tokens); identity pool = intercambio por credenciales AWS temporales del rol mapeado.",
+      "reference": "https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
+    },
+    {
+      "id": "IAM-140",
+      "type": "matching",
+      "topic": "politicas-recursos-confianza",
+      "question": "Match each condition key with the use case it best addresses.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "aws:PrincipalOrgID"
+        },
+        {
+          "id": "p2",
+          "text": "sts:ExternalId"
+        },
+        {
+          "id": "p3",
+          "text": "aws:SourceArn"
+        },
+        {
+          "id": "p4",
+          "text": "aws:MultiFactorAuthPresent"
+        },
+        {
+          "id": "p5",
+          "text": "aws:TokenIssueTime"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Deny sessions issued before a compromise"
+        },
+        {
+          "id": "b",
+          "text": "Restrict which resource a service principal acts on behalf of"
+        },
+        {
+          "id": "c",
+          "text": "Require MFA for sensitive API calls"
+        },
+        {
+          "id": "d",
+          "text": "Allow access only to principals in your organization"
+        },
+        {
+          "id": "e",
+          "text": "Require encryption in transit"
+        },
+        {
+          "id": "f",
+          "text": "Prevent the confused deputy problem with a third-party vendor"
+        }
+      ],
+      "correct": {
+        "p1": "d",
+        "p2": "f",
+        "p3": "b",
+        "p4": "c",
+        "p5": "a"
+      },
+      "explanation": "Cada clave de condición resuelve un problema distinto; el cifrado en tránsito se exige con aws:SecureTransport.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html"
+    },
+    {
+      "id": "IAM-141",
+      "type": "matching",
+      "topic": "identity-center",
+      "question": "Match each requirement with the MOST appropriate AWS identity service.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Workforce single sign-on to many AWS accounts"
+        },
+        {
+          "id": "p2",
+          "text": "Sign-up and sign-in for customers of a mobile app"
+        },
+        {
+          "id": "p3",
+          "text": "On-premises workloads with X.509 certificates need AWS credentials"
+        },
+        {
+          "id": "p4",
+          "text": "Fine-grained permissions inside a custom application"
+        },
+        {
+          "id": "p5",
+          "text": "Domain-joined Windows workloads in AWS"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "IAM Roles Anywhere"
+        },
+        {
+          "id": "b",
+          "text": "AWS Managed Microsoft AD"
+        },
+        {
+          "id": "c",
+          "text": "IAM users with long-term access keys"
+        },
+        {
+          "id": "d",
+          "text": "IAM Identity Center"
+        },
+        {
+          "id": "e",
+          "text": "Amazon Cognito user pools"
+        },
+        {
+          "id": "f",
+          "text": "Amazon Verified Permissions"
+        }
+      ],
+      "correct": {
+        "p1": "d",
+        "p2": "e",
+        "p3": "a",
+        "p4": "f",
+        "p5": "b"
+      },
+      "explanation": "Cada servicio cubre un tipo de identidad distinto: fuerza laboral, clientes, cargas on-premises, autorización de la aplicación y AD.",
+      "reference": "https://docs.aws.amazon.com/singlesignon/latest/userguide/delegated-admin.html"
+    },
+    {
+      "id": "IAM-142",
+      "type": "multiple",
+      "topic": "limites-permisos",
+      "question": "A security engineer is reviewing an IAM policy attached to a developer role. All statements apply to Resource \"*\".\n\nWhich permissions could allow the developer to escalate privileges? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "iam:PassRole together with ec2:RunInstances"
+        },
+        {
+          "id": "b",
+          "text": "iam:GenerateCredentialReport"
+        },
+        {
+          "id": "c",
+          "text": "iam:ListRoles"
+        },
+        {
+          "id": "d",
+          "text": "iam:AttachRolePolicy"
+        },
+        {
+          "id": "e",
+          "text": "iam:GetPolicy"
+        },
+        {
+          "id": "f",
+          "text": "iam:CreatePolicyVersion"
         }
       ],
       "correct": [
         "a",
         "d",
-        "e"
+        "f"
       ],
-      "explanation": "ABAC combina etiquetas coincidentes, protección de las etiquetas y atributos de sesión; un AdministratorAccess anula el control y STS no admite etiquetas multivaluadas.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html"
+      "explanation": "Crear una nueva versión por defecto de una política, adjuntar políticas a un rol o pasar un rol privilegiado a una instancia propia permiten obtener más permisos. Las acciones de lectura no lo permiten.",
+      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
     },
     {
-      "id": "IAM-040",
+      "id": "IAM-143",
       "type": "multiple",
-      "topic": "politicas-recursos-confianza",
-      "question": "¿Qué controles limitan que un rol sea asumible por cuentas ajenas a la organización? (Elige DOS)",
+      "topic": "sts-federacion",
+      "question": "A user in Account A must assume a role in Account B. Which conditions must be met? (Select TWO.)",
       "options": [
         {
           "id": "a",
-          "text": "Una tag policy"
+          "text": "The user has MFA enabled."
         },
         {
           "id": "b",
-          "text": "Un security group en el rol"
+          "text": "The role in Account B has a permissions boundary."
         },
         {
           "id": "c",
-          "text": "Condición aws:PrincipalOrgID en la trust policy"
+          "text": "An identity-based policy in Account A allows the user to call sts:AssumeRole on the role ARN."
         },
         {
           "id": "d",
-          "text": "Una RCP o SCP preventiva sobre las acciones de confianza"
+          "text": "The trust policy of the role in Account B allows the user (or Account A) as a principal for sts:AssumeRole."
         },
         {
           "id": "e",
-          "text": "Habilitar versionado en S3"
+          "text": "An SCP in Account B explicitly allows sts:AssumeRole."
         }
       ],
       "correct": [
         "c",
         "d"
       ],
-      "explanation": "La trust policy con PrincipalOrgID y los controles preventivos de organización impiden la asunción externa.",
-      "reference": "https://docs.aws.eu/IAM/latest/UserGuide/confused-deputy.html"
+      "explanation": "El assume entre cuentas requiere confianza en el destino (trust policy) y permiso en el origen (identity policy). Las SCP no conceden permisos; MFA solo si la trust policy lo exige.",
+      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
     },
     {
-      "id": "IAM-041",
-      "type": "matching",
-      "topic": "identity-center",
-      "question": "Empareja cada servicio de identidad con su propósito principal.",
-      "prompts": [
-        {
-          "id": "p1",
-          "text": "Autenticar a los usuarios de una app y emitir tokens"
-        },
-        {
-          "id": "p2",
-          "text": "Entregar credenciales AWS temporales a usuarios de una app"
-        },
-        {
-          "id": "p3",
-          "text": "Dar a cargas on-premises credenciales temporales mediante certificados"
-        },
-        {
-          "id": "p4",
-          "text": "Actuar de proxy hacia un Active Directory existente"
-        },
-        {
-          "id": "p5",
-          "text": "SSO de la fuerza laboral a múltiples cuentas de AWS"
-        }
-      ],
+      "id": "IAM-144",
+      "type": "single",
+      "topic": "sts-federacion",
+      "question": "A company wants to know which human user performed actions after assuming a shared role, even across role chaining. CloudTrail currently shows only the role session name, which users can set to any value.\n\nWhat should the security engineer implement?",
       "options": [
         {
           "id": "a",
-          "text": "Amazon Cognito user pool"
+          "text": "Add the aws:PrincipalTag/username tag to each role."
         },
         {
           "id": "b",
-          "text": "Amazon Cognito identity pool"
+          "text": "Enable CloudTrail data events for AWS STS."
         },
         {
           "id": "c",
-          "text": "AD Connector"
+          "text": "Require sts:SourceIdentity in the role trust policies and have the identity provider set it to the user's corporate username."
         },
         {
           "id": "d",
-          "text": "IAM Roles Anywhere"
-        },
-        {
-          "id": "e",
-          "text": "IAM Identity Center"
-        },
-        {
-          "id": "f",
-          "text": "AWS Verified Permissions"
+          "text": "Require a specific role session name pattern with an aws:userid condition."
         }
       ],
-      "correct": {
-        "p1": "a",
-        "p2": "b",
-        "p3": "d",
-        "p4": "c",
-        "p5": "e"
-      },
-      "explanation": "Los user pools autentican, los identity pools entregan credenciales AWS, Roles Anywhere usa certificados, AD Connector hace de proxy e Identity Center centraliza el SSO de la fuerza laboral.",
-      "reference": "https://docs.aws.amazon.com/singlesignon/latest/userguide/delegated-admin.html"
-    },
-    {
-      "id": "IAM-042",
-      "type": "matching",
-      "topic": "evaluacion-politicas",
-      "question": "Empareja cada necesidad con la clave de condición adecuada.",
-      "prompts": [
-        {
-          "id": "p1",
-          "text": "Limitar el acceso a principales de la organización"
-        },
-        {
-          "id": "p2",
-          "text": "Exigir que la sesión haya usado MFA"
-        },
-        {
-          "id": "p3",
-          "text": "Restringir el acceso a un endpoint de VPC concreto"
-        },
-        {
-          "id": "p4",
-          "text": "Denegar sesiones emitidas antes de cierta hora (revocación)"
-        }
+      "correct": [
+        "c"
       ],
-      "options": [
-        {
-          "id": "a",
-          "text": "aws:PrincipalOrgID"
-        },
-        {
-          "id": "b",
-          "text": "aws:SourceVpce"
-        },
-        {
-          "id": "c",
-          "text": "aws:TokenIssueTime"
-        },
-        {
-          "id": "d",
-          "text": "aws:RequestedRegion"
-        },
-        {
-          "id": "e",
-          "text": "aws:MultiFactorAuthPresent"
-        }
-      ],
-      "correct": {
-        "p1": "a",
-        "p2": "e",
-        "p3": "b",
-        "p4": "c"
-      },
-      "explanation": "Cada clave resuelve un caso distinto: organización, MFA, red privada y revocación de sesiones. aws:RequestedRegion limita Regiones y no aplica a estos casos.",
-      "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/AccessPolicyLanguage_EvaluationLogic.html"
+      "explanation": "Source identity se establece al asumir el rol, no se puede cambiar en la sesión, persiste en el role chaining y queda en CloudTrail. Requiere sts:SetSourceIdentity en la trust policy.",
+      "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
     }
   ]
 }
