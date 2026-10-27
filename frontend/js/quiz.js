@@ -7,7 +7,8 @@ const QuizEngine = (() => {
   let userAnswers = [];
 
   async function loadDomain(domain) {
-    const res = await fetch(`data/questions/${domain.file}`);
+    // no-cache: revalida contra el servidor (ETag) para ver preguntas nuevas al publicar
+    const res = await fetch(`data/questions/${domain.file}`, { cache: "no-cache" });
     if (!res.ok) {
       throw new Error(`No se pudo cargar ${domain.file} (HTTP ${res.status})`);
     }
@@ -34,6 +35,15 @@ const QuizEngine = (() => {
 
   function getCurrentIndex() {
     return currentIndex;
+  }
+
+  function getTotal() {
+    return currentQuestions.length;
+  }
+
+  // true/false por pregunta respondida, null si aun no se responde
+  function getOutcomes() {
+    return currentQuestions.map((_, i) => (userAnswers[i] === null ? null : isCorrect(i)));
   }
 
   function getProgressLabel() {
@@ -70,8 +80,11 @@ const QuizEngine = (() => {
   function computeResults() {
     let correctCount = 0;
     const failedIds = [];
+    const outcomes = [];
     currentQuestions.forEach((q, i) => {
-      if (isCorrect(i)) {
+      const ok = isCorrect(i);
+      outcomes.push(ok);
+      if (ok) {
         correctCount++;
       } else {
         failedIds.push(q.id);
@@ -82,6 +95,7 @@ const QuizEngine = (() => {
       score: correctCount,
       total: currentQuestions.length,
       failedIds,
+      outcomes,
     };
   }
 
@@ -89,6 +103,8 @@ const QuizEngine = (() => {
     loadDomain,
     getCurrentQuestion,
     getCurrentIndex,
+    getTotal,
+    getOutcomes,
     getProgressLabel,
     submitAnswer,
     isCorrect,

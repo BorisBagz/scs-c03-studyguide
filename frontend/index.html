@@ -2,58 +2,96 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#F1F5F9" />
   <title>SCS-C03 Study Guide</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href="fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/ibm-plex-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <!-- __VERSION__ lo reemplaza el workflow de deploy por el SHA del commit,
+       asi el navegador descarga archivos nuevos en cada publicacion. -->
+  <link rel="stylesheet" href="css/styles.css?v=__VERSION__" />
 </head>
-<body>
+<body data-view="home">
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
   <header class="app-header">
-    <h1>SCS-C03 Study Guide</h1>
-    <nav class="app-nav">
-      <button data-view="home" class="nav-btn active">Dominios</button>
-      <button data-view="progress" class="nav-btn">Progreso</button>
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="0.6" y="9" width="3.6" height="20" rx="1.2" fill="#0E8A9B" />
+        <rect x="5.6" y="12" width="3.6" height="17" rx="1.2" fill="#D1432B" />
+        <rect x="10.6" y="7" width="3.6" height="22" rx="1.2" fill="#3F4FD1" />
+        <rect x="15.6" y="4" width="3.6" height="25" rx="1.2" fill="#C98A00" />
+        <rect x="20.6" y="7" width="3.6" height="22" rx="1.2" fill="#7C3FB8" />
+        <rect x="25.6" y="12" width="3.6" height="17" rx="1.2" fill="#2E8B57" />
+      </svg>
+      <span class="brand-name">SCS-C03</span>
+      <span class="brand-sub">Study Guide</span>
+    </div>
+
+    <nav class="tabs" aria-label="Secciones">
+      <button class="tab" data-view="home" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20V8M22 20H2" /></svg>
+        <span>Dominios</span>
+      </button>
+      <button class="tab" data-view="progress">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-5 4 4 8-9M15 7h5v5" /></svg>
+        <span>Progreso</span>
+      </button>
     </nav>
   </header>
 
-  <main id="app">
-    <!-- Vista: lista de dominios -->
+  <main id="main">
+    <!-- Dominios -->
     <section id="view-home" class="view">
-      <div id="domain-list" class="domain-grid"></div>
+      <header class="view-head">
+        <h1 tabindex="-1" data-focus>Plano del examen</h1>
+        <p class="lede">Cada columna es un dominio del SCS-C03. El ancho marca cuánto pesa en el examen y el relleno, cuánto dominas hoy.</p>
+      </header>
+      <div id="blueprint-home"></div>
+      <p id="blueprint-note" class="note"></p>
+      <ul id="domain-list" class="rows"></ul>
     </section>
 
-    <!-- Vista: quiz en curso -->
+    <!-- Quiz -->
     <section id="view-quiz" class="view hidden">
-      <div class="quiz-header">
-        <span id="quiz-progress-label"></span>
-        <button id="quiz-exit-btn" class="btn-secondary">Salir</button>
+      <div class="quiz-top">
+        <button id="quiz-exit-btn" class="icon-btn" aria-label="Salir del quiz">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+        <div id="quiz-steps" class="steps" aria-hidden="true"></div>
+        <span id="quiz-progress-label" class="quiz-count"></span>
       </div>
-      <div id="quiz-question-card" class="quiz-card"></div>
-      <div class="quiz-actions">
-        <button id="quiz-submit-btn" class="btn-primary">Verificar respuesta</button>
-        <button id="quiz-next-btn" class="btn-primary hidden">Siguiente</button>
+      <div id="quiz-question-card"></div>
+      <div class="quiz-bar">
+        <button id="quiz-submit-btn" class="btn btn-primary btn-block">Verificar respuesta</button>
+        <button id="quiz-next-btn" class="btn btn-primary btn-block hidden">Siguiente pregunta</button>
       </div>
     </section>
 
-    <!-- Vista: resultados -->
+    <!-- Resultado -->
     <section id="view-results" class="view hidden">
-      <div id="results-card" class="quiz-card"></div>
-      <button id="results-back-btn" class="btn-primary">Volver a dominios</button>
+      <div id="results-card"></div>
     </section>
 
-    <!-- Vista: progreso -->
+    <!-- Progreso -->
     <section id="view-progress" class="view hidden">
-      <div id="progress-list" class="progress-list"></div>
+      <header class="view-head">
+        <h1 tabindex="-1" data-focus>Tu progreso</h1>
+        <p class="lede">El relleno de cada dominio es el promedio de tus últimos 3 intentos en él.</p>
+      </header>
+      <div id="blueprint-progress"></div>
+      <p id="progress-note" class="note"></p>
+      <h2 class="section-title">Últimos intentos</h2>
+      <ol id="attempt-list" class="attempts"></ol>
     </section>
   </main>
 
-  <script src="js/modules.js"></script>
-  <script>
-    // config.js es opcional (gitignored); si no existe, la app sigue
-    // funcionando en modo solo-local (sin sync entre dispositivos).
-  </script>
-  <script src="js/config.js" onerror="console.warn('config.js no encontrado: modo solo-local')"></script>
-  <script src="js/progress.js"></script>
-  <script src="js/quiz.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/modules.js?v=__VERSION__"></script>
+  <!-- config.js es opcional; si falta, la app funciona en modo solo-local. -->
+  <script src="js/config.js?v=__VERSION__" onerror="console.warn('config.js no encontrado: modo solo-local')"></script>
+  <script src="js/progress.js?v=__VERSION__"></script>
+  <script src="js/quiz.js?v=__VERSION__"></script>
+  <script src="js/app.js?v=__VERSION__"></script>
 </body>
 </html>

@@ -174,3 +174,27 @@ function getDomainStats(domainId) {
     latestPercent: Math.round((latest.score / latest.total) * 100),
   };
 }
+
+// Dominio actual = promedio ponderado de los ultimos 3 intentos del dominio.
+// (El promedio historico tarda en reflejar mejoras; un solo intento es muy volatil.)
+function getDomainMastery(domainId) {
+  const attempts = loadLocalProgress()
+    .attempts.filter((a) => a.domain === domainId && a.total > 0)
+    .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+    .slice(-3);
+  if (attempts.length === 0) return null;
+  const score = attempts.reduce((s, a) => s + a.score, 0);
+  const total = attempts.reduce((s, a) => s + a.total, 0);
+  return Math.round((score / total) * 100);
+}
+
+function getRecentAttempts(limit = 10) {
+  return loadLocalProgress()
+    .attempts.slice()
+    .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+    .slice(0, limit);
+}
+
+function getFailedCount() {
+  return Object.keys(loadLocalProgress().failedQuestions).length;
+}
