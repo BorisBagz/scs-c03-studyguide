@@ -899,7 +899,172 @@
           "title": "Evaluar el cumplimiento de los recursos"
         }
       ],
-      "topics": []
+      "topics": [
+        {
+          "id": "organizations-estructura",
+          "title": "Organizations: estructura y cuenta de administración",
+          "summary": "OU, all features, administradores delegados y buenas prácticas de la cuenta de administración.",
+          "tasks": [
+            "6.1"
+          ],
+          "services": [
+            "Organizations"
+          ]
+        },
+        {
+          "id": "scp",
+          "title": "Políticas de control de servicios (SCP)",
+          "summary": "Máximo de permisos, qué afectan y qué no, deny list vs allow list.",
+          "tasks": [
+            "6.1"
+          ],
+          "services": [
+            "Organizations",
+            "SCP"
+          ]
+        },
+        {
+          "id": "rcp-perimetro-datos",
+          "title": "RCP y perímetro de datos",
+          "summary": "Control de permisos sobre recursos, servicios soportados y ejemplo de perímetro.",
+          "tasks": [
+            "6.1"
+          ],
+          "services": [
+            "Organizations",
+            "RCP"
+          ]
+        },
+        {
+          "id": "politicas-declarativas",
+          "title": "Políticas declarativas y otros tipos",
+          "summary": "Configuración base de servicios, cuenta de estado, AI opt-out y tipos de política.",
+          "tasks": [
+            "6.1"
+          ],
+          "services": [
+            "Organizations"
+          ]
+        },
+        {
+          "id": "control-tower",
+          "title": "AWS Control Tower",
+          "summary": "Landing zone, controles preventivos, detectivos y proactivos, guía de aplicación.",
+          "tasks": [
+            "6.1"
+          ],
+          "services": [
+            "Control Tower",
+            "CfCT"
+          ]
+        },
+        {
+          "id": "acceso-root-centralizado",
+          "title": "Acceso root centralizado",
+          "summary": "Credenciales root, sesiones root con AssumeRoot y acceso de emergencia.",
+          "tasks": [
+            "6.1"
+          ],
+          "services": [
+            "IAM",
+            "STS",
+            "Organizations"
+          ]
+        },
+        {
+          "id": "iac-validacion",
+          "title": "IaC: validación y StackSets",
+          "summary": "cfn-lint, CloudFormation Guard, Hooks y StackSets.",
+          "tasks": [
+            "6.2"
+          ],
+          "services": [
+            "CloudFormation",
+            "Guard",
+            "StackSets"
+          ]
+        },
+        {
+          "id": "etiquetado-gobierno",
+          "title": "Etiquetado y gobierno",
+          "summary": "Tag policies, SCP para exigir etiquetas y Config required-tags.",
+          "tasks": [
+            "6.2"
+          ],
+          "services": [
+            "Organizations",
+            "Config"
+          ]
+        },
+        {
+          "id": "firewall-manager",
+          "title": "AWS Firewall Manager",
+          "summary": "Políticas centralizadas de WAF, Shield, SG, Network Firewall y DNS Firewall.",
+          "tasks": [
+            "6.2"
+          ],
+          "services": [
+            "Firewall Manager"
+          ]
+        },
+        {
+          "id": "service-catalog-ram",
+          "title": "Service Catalog y RAM",
+          "summary": "Productos aprobados con launch constraints y recursos compartidos.",
+          "tasks": [
+            "6.2"
+          ],
+          "services": [
+            "Service Catalog",
+            "RAM"
+          ]
+        },
+        {
+          "id": "config-cumplimiento",
+          "title": "AWS Config y cumplimiento multi-cuenta",
+          "summary": "Reglas, conformance packs, agregadores y remediación.",
+          "tasks": [
+            "6.3"
+          ],
+          "services": [
+            "Config"
+          ]
+        },
+        {
+          "id": "security-hub-cspm",
+          "title": "Security Hub CSPM",
+          "summary": "Estándares, controles, puntuación y configuración central.",
+          "tasks": [
+            "6.3"
+          ],
+          "services": [
+            "Security Hub"
+          ]
+        },
+        {
+          "id": "audit-manager-artifact",
+          "title": "Audit Manager y Artifact",
+          "summary": "Evidencia de auditoría e informes y acuerdos de cumplimiento de AWS.",
+          "tasks": [
+            "6.3"
+          ],
+          "services": [
+            "Audit Manager",
+            "Artifact"
+          ]
+        },
+        {
+          "id": "well-architected-tool",
+          "title": "Well-Architected Tool",
+          "summary": "Revisión de cargas de trabajo, pilares, lentes e hitos.",
+          "tasks": [
+            "6.3"
+          ],
+          "services": [
+            "Well-Architected Tool"
+          ]
+        }
+      ]
     }
   }
 }
