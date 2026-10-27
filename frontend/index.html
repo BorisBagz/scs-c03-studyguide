@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCS-C03 Study Guide</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>SCS-C03 Study Guide</h1>
+    <nav class="app-nav">
+      <button data-view="home" class="nav-btn active">Dominios</button>
+      <button data-view="progress" class="nav-btn">Progreso</button>
+    </nav>
+  </header>
+
+  <main id="app">
+    <!-- Vista: lista de dominios -->
+    <section id="view-home" class="view">
+      <div id="domain-list" class="domain-grid"></div>
+    </section>
+
+    <!-- Vista: quiz en curso -->
+    <section id="view-quiz" class="view hidden">
+      <div class="quiz-header">
+        <span id="quiz-progress-label"></span>
+        <button id="quiz-exit-btn" class="btn-secondary">Salir</button>
+      </div>
+      <div id="quiz-question-card" class="quiz-card"></div>
+      <div class="quiz-actions">
+        <button id="quiz-submit-btn" class="btn-primary">Verificar respuesta</button>
+        <button id="quiz-next-btn" class="btn-primary hidden">Siguiente</button>
+      </div>
+    </section>
+
+    <!-- Vista: resultados -->
+    <section id="view-results" class="view hidden">
+      <div id="results-card" class="quiz-card"></div>
+      <button id="results-back-btn" class="btn-primary">Volver a dominios</button>
+    </section>
+
+    <!-- Vista: progreso -->
+    <section id="view-progress" class="view hidden">
+      <div id="progress-list" class="progress-list"></div>
+    </section>
+  </main>
+
+  <script src="js/modules.js"></script>
+  <script>
+    // config.js es opcional (gitignored); si no existe, la app sigue
+    // funcionando en modo solo-local (sin sync entre dispositivos).
+  </script>
+  <script src="js/config.js" onerror="console.warn('config.js no encontrado: modo solo-local')"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

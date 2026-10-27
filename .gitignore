@@ -15,6 +15,7 @@ node_modules/
 .env
 .env.*
 *.pem
+frontend/js/config.js
 
 # OS / editor
 .DS_Store

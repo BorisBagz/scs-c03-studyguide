@@ -1,0 +1,241 @@
+:root {
+  --color-bg: #0f1419;
+  --color-surface: #1a2029;
+  --color-border: #2a3341;
+  --color-text: #e6e9ef;
+  --color-text-muted: #9aa5b4;
+  --color-primary: #ff9900;
+  --color-primary-hover: #e68a00;
+  --color-correct: #2ecc71;
+  --color-incorrect: #e74c3c;
+  --radius: 8px;
+  --spacing: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: var(--spacing);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.app-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.nav-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+main {
+  padding: var(--spacing);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.domain-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .domain-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.domain-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--spacing);
+}
+
+.domain-card h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.domain-weight {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 4px;
+  font-size: 0.85rem;
+}
+
+.domain-stats {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin: 0 0 12px;
+}
+
+.btn-primary,
+.btn-secondary {
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  width: auto;
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.quiz-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--spacing);
+  margin-bottom: var(--spacing);
+}
+
+.quiz-type-badge {
+  display: inline-block;
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 0 0 12px;
+}
+
+.quiz-question-text {
+  font-size: 1.05rem;
+  margin: 0 0 var(--spacing);
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.quiz-option input {
+  flex-shrink: 0;
+}
+
+.quiz-feedback {
+  margin-top: var(--spacing);
+  padding: 12px;
+  border-radius: var(--radius);
+}
+
+.feedback-correct {
+  background: rgba(46, 204, 113, 0.12);
+  border: 1px solid var(--color-correct);
+}
+
+.feedback-incorrect {
+  background: rgba(231, 76, 60, 0.12);
+  border: 1px solid var(--color-incorrect);
+}
+
+.quiz-reference a {
+  color: var(--color-primary);
+}
+
+.quiz-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.results-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 12px var(--spacing);
+  font-size: 0.9rem;
+}
+
+.progress-domain-name {
+  color: var(--color-text);
+}
+
+.progress-domain-value {
+  color: var(--color-text-muted);
+}

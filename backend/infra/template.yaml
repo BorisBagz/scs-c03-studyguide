@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SCS-C03 Study Guide — backend minimo de sincronizacion de progreso
+  (API Gateway + Lambda + DynamoDB), dentro del free tier de AWS.
+
+Globals:
+  Function:
+    Runtime: python3.13
+    MemorySize: 128
+    Timeout: 5
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref ProgressTable
+
+Resources:
+  ProgressApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,x-api-key'"
+        AllowOrigin: "'*'"
+      Auth:
+        ApiKeyRequired: true
+        UsagePlan:
+          CreateUsagePlan: PER_API
+          Description: Usage plan para uso personal, dentro del free tier
+          Throttle:
+            BurstLimit: 5
+            RateLimit: 2
+          Quota:
+            Limit: 10000
+            Period: MONTH
+
+  ProgressTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: scs-c03-progress
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+  GetProgressFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/get-progress/
+      Handler: app.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ProgressTable
+      Events:
+        GetProgress:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ProgressApi
+            Path: /progress
+            Method: GET
+
+  PutProgressFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/put-progress/
+      Handler: app.handler
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref ProgressTable
+      Events:
+        PutProgress:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ProgressApi
+            Path: /progress
+            Method: POST
+
+Outputs:
+  ApiBaseUrl:
+    Description: Base URL del API (completar frontend/js/config.js con este valor)
+    Value: !Sub "https://${ProgressApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  ProgressTableName:
+    Value: !Ref ProgressTable

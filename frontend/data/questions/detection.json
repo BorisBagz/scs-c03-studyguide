@@ -1,0 +1,33 @@
+{
+  "domain": "detection",
+  "questions": [
+    {
+      "id": "DET-001",
+      "type": "single",
+      "question": "¿Cuál de las siguientes es una fuente de datos FUNDACIONAL (foundational) que Amazon GuardDuty analiza de forma nativa, sin necesidad de habilitarla ni configurarla explícitamente?",
+      "options": [
+        { "id": "a", "text": "Logs de acceso de Application Load Balancer (ALB)" },
+        { "id": "b", "text": "VPC Flow Logs" },
+        { "id": "c", "text": "Logs de auditoría de EKS" },
+        { "id": "d", "text": "Eventos de datos de S3 (S3 Protection)" }
+      ],
+      "correct": ["b"],
+      "explanation": "GuardDuty tiene 3 fuentes de datos fundacionales que analiza automáticamente sin configuración adicional: eventos de administración de AWS CloudTrail, VPC Flow Logs y logs de consultas DNS de Route 53 Resolver (solo si se usa el resolver DNS por defecto de AWS). EKS audit logs y S3 data events son 'protection plans' adicionales que deben habilitarse explícitamente. GuardDuty no analiza logs de ALB.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_data-sources.html"
+    },
+    {
+      "id": "DET-002",
+      "type": "single",
+      "question": "Una organización quiere que GuardDuty detecte actividad maliciosa relacionada con operaciones de lectura/escritura sospechosas sobre buckets S3 (por ejemplo, acceso desde una IP maliciosa conocida). ¿Qué se debe hacer?",
+      "options": [
+        { "id": "a", "text": "Nada: S3 Protection está habilitado por defecto como fuente fundacional" },
+        { "id": "b", "text": "Habilitar explícitamente S3 Protection dentro de GuardDuty, ya que es un protection plan opcional" },
+        { "id": "c", "text": "Configurar AWS Config para enviar eventos a GuardDuty" },
+        { "id": "d", "text": "Activar Macie, que reemplaza la funcionalidad de monitoreo de S3 en GuardDuty" }
+      ],
+      "correct": ["b"],
+      "explanation": "El monitoreo de eventos de datos de S3 (S3 Protection) es un protection plan opcional de GuardDuty, no una fuente fundacional; debe habilitarse explícitamente por cuenta o a nivel de organización. Macie es un servicio complementario enfocado en clasificación de datos sensibles, no reemplaza esta funcionalidad de GuardDuty.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/s3-protection.html"
+    }
+  ]
+}
