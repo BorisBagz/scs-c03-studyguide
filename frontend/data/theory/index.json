@@ -556,7 +556,163 @@
           "title": "Estrategias de autorización"
         }
       ],
-      "topics": []
+      "topics": [
+        {
+          "id": "identity-center",
+          "title": "IAM Identity Center",
+          "summary": "SSO de la fuerza laboral: fuentes de identidad, permission sets, SCIM y administración delegada.",
+          "tasks": [
+            "4.1"
+          ],
+          "services": [
+            "IAM Identity Center",
+            "Organizations"
+          ]
+        },
+        {
+          "id": "cognito",
+          "title": "Amazon Cognito",
+          "summary": "User pools vs identity pools, federación, MFA, threat protection y credenciales por usuario.",
+          "tasks": [
+            "4.1"
+          ],
+          "services": [
+            "Cognito"
+          ]
+        },
+        {
+          "id": "sts-federacion",
+          "title": "STS y federación",
+          "summary": "AssumeRole y variantes, External ID, MFA, session tags, SourceIdentity, SAML y OIDC.",
+          "tasks": [
+            "4.1"
+          ],
+          "services": [
+            "STS",
+            "IAM"
+          ]
+        },
+        {
+          "id": "directory-service",
+          "title": "AWS Directory Service",
+          "summary": "Managed Microsoft AD, AD Connector y Simple AD; integración con Identity Center.",
+          "tasks": [
+            "4.1"
+          ],
+          "services": [
+            "Directory Service"
+          ]
+        },
+        {
+          "id": "roles-anywhere",
+          "title": "IAM Roles Anywhere",
+          "summary": "Credenciales temporales para cargas fuera de AWS con certificados X.509.",
+          "tasks": [
+            "4.1",
+            "4.2"
+          ],
+          "services": [
+            "IAM Roles Anywhere",
+            "Private CA"
+          ]
+        },
+        {
+          "id": "presigned-urls",
+          "title": "URLs prefirmadas de S3",
+          "summary": "Quién las crea, expiración según credenciales, métodos y cómo restringirlas.",
+          "tasks": [
+            "4.1"
+          ],
+          "services": [
+            "S3",
+            "STS"
+          ]
+        },
+        {
+          "id": "mfa-credenciales",
+          "title": "MFA y auditoría de credenciales",
+          "summary": "Tipos de MFA, usuario raíz, condiciones de MFA y credential report.",
+          "tasks": [
+            "4.1"
+          ],
+          "services": [
+            "IAM",
+            "MFA"
+          ]
+        },
+        {
+          "id": "evaluacion-politicas",
+          "title": "Lógica de evaluación de políticas",
+          "summary": "Implicit/explicit deny, unión e intersección entre tipos de política.",
+          "tasks": [
+            "4.2"
+          ],
+          "services": [
+            "IAM",
+            "Organizations"
+          ]
+        },
+        {
+          "id": "politicas-recursos-confianza",
+          "title": "Políticas de recursos y confianza",
+          "summary": "Resource policies, trust policies, acceso entre cuentas y confused deputy.",
+          "tasks": [
+            "4.2"
+          ],
+          "services": [
+            "IAM",
+            "STS"
+          ]
+        },
+        {
+          "id": "abac-rbac",
+          "title": "ABAC y RBAC",
+          "summary": "Control de acceso por etiquetas, claves de condición y gobierno de etiquetas.",
+          "tasks": [
+            "4.2"
+          ],
+          "services": [
+            "IAM",
+            "Identity Center"
+          ]
+        },
+        {
+          "id": "limites-permisos",
+          "title": "Permissions boundaries y session policies",
+          "summary": "Techos de permisos, delegación segura de administración y sesiones acotadas.",
+          "tasks": [
+            "4.2"
+          ],
+          "services": [
+            "IAM",
+            "STS"
+          ]
+        },
+        {
+          "id": "verified-permissions",
+          "title": "Amazon Verified Permissions",
+          "summary": "Autorización de grano fino para aplicaciones con políticas Cedar.",
+          "tasks": [
+            "4.2"
+          ],
+          "services": [
+            "Verified Permissions",
+            "Cognito"
+          ]
+        },
+        {
+          "id": "access-analyzer",
+          "title": "IAM Access Analyzer y herramientas",
+          "summary": "Acceso externo, no utilizado, validación, policy generation, custom checks y simulador.",
+          "tasks": [
+            "4.2"
+          ],
+          "services": [
+            "Access Analyzer",
+            "IAM"
+          ]
+        }
+      ]
     },
     "data-protection": {
       "tasks": [
