@@ -54,6 +54,16 @@
       </header>
       <div id="blueprint-home"></div>
       <p id="blueprint-note" class="note"></p>
+      <section id="sim-home-card" class="sim-card" aria-labelledby="sim-title">
+        <div>
+          <p class="sim-eyebrow">Como el día del examen</p>
+          <h2 id="sim-title" class="exam-title">Simulacro realista</h2>
+          <p id="sim-sub" class="row-sub">65 preguntas · 170 minutos · sin ver respuestas hasta el final.</p>
+        </div>
+        <div id="sim-actions" class="exam-actions">
+          <button id="sim-start-btn" class="btn btn-primary" disabled>Empezar simulacro</button>
+        </div>
+      </section>
       <section class="exam-card" aria-labelledby="exam-title">
         <div>
           <h2 id="exam-title" class="exam-title">Todos los dominios</h2>
@@ -95,6 +105,42 @@
       </div>
     </section>
 
+    <!-- Simulacro: pregunta -->
+    <section id="view-sim" class="view hidden">
+      <div class="sim-top">
+        <button id="sim-exit-btn" class="icon-btn" aria-label="Salir del simulacro (queda guardado)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+        <span id="sim-count" class="quiz-count"></span>
+        <span class="sim-timer" role="timer" aria-label="Tiempo restante"></span>
+        <button id="sim-grid-btn" class="icon-btn" aria-label="Ver todas las preguntas">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" /></svg>
+        </button>
+      </div>
+      <div id="sim-card"></div>
+      <div class="sim-bar">
+        <button id="sim-prev-btn" class="btn btn-secondary">Anterior</button>
+        <button id="sim-flag-btn" class="btn btn-secondary sim-flag" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5" /></svg>
+          <span>Marcar</span>
+        </button>
+        <button id="sim-next-btn" class="btn btn-primary">Siguiente</button>
+      </div>
+    </section>
+
+    <!-- Simulacro: revisión antes de entregar -->
+    <section id="view-sim-review" class="view hidden">
+      <div class="sim-top">
+        <button id="sim-review-back-btn" class="icon-btn" aria-label="Volver a la pregunta">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+        </button>
+        <span class="quiz-count">Revisión</span>
+        <span class="sim-timer" role="timer" aria-label="Tiempo restante"></span>
+      </div>
+      <div id="sim-review-body"></div>
+    </section>
+    <div id="sim-live" class="sr-only" aria-live="assertive"></div>
+
     <!-- Resultado -->
     <section id="view-results" class="view hidden">
       <div id="results-card"></div>
@@ -119,6 +165,7 @@
   <script src="js/progress.js?v=__VERSION__"></script>
   <script src="js/quiz.js?v=__VERSION__"></script>
   <script src="js/app.js?v=__VERSION__"></script>
+  <script src="js/sim.js?v=__VERSION__"></script>
   <script src="js/vendor/marked.umd.js?v=__VERSION__"></script>
   <script src="js/theory.js?v=__VERSION__"></script>
 </body>

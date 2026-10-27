@@ -181,6 +181,7 @@ function renderExamCard() {
     : `Examen de ${n} o test corto de ${Math.min(QuizEngine.SHORT_SIZE, total)}: preguntas aleatorias de los 6 dominios, repartidas según su peso en el examen.`;
   $("#exam-start-btn").disabled = !loaded || total === 0;
   $("#exam-short-btn").disabled = !loaded || total === 0;
+  if (typeof Sim !== "undefined") Sim.renderCard();
 }
 
 async function loadQuestionCounts() {

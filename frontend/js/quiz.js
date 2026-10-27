@@ -38,6 +38,36 @@ const QuizEngine = (() => {
     return Object.fromEntries(alloc.map((a) => [a.id, a.n]));
   }
 
+  // Selección ponderada para examen/simulacro: `size` preguntas repartidas según el peso de cada dominio.
+  async function pickExam(size) {
+    const pools = await Promise.all(DOMAINS.map(async (d) => ({ d, qs: await fetchDomain(d) })));
+    const counts = allocate(size, pools.map((p) => ({ id: p.d.id, weight: p.d.weight, avail: p.qs.length })));
+    return shuffle(pools.flatMap((p) => shuffle(p.qs).slice(0, counts[p.d.id])));
+  }
+
+  // Todas las preguntas indexadas por id (para retomar un simulacro guardado).
+  async function fetchAll() {
+    const lists = await Promise.all(DOMAINS.map(fetchDomain));
+    return Object.fromEntries(lists.flat().map((q) => [q.id, q]));
+  }
+
+  // Califica una respuesta: todo o nada, igual que el examen real.
+  function grade(q, given) {
+    if (given === null || given === undefined) return false;
+    if (q.type === "ordering") {
+      // respuesta = ids en el orden elegido; debe coincidir exactamente con q.correct
+      return Array.isArray(given) && given.length === q.correct.length && q.correct.every((v, i) => v === given[i]);
+    }
+    if (q.type === "matching") {
+      // respuesta = { idPrompt: idRespuesta }; deben acertarse todos los pares
+      return q.prompts.every((p) => given[p.id] === q.correct[p.id]);
+    }
+    if (!Array.isArray(given)) return false;
+    const correct = [...q.correct].sort();
+    const givenSorted = [...given].sort();
+    return correct.length === givenSorted.length && correct.every((v, i) => v === givenSorted[i]);
+  }
+
   // spec: { kind: "exam" } | { kind: "domain", domain, limit? }
   async function load(spec) {
     let list;
@@ -92,20 +122,7 @@ const QuizEngine = (() => {
   }
 
   function isCorrect(index = currentIndex) {
-    const q = currentQuestions[index];
-    const given = userAnswers[index];
-    if (given === null || given === undefined) return false;
-    if (q.type === "ordering") {
-      // respuesta = ids en el orden elegido; debe coincidir exactamente con q.correct
-      return Array.isArray(given) && given.length === q.correct.length && q.correct.every((v, i) => v === given[i]);
-    }
-    if (q.type === "matching") {
-      // respuesta = { idPrompt: idRespuesta }; deben acertarse todos los pares
-      return q.prompts.every((p) => given[p.id] === q.correct[p.id]);
-    }
-    const correct = [...q.correct].sort();
-    const givenSorted = [...given].sort();
-    return correct.length === givenSorted.length && correct.every((v, i) => v === givenSorted[i]);
+    return grade(currentQuestions[index], userAnswers[index]);
   }
 
   function next() {
@@ -150,6 +167,10 @@ const QuizEngine = (() => {
 
   return {
     load,
+    pickExam,
+    fetchAll,
+    grade,
+    shuffle,
     EXAM_SIZE,
     SHORT_SIZE,
     QUICK_SIZE,
