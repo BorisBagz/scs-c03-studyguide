@@ -2,272 +2,1299 @@
   "domain": "detection",
   "questions": [
     {
-      "id": "DET-001",
-      "type": "single",
-      "question": "¿Cuál de las siguientes es una fuente de datos FUNDACIONAL (foundational) que Amazon GuardDuty analiza de forma nativa, sin necesidad de habilitarla ni configurarla explícitamente?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Logs de acceso de Application Load Balancer (ALB)"
-        },
-        {
-          "id": "b",
-          "text": "VPC Flow Logs"
-        },
-        {
-          "id": "c",
-          "text": "Logs de auditoría de EKS"
-        },
-        {
-          "id": "d",
-          "text": "Eventos de datos de S3 (S3 Protection)"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "GuardDuty tiene 3 fuentes de datos fundacionales que analiza automáticamente sin configuración adicional: eventos de administración de AWS CloudTrail, VPC Flow Logs y logs de consultas DNS de Route 53 Resolver (solo si se usa el resolver DNS por defecto de AWS). EKS audit logs y S3 data events son 'protection plans' adicionales que deben habilitarse explícitamente. GuardDuty no analiza logs de ALB.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_data-sources.html"
-    },
-    {
-      "id": "DET-002",
-      "type": "single",
-      "question": "Una organización quiere que GuardDuty detecte actividad maliciosa relacionada con operaciones de lectura/escritura sospechosas sobre buckets S3 (por ejemplo, acceso desde una IP maliciosa conocida). ¿Qué se debe hacer?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Nada: S3 Protection está habilitado por defecto como fuente fundacional"
-        },
-        {
-          "id": "b",
-          "text": "Habilitar explícitamente S3 Protection dentro de GuardDuty, ya que es un protection plan opcional"
-        },
-        {
-          "id": "c",
-          "text": "Configurar AWS Config para enviar eventos a GuardDuty"
-        },
-        {
-          "id": "d",
-          "text": "Activar Macie, que reemplaza la funcionalidad de monitoreo de S3 en GuardDuty"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "El monitoreo de eventos de datos de S3 (S3 Protection) es un protection plan opcional de GuardDuty, no una fuente fundacional; debe habilitarse explícitamente por cuenta o a nivel de organización. Macie es un servicio complementario enfocado en clasificación de datos sensibles, no reemplaza esta funcionalidad de GuardDuty.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/s3-protection.html"
-    },
-    {
-      "id": "DET-003",
+      "id": "DET-101",
       "type": "scenario",
-      "topic": "cloudtrail",
-      "question": "Se necesita auditar las acciones de API de todas las cuentas de la organización, incluidas las que se creen en el futuro, con un registro centralizado. ¿Qué se configura?",
+      "topic": "guardduty",
+      "question": "A company has 120 AWS accounts in AWS Organizations and creates new accounts every month. The security team must ensure that Amazon GuardDuty is enabled in every existing and future account and that all findings can be reviewed from a single account.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
       "options": [
         {
           "id": "a",
-          "text": "Un trail independiente en cada cuenta, creado manualmente"
+          "text": "Use a CloudFormation StackSet that enables GuardDuty in each account and sends invitations from the security account."
         },
         {
           "id": "b",
-          "text": "Un agregador de AWS Config"
+          "text": "Create an AWS Config rule that detects accounts without GuardDuty and invokes a Lambda function to enable it."
         },
         {
           "id": "c",
-          "text": "Un organization trail multi-región con el bucket en una cuenta de logging dedicada, cifrado con KMS y con validación de integridad"
+          "text": "Enable GuardDuty in the management account only, because findings from member accounts are aggregated automatically."
         },
         {
           "id": "d",
-          "text": "Un grupo de logs de CloudWatch por cuenta sin trail"
+          "text": "Designate a security account as the GuardDuty delegated administrator and turn on auto-enable for all organization accounts, in every Region that is used."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Con un administrador delegado y auto-enable, GuardDuty se activa en las cuentas nuevas y centraliza los hallazgos. GuardDuty es regional: hay que hacerlo en cada Región usada. Las invitaciones son el método antiguo para cuentas fuera de la organización.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/administrator_member_relationships.html"
+    },
+    {
+      "id": "DET-102",
+      "type": "single",
+      "topic": "guardduty",
+      "question": "GuardDuty generates the finding UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS for a role attached to an EC2 instance.\n\nWhat does this finding indicate?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The instance metadata service is reachable from the internet through a misconfigured security group."
+        },
+        {
+          "id": "b",
+          "text": "An IAM user created access keys from an EC2 instance and downloaded them."
+        },
+        {
+          "id": "c",
+          "text": "The instance is sending large volumes of data to an S3 bucket in another account."
+        },
+        {
+          "id": "d",
+          "text": "Temporary credentials that were issued to the instance through its instance profile are being used from an IP address outside AWS."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Este hallazgo indica que credenciales del instance profile se usan fuera de AWS, señal típica de robo vía SSRF/IMDS. La respuesta incluye revocar las sesiones del rol e investigar la instancia.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_finding-format.html"
+    },
+    {
+      "id": "DET-103",
+      "type": "single",
+      "topic": "guardduty",
+      "question": "A vulnerability scanner that the company runs from a fixed set of IP addresses causes GuardDuty to generate Recon:EC2/Portscan findings every day. The security team wants to stop seeing these findings in Security Hub and EventBridge but keep detecting port scans from other sources.\n\nWhat should the security engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create an EventBridge rule that drops the findings before they reach Security Hub."
+        },
+        {
+          "id": "b",
+          "text": "Disable the Recon finding category in the GuardDuty detector settings."
+        },
+        {
+          "id": "c",
+          "text": "Add the scanner's IP addresses to a GuardDuty threat list."
+        },
+        {
+          "id": "d",
+          "text": "Create a GuardDuty suppression rule that matches the finding type and the scanner's IP addresses."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las suppression rules archivan automáticamente los hallazgos que coinciden, y estos no se envían a Security Hub, S3, Detective ni EventBridge. Una threat list hace lo contrario (marca IPs maliciosas), y no se pueden desactivar tipos de hallazgo.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/findings_suppression-rule.html"
+    },
+    {
+      "id": "DET-104",
+      "type": "single",
+      "topic": "guardduty",
+      "question": "A company wants GuardDuty to scan EBS volumes for malware when GuardDuty detects suspicious behavior on an EC2 instance. The company does not want to install agents on the instances.\n\nWhich feature should the security engineer enable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "GuardDuty Malware Protection for EC2 with GuardDuty-initiated scans."
+        },
+        {
+          "id": "b",
+          "text": "Amazon Macie automated sensitive data discovery."
+        },
+        {
+          "id": "c",
+          "text": "GuardDuty Runtime Monitoring for EC2."
+        },
+        {
+          "id": "d",
+          "text": "Amazon Inspector agentless scanning."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Malware Protection for EC2 hace snapshots de los volúmenes EBS y los analiza sin agente cuando un hallazgo lo dispara. Runtime Monitoring requiere un agente; Inspector busca vulnerabilidades, no malware activo.",
+      "reference": "https://aws.amazon.com/blogs/security/navigating-amazon-guardduty-protection-plans-and-extended-threat-detection"
+    },
+    {
+      "id": "DET-105",
+      "type": "single",
+      "topic": "guardduty",
+      "question": "An application lets customers upload files to an S3 bucket. The security team must scan every new object for malware before downstream processing and tag infected objects automatically.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable GuardDuty Malware Protection for S3 on the bucket and use the scan result tags to control processing."
+        },
+        {
+          "id": "b",
+          "text": "Enable GuardDuty S3 Protection, which analyzes CloudTrail S3 data events."
+        },
+        {
+          "id": "c",
+          "text": "Use Amazon Macie with a custom data identifier that detects malware signatures."
+        },
+        {
+          "id": "d",
+          "text": "Configure an S3 event notification that invokes a Lambda function running an open-source antivirus engine."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Malware Protection for S3 analiza los objetos nuevos y puede etiquetarlos con el resultado. S3 Protection analiza actividad de API, no el contenido; Macie busca datos sensibles. La opción con Lambda funciona pero implica más operación.",
+      "reference": "https://aws.amazon.com/blogs/security/navigating-amazon-guardduty-protection-plans-and-extended-threat-detection"
+    },
+    {
+      "id": "DET-106",
+      "type": "single",
+      "topic": "guardduty",
+      "question": "A security engineer notices a GuardDuty finding with the type AttackSequence:IAM/CompromisedCredentials and Critical severity.\n\nWhat generated this finding?",
+      "options": [
+        {
+          "id": "a",
+          "text": "GuardDuty Extended Threat Detection, which correlates multiple signals and findings into a multistage attack sequence."
+        },
+        {
+          "id": "b",
+          "text": "Amazon Detective after a finding group was created."
+        },
+        {
+          "id": "c",
+          "text": "A custom threat list that the security team uploaded."
+        },
+        {
+          "id": "d",
+          "text": "An AWS Security Hub automation rule that raised the severity of several GuardDuty findings."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Extended Threat Detection correlaciona señales y hallazgos a lo largo del tiempo y genera hallazgos de secuencia de ataque con severidad Critical.",
+      "reference": "https://aws.amazon.com/blogs/security/navigating-amazon-guardduty-protection-plans-and-extended-threat-detection"
+    },
+    {
+      "id": "DET-107",
+      "type": "scenario",
+      "topic": "alertas-eventbridge-sns",
+      "question": "A security engineer creates an EventBridge rule that matches GuardDuty findings with severity 7 or higher and sends them to an SNS topic. The topic is encrypted with the AWS managed key aws/sns. No notifications arrive, and the rule's metrics show failed invocations.\n\nWhat should the engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Change the rule to match on detail-type \"GuardDuty Finding\" instead of the severity field."
+        },
+        {
+          "id": "b",
+          "text": "Encrypt the topic with a customer managed KMS key whose key policy allows events.amazonaws.com to use kms:GenerateDataKey* and kms:Decrypt."
+        },
+        {
+          "id": "c",
+          "text": "Add a subscription filter policy on the topic that matches the GuardDuty source."
+        },
+        {
+          "id": "d",
+          "text": "Enable server-side encryption on the EventBridge event bus with the aws/sns key."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "La key policy de una AWS managed key no se puede editar, así que EventBridge no puede usarla. Hace falta una customer managed key que permita al service principal de EventBridge, además de que la topic policy permita sns:Publish.",
+      "reference": "https://www.repost.aws/knowledge-center/sns-not-getting-eventbridge-notification"
+    },
+    {
+      "id": "DET-108",
+      "type": "single",
+      "topic": "alertas-eventbridge-sns",
+      "question": "The security team wants to receive an email within minutes whenever the root user of a production account signs in to the AWS Management Console.\n\nWhich solution meets this requirement with the LEAST operational overhead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "In the production account, create an EventBridge rule that matches AWS Console Sign In via CloudTrail events where userIdentity.type is Root, and target an SNS topic with an email subscription."
+        },
+        {
+          "id": "b",
+          "text": "Create an AWS Config rule that checks whether the root user has MFA enabled."
+        },
+        {
+          "id": "c",
+          "text": "Query CloudTrail event history every hour with a Lambda function and send an email when root activity is found."
+        },
+        {
+          "id": "d",
+          "text": "Enable IAM Access Analyzer and create an archive rule for the root user."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "EventBridge recibe los eventos de inicio de sesión de CloudTrail casi en tiempo real; un patrón sobre userIdentity.type = Root con destino SNS es la solución más simple. (Los eventos de consola se registran en us-east-1 o en la Región del endpoint de inicio de sesión.)",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings_eventbridge.html"
+    },
+    {
+      "id": "DET-109",
+      "type": "single",
+      "topic": "cloudtrail",
+      "question": "A company must ensure that CloudTrail logs from all accounts are collected in a central log archive account, that member accounts cannot stop or modify the logging, and that new accounts are covered automatically.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable CloudTrail Insights in each account and send the events to the log archive account."
+        },
+        {
+          "id": "b",
+          "text": "Create an organization trail from the management account (or a delegated administrator) that delivers to an S3 bucket in the log archive account."
+        },
+        {
+          "id": "c",
+          "text": "Create a trail in each account with a CloudFormation StackSet and deny cloudtrail:StopLogging with an IAM policy."
+        },
+        {
+          "id": "d",
+          "text": "Use CloudTrail event history in each account, which retains management events for 90 days."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Un organization trail se aplica a todas las cuentas, incluidas las nuevas, y las cuentas miembro no pueden modificarlo ni detenerlo. El event history solo guarda 90 días de eventos de administración y no centraliza.",
+      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
+    },
+    {
+      "id": "DET-110",
+      "type": "single",
+      "topic": "cloudtrail",
+      "question": "During an audit, the company must prove that CloudTrail log files in S3 were not modified or deleted after delivery.\n\nWhat should the security engineer use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "S3 Versioning on the bucket, which shows whether each object was modified."
+        },
+        {
+          "id": "b",
+          "text": "CloudTrail log file integrity validation, then validate the files with the digest files (for example, with aws cloudtrail validate-logs)."
+        },
+        {
+          "id": "c",
+          "text": "CloudTrail Insights events for the trail."
+        },
+        {
+          "id": "d",
+          "text": "Amazon Macie sensitive data discovery jobs on the log bucket."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "La validación de integridad genera digest files firmados (SHA-256 con firma RSA) que permiten detectar si un log se modificó, borró o falsificó. Versioning ayuda a conservar, pero no prueba integridad.",
+      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
+    },
+    {
+      "id": "DET-111",
+      "type": "single",
+      "topic": "cloudtrail",
+      "question": "A security team wants to be alerted when an IAM principal suddenly makes an unusually high number of API calls that fail with AccessDenied, compared to its normal baseline.\n\nWhich feature should the security engineer enable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "CloudTrail data events for all S3 buckets."
+        },
+        {
+          "id": "b",
+          "text": "IAM Access Analyzer unused access findings."
+        },
+        {
+          "id": "c",
+          "text": "CloudTrail Insights for the API error rate on the trail."
+        },
+        {
+          "id": "d",
+          "text": "A CloudWatch Logs subscription filter to a Lambda function."
         }
       ],
       "correct": [
         "c"
       ],
-      "explanation": "Un organization trail registra todas las cuentas miembro (también las futuras) y las cuentas miembro no pueden modificarlo. Lo recomendable es entregar a una cuenta de logging dedicada con KMS y validación de integridad.",
+      "explanation": "CloudTrail Insights detecta actividad inusual en la tasa de llamadas de API (API call rate) y en la tasa de errores (API error rate) de eventos de administración, comparada con una línea base.",
       "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
     },
     {
-      "id": "DET-004",
+      "id": "DET-112",
       "type": "single",
       "topic": "cloudtrail",
-      "question": "Se debe saber quién leyó objetos concretos de un bucket de S3. ¿Qué hay que habilitar?",
+      "question": "A company must record who reads and deletes objects in a bucket that stores regulated data. The trail currently logs only management events.\n\nWhat should the security engineer configure?",
       "options": [
         {
           "id": "a",
-          "text": "Data events de S3 en el trail (por defecto no se registran)"
+          "text": "Enable S3 server access logging only, because CloudTrail cannot log object-level operations."
         },
         {
           "id": "b",
-          "text": "Config con regla s3-bucket-logging"
+          "text": "Enable CloudTrail Insights on the trail."
         },
         {
           "id": "c",
-          "text": "VPC Flow Logs"
+          "text": "Add S3 data events for that bucket to the trail, using advanced event selectors to limit the logged events."
         },
         {
           "id": "d",
-          "text": "Solo management events"
+          "text": "Enable GuardDuty S3 Protection, which writes object-level events to the trail."
         }
       ],
       "correct": [
-        "a"
+        "c"
       ],
-      "explanation": "CloudTrail registra por defecto eventos de administración. Las lecturas y escrituras de objetos (GetObject, PutObject) son data events y deben habilitarse explícitamente.",
+      "explanation": "GetObject y DeleteObject son data events y no se registran por defecto. Los advanced event selectors limitan el registro a buckets o acciones concretas para controlar el costo. GuardDuty usa su propio flujo de eventos y no escribe en tu trail.",
       "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
     },
     {
-      "id": "DET-005",
+      "id": "DET-113",
       "type": "single",
-      "topic": "cloudtrail",
-      "question": "Un auditor pide demostrar que los archivos de log de CloudTrail no fueron alterados. ¿Qué característica se usa?",
+      "topic": "cloudtrail-lake",
+      "question": "A compliance team must run SQL queries on seven years of CloudTrail activity from all accounts without managing S3 partitions, Glue tables, or ETL jobs.\n\nWhich solution meets these requirements?",
       "options": [
         {
           "id": "a",
-          "text": "Log file integrity validation (con Object Lock en el bucket como refuerzo)"
+          "text": "Create an Athena table with partition projection on the organization trail bucket."
         },
         {
           "id": "b",
-          "text": "Cifrar el trail con SSE-S3 únicamente"
+          "text": "Create an organization event data store in CloudTrail Lake with a retention period of at least seven years."
         },
         {
           "id": "c",
-          "text": "Habilitar Insights"
+          "text": "Stream CloudTrail to CloudWatch Logs and use Logs Insights with seven-year retention."
         },
         {
           "id": "d",
-          "text": "Activar data events"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "La validación de integridad genera resúmenes firmados que permiten comprobar que los logs no cambiaron; Object Lock impide además su eliminación o modificación.",
-      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
-    },
-    {
-      "id": "DET-006",
-      "type": "single",
-      "topic": "alertas-eventbridge-sns",
-      "question": "Se quiere reactivar automáticamente un trail cuando alguien ejecute StopLogging. ¿Qué diseño responde en casi tiempo real?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una política de bucket que impida StopLogging"
-        },
-        {
-          "id": "b",
-          "text": "Una regla de EventBridge sobre el evento de CloudTrail StopLogging que invoque una Lambda que reactive el trail"
-        },
-        {
-          "id": "c",
-          "text": "Una alarma de Config evaluada cada 24 horas"
-        },
-        {
-          "id": "d",
-          "text": "Una consulta semanal de Athena"
+          "text": "Use CloudTrail event history and export the results to CSV."
         }
       ],
       "correct": [
         "b"
       ],
-      "explanation": "EventBridge reacciona a llamadas de API registradas por CloudTrail casi en tiempo real; la acción (Lambda/SSM) puede reactivar el trail. Para contar ocurrencias o usar umbrales se emplea metric filter + alarma.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings_eventbridge.html"
+      "explanation": "CloudTrail Lake almacena eventos en event data stores administrados, consultables con SQL y con retención configurable de varios años. Athena funciona, pero requiere gestionar tablas y particiones.",
+      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/cloudtrail-lake-concepts.html"
     },
     {
-      "id": "DET-007",
-      "type": "ordering",
-      "topic": "cloudwatch-monitoreo",
-      "question": "Ordena el flujo para alertar por correo cuando se use la cuenta root.",
+      "id": "DET-114",
+      "type": "single",
+      "topic": "cloudtrail-lake",
+      "question": "Analysts want to join CloudTrail Lake events with other data sets in Amazon Athena.\n\nWhat should the security engineer enable?",
       "options": [
         {
           "id": "a",
-          "text": "Entregar los eventos de CloudTrail a CloudWatch Logs"
+          "text": "CloudTrail Insights on the event data store."
         },
         {
           "id": "b",
-          "text": "Crear un metric filter que coincida con eventos del usuario root"
+          "text": "A CloudTrail Lake channel for Athena."
         },
         {
           "id": "c",
-          "text": "Crear una alarma de CloudWatch sobre la métrica del filtro"
+          "text": "Export the event data store to S3 every day with a Lambda function."
         },
         {
           "id": "d",
-          "text": "Configurar como acción de la alarma un tema de SNS con suscripción de correo"
+          "text": "Lake query federation on the event data store, which registers it in the AWS Glue Data Catalog through AWS Lake Formation."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "La federación de consultas registra el event data store en Glue/Lake Formation para consultarlo desde Athena sin copiar los datos.",
+      "reference": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/query-federation.html"
+    },
+    {
+      "id": "DET-115",
+      "type": "single",
+      "topic": "cloudwatch-logs",
+      "question": "A company must stream application logs from 50 accounts to a central security account in near real time for analysis in Amazon OpenSearch Service.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create a CloudWatch Logs destination in the security account backed by Kinesis Data Streams or Firehose, and create subscription filters in each source account that point to the destination."
+        },
+        {
+          "id": "b",
+          "text": "Create metric filters in each account and send the metrics to the security account."
+        },
+        {
+          "id": "c",
+          "text": "Export the log groups to S3 every hour with CreateExportTask and load them into OpenSearch."
+        },
+        {
+          "id": "d",
+          "text": "Share the log groups with AWS RAM so OpenSearch can read them directly."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las subscription filters envían eventos casi en tiempo real; para otra cuenta se usa un destination con una política que permite a las cuentas origen. Las exportaciones a S3 no son en tiempo real.",
+      "reference": "https://docs.aws.eu/AmazonCloudWatchLogs/latest/APIReference/API_PutSubscriptionFilter.html"
+    },
+    {
+      "id": "DET-116",
+      "type": "single",
+      "topic": "cloudwatch-logs",
+      "question": "Application logs in CloudWatch Logs sometimes contain credit card numbers. Developers must keep reading the logs, but the numbers must be hidden from them. A small security team must be able to see the original values.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use a metric filter that replaces credit card numbers with asterisks."
+        },
+        {
+          "id": "b",
+          "text": "Use Amazon Macie to scan the log group and delete events with card numbers."
+        },
+        {
+          "id": "c",
+          "text": "Encrypt the log group with a KMS key and deny kms:Decrypt to developers."
+        },
+        {
+          "id": "d",
+          "text": "Attach a CloudWatch Logs data protection policy that masks credit card numbers, and grant logs:Unmask only to the security team."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las data protection policies detectan y enmascaran datos sensibles al ingerirlos; solo quien tiene logs:Unmask ve el valor original. Cifrar con KMS no oculta campos, y Macie solo analiza S3.",
+      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/logs/cloudwatch-logs-data-protection-policies.html"
+    },
+    {
+      "id": "DET-117",
+      "type": "single",
+      "topic": "cloudwatch-logs",
+      "question": "A security engineer associates a customer managed KMS key with a CloudWatch Logs log group. The association fails with an AccessDeniedException.\n\nWhat is the MOST likely cause?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The log group must be empty before a KMS key can be associated."
+        },
+        {
+          "id": "b",
+          "text": "CloudWatch Logs supports only the AWS managed key aws/logs."
+        },
+        {
+          "id": "c",
+          "text": "The engineer's IAM policy is missing logs:PutRetentionPolicy."
+        },
+        {
+          "id": "d",
+          "text": "The key policy does not allow the CloudWatch Logs service principal (logs.<region>.amazonaws.com) to use the key."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Para cifrar un log group con una customer managed key, la key policy debe permitir al service principal de CloudWatch Logs de la Región (se recomienda limitarlo con kms:EncryptionContext).",
+      "reference": "https://repost.aws/knowledge-center/troubleshoot-cloudwatch-log-ingestion"
+    },
+    {
+      "id": "DET-118",
+      "type": "single",
+      "topic": "cloudwatch-monitoreo",
+      "question": "The security team wants a CloudWatch alarm whenever there are more than five failed console sign-in attempts in five minutes. CloudTrail already delivers events to a CloudWatch Logs log group.\n\nWhat should the security engineer configure?",
+      "options": [
+        {
+          "id": "a",
+          "text": "An EventBridge rule that counts failed sign-ins and sends them to SNS."
+        },
+        {
+          "id": "b",
+          "text": "A metric filter on the log group that matches ConsoleLogin events with errorMessage \"Failed authentication\", and a CloudWatch alarm on the resulting metric."
+        },
+        {
+          "id": "c",
+          "text": "A Logs Insights query scheduled every five minutes."
+        },
+        {
+          "id": "d",
+          "text": "A GuardDuty suppression rule for ConsoleLogin events."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Las metric filters convierten patrones en logs en métricas sobre las que se crean alarmas con umbral y periodo; son la base de los controles CIS de monitoreo.",
+      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/monitoring/alarm-actions.html"
+    },
+    {
+      "id": "DET-119",
+      "type": "single",
+      "topic": "cloudwatch-monitoreo",
+      "question": "A company wants a central monitoring account where operators can view metrics, logs, and traces from 30 workload accounts without switching roles.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Configure CloudWatch cross-account observability with the central account as the monitoring account and the workload accounts as source accounts."
+        },
+        {
+          "id": "b",
+          "text": "Enable CloudTrail organization trails to deliver metrics to the central account."
+        },
+        {
+          "id": "c",
+          "text": "Create subscription filters that copy all logs and metrics to the central account."
+        },
+        {
+          "id": "d",
+          "text": "Create IAM users in each workload account for the operators."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "La observabilidad entre cuentas enlaza cuentas origen con una cuenta de monitoreo (sinks y links) para ver métricas, logs y trazas sin copiarlos.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Unified-Cross-Account.html"
+    },
+    {
+      "id": "DET-120",
+      "type": "single",
+      "topic": "config-ssm-evaluaciones",
+      "question": "A company requires that every S3 bucket have default encryption with SSE-KMS. If a non-compliant bucket is created, it must be fixed automatically without human intervention.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use Amazon Macie to detect unencrypted buckets and send an email to the owner."
+        },
+        {
+          "id": "b",
+          "text": "Use a GuardDuty finding to trigger a Lambda function that encrypts the bucket."
+        },
+        {
+          "id": "c",
+          "text": "Use an SCP that denies s3:CreateBucket unless encryption is specified in the request."
+        },
+        {
+          "id": "d",
+          "text": "Use an AWS Config rule that evaluates bucket encryption, with automatic remediation that runs an SSM Automation runbook."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las reglas de Config detectan la no conformidad y la remediación automática ejecuta un runbook de SSM Automation. (Desde 2023 S3 cifra por defecto con SSE-S3; la regla verifica el requisito de SSE-KMS.)",
+      "reference": "https://docs.aws.amazon.com/config/latest/developerguide/setup-autoremediation.html"
+    },
+    {
+      "id": "DET-121",
+      "type": "single",
+      "topic": "config-ssm-evaluaciones",
+      "question": "A company must deploy the same set of AWS Config rules and remediation actions to all accounts in the organization and report compliance as a single unit.\n\nWhat should the security engineer use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "An SCP that requires AWS Config to be enabled."
+        },
+        {
+          "id": "b",
+          "text": "A Config aggregator in the security account."
+        },
+        {
+          "id": "c",
+          "text": "A Security Hub custom action."
+        },
+        {
+          "id": "d",
+          "text": "An organization conformance pack deployed from the management account or a Config delegated administrator."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Un conformance pack agrupa reglas y remediaciones y se despliega en toda la organización. Un aggregator solo consolida resultados; no despliega reglas.",
+      "reference": "https://docs.aws.amazon.com/config/latest/developerguide/conformance-pack-organization-apis.html"
+    },
+    {
+      "id": "DET-122",
+      "type": "single",
+      "topic": "config-ssm-evaluaciones",
+      "question": "A company created an AWS Config aggregator in its security account for all accounts and Regions. The aggregator shows data for some accounts but not for accounts in two Regions.\n\nWhat is the MOST likely cause?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The aggregator requires an SCP that allows config:PutAggregationAuthorization."
+        },
+        {
+          "id": "b",
+          "text": "The AWS Config recorder is not enabled in those Regions in the source accounts."
+        },
+        {
+          "id": "c",
+          "text": "AWS Config does not support aggregation for accounts in an organization."
+        },
+        {
+          "id": "d",
+          "text": "Aggregators support only one Region at a time."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "El aggregator solo consolida lo que registran los recorders. Si una Región no tiene el recorder activo, no hay datos que agregar.",
+      "reference": "https://docs.aws.amazon.com/config/latest/developerguide/conformance-pack-organization-apis.html"
+    },
+    {
+      "id": "DET-123",
+      "type": "single",
+      "topic": "config-ssm-evaluaciones",
+      "question": "The security team must verify every day that the CloudWatch agent and a specific EDR agent are installed and running on all managed EC2 instances, and must reinstall them if they are missing.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create an AWS Config rule with a periodic trigger that installs the agents."
+        },
+        {
+          "id": "b",
+          "text": "Use EventBridge Scheduler to reboot the instances every day."
+        },
+        {
+          "id": "c",
+          "text": "Create Systems Manager State Manager associations that run the installation documents on a schedule against the instances."
+        },
+        {
+          "id": "d",
+          "text": "Use Amazon Inspector to install missing agents."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "State Manager mantiene un estado deseado aplicando documentos SSM periódicamente a los nodos administrados, y registra el cumplimiento de las asociaciones.",
+      "reference": "https://docs.aws.amazon.com/cli/latest/reference/ssm/create-association.html"
+    },
+    {
+      "id": "DET-124",
+      "type": "single",
+      "topic": "logs-de-red",
+      "question": "During an investigation, the security team needs the payload of packets between two EC2 instances to analyze a suspected data exfiltration protocol.\n\nWhich solution should the security engineer use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "VPC Traffic Mirroring to send the traffic of the instances' network interfaces to an analysis appliance."
+        },
+        {
+          "id": "b",
+          "text": "VPC Flow Logs with the default format."
+        },
+        {
+          "id": "c",
+          "text": "VPC Flow Logs with a custom format that includes the pkt-srcaddr field."
+        },
+        {
+          "id": "d",
+          "text": "Route 53 Resolver query logs."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Flow Logs solo captura metadatos (IP, puertos, bytes, acción), nunca el contenido. Para inspeccionar la carga útil se usa Traffic Mirroring.",
+      "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
+    },
+    {
+      "id": "DET-125",
+      "type": "single",
+      "topic": "logs-de-red",
+      "question": "A security engineer reviews VPC Flow Logs to find which instances query a suspicious domain through the Amazon-provided DNS server, but finds no DNS records.\n\nWhy, and what should the engineer use instead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "DNS traffic is captured only with the REJECT filter; change the filter."
+        },
+        {
+          "id": "b",
+          "text": "DNS traffic is encrypted; use Traffic Mirroring to decrypt it."
+        },
+        {
+          "id": "c",
+          "text": "Flow Logs capture DNS only at the transit gateway; enable transit gateway flow logs."
+        },
+        {
+          "id": "d",
+          "text": "Flow Logs do not capture traffic to the Amazon DNS server; use Route 53 Resolver query logging."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Flow Logs excluye, entre otros, el tráfico al servidor DNS de Amazon, al servicio de metadatos (169.254.169.254) y DHCP. Resolver query logging registra las consultas DNS de la VPC.",
+      "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
+    },
+    {
+      "id": "DET-126",
+      "type": "single",
+      "topic": "logs-de-red",
+      "question": "A security engineer configures AWS WAF logging to Amazon Data Firehose, but the delivery stream does not appear in the list of available destinations.\n\nWhat is the cause?",
+      "options": [
+        {
+          "id": "a",
+          "text": "WAF logs can be sent only to CloudWatch Logs."
+        },
+        {
+          "id": "b",
+          "text": "Firehose must be in the us-east-1 Region for all web ACLs."
+        },
+        {
+          "id": "c",
+          "text": "The Firehose delivery stream name must begin with the prefix aws-waf-logs-."
+        },
+        {
+          "id": "d",
+          "text": "The web ACL must have at least one rate-based rule before logging can be enabled."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Los destinos de logs de WAF (log group de CloudWatch, bucket S3 o stream de Firehose) deben tener nombres que empiecen con aws-waf-logs-.",
+      "reference": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-wafv2-loggingconfiguration.html"
+    },
+    {
+      "id": "DET-127",
+      "type": "single",
+      "topic": "logs-de-red",
+      "question": "A company uses a central inspection VPC with AWS Transit Gateway. The security team wants flow data for traffic between attachments without enabling Flow Logs in every VPC.\n\nWhat should the security engineer enable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Route 53 Resolver query logging on all VPCs."
+        },
+        {
+          "id": "b",
+          "text": "Transit Gateway Flow Logs on the transit gateway."
+        },
+        {
+          "id": "c",
+          "text": "VPC Flow Logs on the inspection VPC only."
+        },
+        {
+          "id": "d",
+          "text": "CloudTrail data events for the transit gateway."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Transit Gateway Flow Logs registra el tráfico que pasa por el transit gateway entre sus adjuntos, desde un único punto.",
+      "reference": "https://docs.aws.amazon.com/vpc/latest/tgw/tgw-flow-logs.html"
+    },
+    {
+      "id": "DET-128",
+      "type": "single",
+      "topic": "macie",
+      "question": "A company has thousands of S3 buckets with petabytes of data. The security team wants continuous visibility into which buckets likely contain sensitive data without the cost of scanning every object.\n\nWhich Macie feature meets this requirement?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A custom data identifier for each bucket."
+        },
+        {
+          "id": "b",
+          "text": "A one-time sensitive data discovery job for all buckets."
+        },
+        {
+          "id": "c",
+          "text": "Automated sensitive data discovery, which samples objects across buckets."
+        },
+        {
+          "id": "d",
+          "text": "Macie policy findings."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "La detección automatizada analiza muestras representativas de forma continua y asigna una puntuación de sensibilidad por bucket. Los jobs analizan objetos completos y son más costosos a gran escala.",
+      "reference": "https://docs.aws.amazon.com/macie/latest/user/macie-terms.html"
+    },
+    {
+      "id": "DET-129",
+      "type": "single",
+      "topic": "macie",
+      "question": "Macie must detect internal employee IDs with the format EMP-######, but only when the keyword \"employee\" appears near the value, to reduce false positives.\n\nWhat should the security engineer create?",
+      "options": [
+        {
+          "id": "a",
+          "text": "An allow list with the regular expression EMP-######."
+        },
+        {
+          "id": "b",
+          "text": "A managed data identifier for employee IDs."
+        },
+        {
+          "id": "c",
+          "text": "A suppression rule for findings without the keyword."
+        },
+        {
+          "id": "d",
+          "text": "A custom data identifier with a regular expression and the keyword \"employee\" with a maximum match distance."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Los custom data identifiers combinan regex, keywords y distancia máxima. Las allow lists hacen lo contrario: excluyen texto que no debe reportarse.",
+      "reference": "https://docs.aws.amazon.com/macie/latest/user/discovery-jobs.html"
+    },
+    {
+      "id": "DET-130",
+      "type": "single",
+      "topic": "macie",
+      "question": "Macie reports sensitive data findings for a test data set that contains fake credit card numbers that always begin with 4111. The security team wants Macie to ignore those specific values but keep detecting real card numbers.\n\nWhat should the security engineer configure?",
+      "options": [
+        {
+          "id": "a",
+          "text": "An S3 Lifecycle rule that deletes the test data set."
+        },
+        {
+          "id": "b",
+          "text": "An allow list with a regular expression that matches the test card numbers."
+        },
+        {
+          "id": "c",
+          "text": "A Macie job that excludes the CREDIT_CARD_NUMBER managed identifier."
+        },
+        {
+          "id": "d",
+          "text": "A custom data identifier for the test card numbers."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Las allow lists excluyen texto específico (lista o regex) del análisis sin desactivar el identificador administrado.",
+      "reference": "https://docs.aws.amazon.com/macie/latest/user/macie-terms.html"
+    },
+    {
+      "id": "DET-131",
+      "type": "single",
+      "topic": "security-hub",
+      "question": "A company enabled Security Hub CSPM and the AWS Foundational Security Best Practices standard in all accounts. Most controls show No data, and no compliance results are generated.\n\nWhat is the MOST likely cause?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The standard must be enabled in the management account first."
+        },
+        {
+          "id": "b",
+          "text": "Security Hub CSPM evaluates controls only once per week."
+        },
+        {
+          "id": "c",
+          "text": "GuardDuty is not enabled, and Security Hub needs its findings to evaluate controls."
+        },
+        {
+          "id": "d",
+          "text": "AWS Config is not recording resources in those accounts and Regions."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "La mayoría de los controles de Security Hub CSPM se basan en reglas de AWS Config vinculadas al servicio, así que el recorder de Config debe estar activo en cada cuenta y Región.",
+      "reference": "https://aws.github.io/aws-security-services-best-practices/guides/security-hub-cspm/"
+    },
+    {
+      "id": "DET-132",
+      "type": "single",
+      "topic": "security-hub",
+      "question": "A company operates in 12 Regions. The security team wants to see Security Hub findings from all Regions and accounts in one Region of the security account, and wants new Regions to be included automatically.\n\nWhat should the security engineer configure?",
+      "options": [
+        {
+          "id": "a",
+          "text": "An EventBridge rule in each Region that copies findings to the security account."
+        },
+        {
+          "id": "b",
+          "text": "Security Hub cross-Region aggregation with an aggregation Region, linking all Regions, together with a delegated administrator and central configuration."
+        },
+        {
+          "id": "c",
+          "text": "A Config aggregator for all Regions."
+        },
+        {
+          "id": "d",
+          "text": "An Amazon Security Lake rollup Region."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "La agregación entre Regiones replica los hallazgos a una Región de agregación; con la opción de todas las Regiones se incluyen las nuevas. Security Lake centraliza logs, no la vista de hallazgos de Security Hub.",
+      "reference": "https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html"
+    },
+    {
+      "id": "DET-133",
+      "type": "single",
+      "topic": "security-hub",
+      "question": "The security team wants findings for a specific control to have their workflow status automatically set to SUPPRESSED when the resource has the tag environment=sandbox.\n\nWhich solution meets this requirement with the LEAST operational overhead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create a GuardDuty suppression rule for the control."
+        },
+        {
+          "id": "b",
+          "text": "Create an EventBridge rule that invokes a Lambda function to call BatchUpdateFindings."
+        },
+        {
+          "id": "c",
+          "text": "Disable the control in all accounts."
+        },
+        {
+          "id": "d",
+          "text": "Create a Security Hub automation rule that matches the control ID and the resource tag and updates the workflow status."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Las automation rules modifican hallazgos al ingerirlos (severidad, estado de flujo de trabajo, notas) sin código. Desactivar el control eliminaría la evaluación en todos los entornos.",
+      "reference": "https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html"
+    },
+    {
+      "id": "DET-134",
+      "type": "single",
+      "topic": "security-hub",
+      "question": "Analysts want a button in the Security Hub console that sends a selected finding to the company's ticketing system.\n\nWhat should the security engineer configure?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A Security Hub custom action and an EventBridge rule that matches the Security Hub Findings - Custom Action event and invokes a target that creates the ticket."
+        },
+        {
+          "id": "b",
+          "text": "An automation rule that runs when an analyst selects a finding."
+        },
+        {
+          "id": "c",
+          "text": "A Config remediation action linked to the finding."
+        },
+        {
+          "id": "d",
+          "text": "An SNS subscription on the Security Hub findings stream."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las custom actions envían los hallazgos seleccionados a EventBridge con un tipo de evento específico, que luego se enruta al destino.",
+      "reference": "https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html"
+    },
+    {
+      "id": "DET-135",
+      "type": "single",
+      "topic": "security-lake",
+      "question": "A company wants to centralize CloudTrail, VPC Flow Logs, Route 53 resolver logs, and Security Hub findings from all accounts in a normalized format that its SIEM can consume.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Configure subscription filters for every log group to send data to the SIEM."
+        },
+        {
+          "id": "b",
+          "text": "Create an organization trail and use AWS Glue jobs to convert each source to JSON."
+        },
+        {
+          "id": "c",
+          "text": "Enable Security Hub cross-Region aggregation and export findings to the SIEM."
+        },
+        {
+          "id": "d",
+          "text": "Enable Amazon Security Lake with a delegated administrator, which stores the data in OCSF format in Apache Parquet, and add the SIEM as a subscriber."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Security Lake recolecta fuentes de AWS nativas, las normaliza en OCSF (Parquet) en S3 de tu cuenta y las expone a suscriptores.",
+      "reference": "https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html"
+    },
+    {
+      "id": "DET-136",
+      "type": "single",
+      "topic": "security-lake",
+      "question": "A third-party SIEM must query Security Lake data in place with Amazon Athena from its own AWS account, without copying the data.\n\nWhat type of subscriber should the security engineer create?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A subscriber with data access that receives S3 object notifications."
+        },
+        {
+          "id": "b",
+          "text": "A rollup Region in the SIEM account."
+        },
+        {
+          "id": "c",
+          "text": "A subscriber with query access, which shares the tables through AWS Lake Formation."
+        },
+        {
+          "id": "d",
+          "text": "A custom source that writes data in OCSF."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Los suscriptores con acceso de consulta consultan las tablas vía Lake Formation; los de acceso a datos leen los objetos de S3 a partir de notificaciones.",
+      "reference": "https://docs.aws.amazon.com/security-lake/latest/userguide/subscriber-management.html"
+    },
+    {
+      "id": "DET-137",
+      "type": "single",
+      "topic": "security-lake",
+      "question": "The company must keep Security Lake data in three Regions but wants a single Region for analysis because of data residency requirements in the analytics team.\n\nWhat should the security engineer configure?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Security Hub cross-Region aggregation."
+        },
+        {
+          "id": "b",
+          "text": "A separate subscriber in each Region."
+        },
+        {
+          "id": "c",
+          "text": "Rollup Regions that replicate data from contributing Regions into one Region."
+        },
+        {
+          "id": "d",
+          "text": "Cross-Region replication on each Security Lake bucket with a Lambda function."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Las rollup Regions consolidan datos de Regiones que contribuyen en una Región. Las reglas de residencia determinan qué Regiones pueden contribuir.",
+      "reference": "https://docs.aws.amazon.com/security-lake/latest/userguide/service-concepts.html"
+    },
+    {
+      "id": "DET-138",
+      "type": "single",
+      "topic": "analisis-de-logs",
+      "question": "Athena queries on the organization CloudTrail bucket are slow and expensive because every query scans all prefixes. The bucket receives logs from new accounts and Regions every month.\n\nWhat should the security engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable S3 Transfer Acceleration on the bucket."
+        },
+        {
+          "id": "b",
+          "text": "Create the CloudTrail table with partition projection on account, Region, and date, and filter on those columns in queries."
+        },
+        {
+          "id": "c",
+          "text": "Convert the trail to deliver logs to CloudWatch Logs instead."
+        },
+        {
+          "id": "d",
+          "text": "Run MSCK REPAIR TABLE before each query."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "La partition projection calcula las particiones a partir de la configuración de la tabla, sin mantenerlas manualmente, y reduce lo que se escanea.",
+      "reference": "https://docs.aws.amazon.com/athena/latest/ug/create-cloudtrail-table-partition-projection.html"
+    },
+    {
+      "id": "DET-139",
+      "type": "single",
+      "topic": "troubleshooting-deteccion",
+      "question": "An EC2 instance in a private subnet with no NAT gateway runs the CloudWatch agent. The instance role includes CloudWatchAgentServerPolicy, but no logs arrive in CloudWatch Logs.\n\nWhat should the security engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create an interface VPC endpoint for CloudWatch Logs (com.amazonaws.<region>.logs) in the VPC."
+        },
+        {
+          "id": "b",
+          "text": "Add an inbound security group rule on port 443 to the instance."
+        },
+        {
+          "id": "c",
+          "text": "Attach the CloudWatchLogsFullAccess policy to the instance role."
+        },
+        {
+          "id": "d",
+          "text": "Enable VPC Flow Logs for the subnet."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Sin ruta a internet ni NAT, el agente no alcanza el endpoint de CloudWatch Logs. Un interface endpoint le da acceso privado. Los permisos ya son suficientes.",
+      "reference": "https://repost.aws/knowledge-center/troubleshoot-cloudwatch-log-ingestion"
+    },
+    {
+      "id": "DET-140",
+      "type": "single",
+      "topic": "troubleshooting-deteccion",
+      "question": "A security engineer tries to enable execution logging for a REST API stage in Amazon API Gateway, but receives an error that a CloudWatch Logs role ARN must be set.\n\nWhat should the engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable CloudTrail data events for API Gateway."
+        },
+        {
+          "id": "b",
+          "text": "Attach a resource policy to the log group that allows apigateway.amazonaws.com."
+        },
+        {
+          "id": "c",
+          "text": "Set an IAM role that allows API Gateway to write to CloudWatch Logs in the API Gateway account-level settings for the Region."
+        },
+        {
+          "id": "d",
+          "text": "Add logs:CreateLogGroup to the engineer's IAM policy."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Los logs de ejecución de REST APIs requieren un rol de CloudWatch Logs configurado a nivel de cuenta (por Región) en API Gateway.",
+      "reference": "https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html"
+    },
+    {
+      "id": "DET-141",
+      "type": "single",
+      "topic": "troubleshooting-deteccion",
+      "question": "A security engineer configures CloudFront standard logging (legacy) to an S3 bucket. The bucket has Object Ownership set to Bucket owner enforced, and no logs are delivered.\n\nWhat is the cause?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Legacy standard logging to S3 requires ACLs to be enabled on the bucket."
+        },
+        {
+          "id": "b",
+          "text": "The distribution must have AWS WAF associated."
+        },
+        {
+          "id": "c",
+          "text": "CloudFront logs can be delivered only to buckets in us-east-1."
+        },
+        {
+          "id": "d",
+          "text": "The bucket must use SSE-KMS encryption."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "El logging estándar legacy de CloudFront usa ACLs para dar acceso de escritura; con Bucket owner enforced las ACLs están desactivadas y la entrega falla.",
+      "reference": "https://docs.aws.amazon.com/dk_dk/AmazonCloudFront/latest/DeveloperGuide/standard-logging-legacy-s3.html"
+    },
+    {
+      "id": "DET-142",
+      "type": "multiple",
+      "topic": "guardduty",
+      "question": "Which data sources does GuardDuty analyze as foundational sources without the customer enabling them in their own account? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "VPC Flow Logs"
+        },
+        {
+          "id": "b",
+          "text": "Route 53 Resolver DNS query logs"
+        },
+        {
+          "id": "c",
+          "text": "S3 server access logs"
+        },
+        {
+          "id": "d",
+          "text": "AWS CloudTrail management events"
+        },
+        {
+          "id": "e",
+          "text": "AWS Config configuration items"
+        },
+        {
+          "id": "f",
+          "text": "Application logs in CloudWatch Logs"
         }
       ],
       "correct": [
         "a",
         "b",
-        "c",
         "d"
       ],
-      "explanation": "El flujo CloudTrail → CloudWatch Logs → metric filter → alarma → SNS es el patrón clásico de alertas basadas en logs. Alternativa casi en tiempo real: una regla de EventBridge sobre el evento.",
-      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/monitoring/alarm-actions.html"
+      "explanation": "GuardDuty consume flujos independientes de CloudTrail (management), VPC Flow Logs y DNS. No hace falta habilitarlos ni pagarlos en la cuenta, y no afecta a tus trails.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
     },
     {
-      "id": "DET-008",
-      "type": "single",
+      "id": "DET-143",
+      "type": "multiple",
       "topic": "logs-de-red",
-      "question": "Se necesita detectar consultas DNS a dominios maliciosos desde las instancias. ¿Qué registro sirve?",
+      "question": "Which traffic is NOT captured by VPC Flow Logs? (Select THREE.)",
       "options": [
         {
           "id": "a",
-          "text": "CloudTrail data events"
+          "text": "DHCP traffic"
         },
         {
           "id": "b",
-          "text": "VPC Flow Logs, porque capturan todo el tráfico incluido DNS de Amazon"
+          "text": "Traffic to the Amazon-provided DNS server"
         },
         {
           "id": "c",
-          "text": "Registros de acceso del ALB"
+          "text": "Traffic to the instance metadata service at 169.254.169.254"
         },
         {
           "id": "d",
-          "text": "Route 53 Resolver query logging"
+          "text": "Traffic to an interface VPC endpoint"
+        },
+        {
+          "id": "e",
+          "text": "Traffic rejected by a network ACL"
+        },
+        {
+          "id": "f",
+          "text": "Traffic between two instances in the same subnet"
         }
       ],
       "correct": [
-        "d"
+        "a",
+        "b",
+        "c"
       ],
-      "explanation": "Los VPC Flow Logs no registran el tráfico hacia el DNS de Amazon; las consultas DNS se registran con Route 53 Resolver query logging.",
+      "explanation": "Flow Logs excluye metadatos, el DNS de Amazon, DHCP, la activación de licencias de Windows y Time Sync. El tráfico rechazado y entre instancias sí se registra.",
       "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
     },
     {
-      "id": "DET-009",
-      "type": "single",
-      "topic": "cloudwatch-logs",
-      "question": "Los logs de todas las cuentas deben llegar en tiempo real a una cuenta central de seguridad. ¿Qué mecanismo se usa?",
-      "options": [
+      "id": "DET-144",
+      "type": "matching",
+      "topic": "security-hub",
+      "question": "Match each requirement with the service that BEST meets it.",
+      "prompts": [
         {
-          "id": "a",
-          "text": "Un agregador de Config"
+          "id": "p1",
+          "text": "Detect threats from CloudTrail, VPC Flow Logs, and DNS logs"
         },
         {
-          "id": "b",
-          "text": "Un metric filter por cuenta"
+          "id": "p2",
+          "text": "Discover PII in S3 objects"
         },
         {
-          "id": "c",
-          "text": "Exportaciones manuales a S3 cada semana"
+          "id": "p3",
+          "text": "Check posture against the CIS AWS Foundations Benchmark"
         },
         {
-          "id": "d",
-          "text": "Subscription filters hacia un destino lógico (Kinesis Data Streams o Firehose) en la cuenta de logging"
+          "id": "p4",
+          "text": "Store security logs in OCSF format for a SIEM"
+        },
+        {
+          "id": "p5",
+          "text": "Record configuration changes of resources over time"
         }
       ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Los subscription filters transmiten eventos de log en tiempo real a un destino; el destino lógico en la cuenta central requiere una política que permita a las cuentas origen.",
-      "reference": "https://docs.aws.eu/AmazonCloudWatchLogs/latest/APIReference/API_PutSubscriptionFilter.html"
-    },
-    {
-      "id": "DET-010",
-      "type": "single",
-      "topic": "macie",
-      "question": "Se debe encontrar información personal (PII) almacenada en buckets de S3. ¿Qué servicio?",
       "options": [
         {
           "id": "a",
@@ -275,986 +1302,71 @@
         },
         {
           "id": "b",
-          "text": "AWS Config"
-        },
-        {
-          "id": "c",
           "text": "Amazon Inspector"
         },
         {
-          "id": "d",
-          "text": "Amazon Detective"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Macie descubre y clasifica datos sensibles en S3. No analiza directamente otros almacenes como RDS o DynamoDB.",
-      "reference": "https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html"
-    },
-    {
-      "id": "DET-011",
-      "type": "single",
-      "topic": "security-lake",
-      "question": "Se quiere centralizar logs de seguridad de toda la organización en un formato estándar para que un SIEM de terceros los consuma. ¿Qué servicio?",
-      "options": [
-        {
-          "id": "a",
-          "text": "AWS Artifact"
-        },
-        {
-          "id": "b",
-          "text": "CloudWatch Logs Insights"
-        },
-        {
           "id": "c",
-          "text": "Amazon Security Lake (formato OCSF) con un suscriptor de acceso a datos"
+          "text": "Amazon Security Lake"
         },
         {
           "id": "d",
-          "text": "Amazon Inspector"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Security Lake centraliza y normaliza logs multicuenta y multirregión en OCSF; los suscriptores consumen los datos (data access) o los consultan con SQL (query access).",
-      "reference": "https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html"
-    },
-    {
-      "id": "DET-012",
-      "type": "multiple",
-      "topic": "guardduty",
-      "question": "¿Qué afirmaciones sobre Amazon GuardDuty son correctas? (Elige TRES)",
-      "options": [
-        {
-          "id": "a",
-          "text": "S3 Protection viene habilitado por defecto como fuente fundacional"
-        },
-        {
-          "id": "b",
-          "text": "Analiza los logs de acceso de los Application Load Balancer"
-        },
-        {
-          "id": "c",
-          "text": "Detecta actividad sospechosa pero no bloquea ni remedia por sí mismo"
-        },
-        {
-          "id": "d",
-          "text": "Sus fuentes fundacionales incluyen eventos de administración de CloudTrail, VPC Flow Logs y logs de DNS"
+          "text": "Amazon GuardDuty"
         },
         {
           "id": "e",
-          "text": "Se puede habilitar en toda la organización con un administrador delegado y autohabilitación"
-        }
-      ],
-      "correct": [
-        "c",
-        "d",
-        "e"
-      ],
-      "explanation": "GuardDuty detecta; el bloqueo o la remediación se hacen con otros servicios o automatizaciones. S3 Protection es un plan opcional y GuardDuty no analiza logs de ALB.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
-    },
-    {
-      "id": "DET-013",
-      "type": "matching",
-      "topic": "logs-de-red",
-      "question": "Empareja cada pregunta de investigación con la fuente de registro que la responde.",
-      "prompts": [
-        {
-          "id": "p1",
-          "text": "¿Quién llamó a esta API y desde dónde?"
-        },
-        {
-          "id": "p2",
-          "text": "¿Qué conexiones de red se aceptaron o rechazaron?"
-        },
-        {
-          "id": "p3",
-          "text": "¿Qué dominios consultó una instancia?"
-        },
-        {
-          "id": "p4",
-          "text": "¿Cómo cambió la configuración de un recurso a lo largo del tiempo?"
-        }
-      ],
-      "options": [
-        {
-          "id": "a",
-          "text": "VPC Flow Logs"
-        },
-        {
-          "id": "b",
           "text": "AWS Config"
         },
         {
-          "id": "c",
-          "text": "Route 53 Resolver query logs"
-        },
-        {
-          "id": "d",
-          "text": "AWS CloudTrail"
-        },
-        {
-          "id": "e",
-          "text": "AWS Artifact"
+          "id": "f",
+          "text": "AWS Security Hub CSPM"
         }
       ],
       "correct": {
         "p1": "d",
         "p2": "a",
-        "p3": "c",
-        "p4": "b"
+        "p3": "f",
+        "p4": "c",
+        "p5": "e"
       },
-      "explanation": "CloudTrail registra la actividad de API, los flow logs el tráfico de red, Resolver query logs las consultas DNS y Config el historial de configuración. Artifact no es una fuente de registros.",
-      "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
-    },
-    {
-      "id": "DET-014",
-      "type": "single",
-      "topic": "config-ssm-evaluaciones",
-      "question": "Se quiere aplicar el mismo conjunto de reglas de cumplimiento a todas las cuentas, incluidas las nuevas, sin que las cuentas miembro puedan modificarlas. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un organization conformance pack de AWS Config desplegado desde la cuenta de administración o delegada"
-        },
-        {
-          "id": "b",
-          "text": "Reglas de Config creadas manualmente en cada cuenta"
-        },
-        {
-          "id": "c",
-          "text": "Un agregador de Config"
-        },
-        {
-          "id": "d",
-          "text": "Tag policies"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Los conformance packs de organización despliegan reglas y remediaciones y las cuentas miembro no pueden modificar ni eliminar sus reglas. El agregador solo reúne datos para reporte.",
-      "reference": "https://aws.amazon.com/config/faq/"
-    },
-    {
-      "id": "DET-015",
-      "type": "single",
-      "topic": "security-hub",
-      "question": "Se quiere validar la postura de las cuentas frente a CIS o PCI DSS y ver los hallazgos de GuardDuty, Inspector y Macie en un solo lugar. ¿Qué servicio?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Amazon Detective únicamente"
-        },
-        {
-          "id": "b",
-          "text": "AWS Security Hub (CSPM), con el estándar habilitado y AWS Config activo"
-        },
-        {
-          "id": "c",
-          "text": "AWS Artifact"
-        },
-        {
-          "id": "d",
-          "text": "AWS Audit Manager únicamente"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Security Hub CSPM ejecuta comprobaciones de estándares (basadas en Config) y agrega hallazgos de otros servicios de seguridad.",
-      "reference": "https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-standards.html"
-    },
-    {
-      "id": "DET-016",
-      "type": "single",
-      "topic": "troubleshooting-deteccion",
-      "question": "Una alarma de CloudWatch permanece en estado INSUFFICIENT_DATA. ¿Cuál es la causa más probable?",
-      "options": [
-        {
-          "id": "a",
-          "text": "El tema de SNS está cifrado"
-        },
-        {
-          "id": "b",
-          "text": "La métrica no se está publicando o los datos faltantes están mal tratados en la configuración de la alarma"
-        },
-        {
-          "id": "c",
-          "text": "El log group no tiene retención"
-        },
-        {
-          "id": "d",
-          "text": "La alarma tiene demasiadas acciones"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "INSUFFICIENT_DATA indica que no hay datos suficientes para evaluar: revisa que la métrica se publique y el tratamiento de datos faltantes.",
-      "reference": "https://repost.aws/knowledge-center/troubleshoot-cloudwatch-log-ingestion"
-    },
-    {
-      "id": "DET-017",
-      "type": "single",
-      "topic": "alertas-eventbridge-sns",
-      "question": "Una regla de EventBridge coincide con los hallazgos pero los correos de SNS nunca llegan. ¿Qué se revisa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "La política de recursos del tema de SNS y, si está cifrado, la política de la clave KMS"
-        },
-        {
-          "id": "b",
-          "text": "La versión del agente de CloudWatch"
-        },
-        {
-          "id": "c",
-          "text": "El estándar de Security Hub"
-        },
-        {
-          "id": "d",
-          "text": "La retención del trail"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "EventBridge necesita permiso para publicar en el tema; si el tema usa una clave KMS administrada por AWS, EventBridge no puede usarla y hay que emplear una clave propia con permisos adecuados.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings_eventbridge.html"
-    },
-    {
-      "id": "DET-018",
-      "type": "single",
-      "topic": "cloudtrail",
-      "question": "Se desea detectar picos anómalos de llamadas de API (por ejemplo, un aumento brusco de RunInstances). ¿Qué característica de CloudTrail?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Log file integrity validation"
-        },
-        {
-          "id": "b",
-          "text": "Data events de Lambda"
-        },
-        {
-          "id": "c",
-          "text": "CloudTrail Insights"
-        },
-        {
-          "id": "d",
-          "text": "Un trail multi-región"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "CloudTrail Insights analiza la actividad de administración y detecta volúmenes de llamadas inusuales.",
-      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
-    },
-    {
-      "id": "DET-019",
-      "type": "single",
-      "topic": "guardduty",
-      "question": "GuardDuty reporta que credenciales temporales de un rol de instancia se usan desde fuera de AWS. ¿Cuál es una acción de contención adecuada?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Cambiar la región del trail"
-        },
-        {
-          "id": "b",
-          "text": "Eliminar solo el grupo de logs"
-        },
-        {
-          "id": "c",
-          "text": "Desactivar GuardDuty para evitar más alertas"
-        },
-        {
-          "id": "d",
-          "text": "Revocar las sesiones activas del rol (política de denegación con aws:TokenIssueTime), aislar la instancia e investigar con CloudTrail y Detective"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Las credenciales temporales robadas se invalidan revocando las sesiones del rol con una política de denegación condicionada a aws:TokenIssueTime; luego se corrige el origen y se investiga.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
-    },
-    {
-      "id": "DET-020",
-      "type": "single",
-      "topic": "cloudtrail-lake",
-      "question": "Se necesita consultar con SQL meses de actividad de API con el menor esfuerzo operativo y retención administrada. ¿Qué opción?",
-      "options": [
-        {
-          "id": "a",
-          "text": "CloudTrail Lake (o un trail con Athena si Lake no está disponible)"
-        },
-        {
-          "id": "b",
-          "text": "CloudWatch alarms"
-        },
-        {
-          "id": "c",
-          "text": "VPC Flow Logs"
-        },
-        {
-          "id": "d",
-          "text": "AWS Artifact"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "CloudTrail Lake almacena eventos en un almacén consultable con SQL; la alternativa es un trail en S3 con Athena.",
-      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/cloudtrail-lake-concepts.html"
-    },
-    {
-      "id": "DET-021",
-      "type": "single",
-      "topic": "analisis-de-logs",
-      "question": "Se quiere consultar CloudTrail con SQL de forma económica sin administrar servidores. ¿Qué diseño?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un clúster de Hadoop propio"
-        },
-        {
-          "id": "b",
-          "text": "CloudWatch Logs Insights exclusivamente"
-        },
-        {
-          "id": "c",
-          "text": "Athena sobre el bucket del trail con partition projection"
-        },
-        {
-          "id": "d",
-          "text": "Un RDS con importaciones manuales"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Athena consulta datos en S3 sin servidores; partition projection evita administrar particiones.",
-      "reference": "https://docs.aws.amazon.com/athena/latest/ug/create-cloudtrail-table-partition-projection.html"
-    },
-    {
-      "id": "DET-022",
-      "type": "single",
-      "topic": "analisis-de-logs",
-      "question": "Los analistas necesitan dashboards interactivos y búsqueda de texto sobre logs de seguridad. ¿Qué servicio?",
-      "options": [
-        {
-          "id": "a",
-          "text": "AWS Config"
-        },
-        {
-          "id": "b",
-          "text": "Amazon Macie"
-        },
-        {
-          "id": "c",
-          "text": "Amazon Inspector"
-        },
-        {
-          "id": "d",
-          "text": "Amazon OpenSearch Service con Dashboards"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "OpenSearch indexa y permite búsquedas y paneles; se protege con acceso en VPC y control de acceso fino.",
-      "reference": "https://docs.aws.amazon.com/athena/latest/ug/create-cloudtrail-table-partition-projection.html"
-    },
-    {
-      "id": "DET-023",
-      "type": "single",
-      "topic": "cloudwatch-monitoreo",
-      "question": "Se quiere reducir falsas alarmas combinando varias condiciones. ¿Qué se crea?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un metric filter adicional"
-        },
-        {
-          "id": "b",
-          "text": "Una alarma compuesta"
-        },
-        {
-          "id": "c",
-          "text": "Una alarma por cada métrica con la misma acción"
-        },
-        {
-          "id": "d",
-          "text": "Una regla de Config"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Las alarmas compuestas combinan el estado de otras alarmas con lógica booleana.",
-      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/monitoring/alarm-actions.html"
-    },
-    {
-      "id": "DET-024",
-      "type": "single",
-      "topic": "cloudwatch-monitoreo",
-      "question": "Se necesita detectar comportamiento atípico sin conocer un umbral fijo. ¿Qué característica?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Alarma con detección de anomalías"
-        },
-        {
-          "id": "b",
-          "text": "Alarma estática"
-        },
-        {
-          "id": "c",
-          "text": "Alarma de composición"
-        },
-        {
-          "id": "d",
-          "text": "Subscription filter"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "La detección de anomalías modela el comportamiento esperado de la métrica.",
-      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/monitoring/alarm-actions.html"
-    },
-    {
-      "id": "DET-025",
-      "type": "single",
-      "topic": "cloudwatch-monitoreo",
-      "question": "Se quiere monitorear varias cuentas desde una cuenta central. ¿Qué capacidad de CloudWatch?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Exportar manualmente a S3"
-        },
-        {
-          "id": "b",
-          "text": "Config rules"
-        },
-        {
-          "id": "c",
-          "text": "Un trail por cuenta"
-        },
-        {
-          "id": "d",
-          "text": "Cross-account observability (sink y links, idealmente con Organizations)"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Una cuenta de monitoreo con sink recibe datos de las cuentas origen vinculadas.",
-      "reference": "https://docs.aws.eu/AmazonCloudWatch/latest/monitoring/alarm-actions.html"
-    },
-    {
-      "id": "DET-026",
-      "type": "single",
-      "topic": "guardduty",
-      "question": "Un escáner de vulnerabilidades autorizado genera falsos positivos en GuardDuty. ¿Qué se hace?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Deshabilitar GuardDuty"
-        },
-        {
-          "id": "b",
-          "text": "Eliminar el trail"
-        },
-        {
-          "id": "c",
-          "text": "Cambiar la Región"
-        },
-        {
-          "id": "d",
-          "text": "Una regla de supresión acotada para esos hallazgos"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Las reglas de supresión archivan automáticamente hallazgos que coinciden con criterios específicos sin deshabilitar el servicio.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
-    },
-    {
-      "id": "DET-027",
-      "type": "single",
-      "topic": "guardduty",
-      "question": "¿Cómo se conservan los hallazgos de GuardDuty más de 90 días?",
-      "options": [
-        {
-          "id": "a",
-          "text": "No es posible"
-        },
-        {
-          "id": "b",
-          "text": "Con un grupo de logs sin retención"
-        },
-        {
-          "id": "c",
-          "text": "Exportándolos a un bucket de S3 cifrado con KMS"
-        },
-        {
-          "id": "d",
-          "text": "Con una alarma de CloudWatch"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "GuardDuty retiene los hallazgos 90 días; la exportación a S3 permite conservarlos más tiempo.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
-    },
-    {
-      "id": "DET-028",
-      "type": "single",
-      "topic": "guardduty",
-      "question": "Se necesita detectar malware en objetos que se suben a S3. ¿Qué plan de GuardDuty?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Malware Protection for S3"
-        },
-        {
-          "id": "b",
-          "text": "Runtime Monitoring"
-        },
-        {
-          "id": "c",
-          "text": "Lambda Protection"
-        },
-        {
-          "id": "d",
-          "text": "RDS Protection"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Cada plan cubre una fuente: Malware Protection for S3 analiza objetos subidos a buckets.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
-    },
-    {
-      "id": "DET-029",
-      "type": "single",
-      "topic": "macie",
-      "question": "Se debe detectar un identificador propio de la empresa en los datos de S3. ¿Qué se crea en Macie?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un custom data identifier con una expresión regular"
-        },
-        {
-          "id": "b",
-          "text": "Una regla de Config"
-        },
-        {
-          "id": "c",
-          "text": "Un trail de datos"
-        },
-        {
-          "id": "d",
-          "text": "Una política de bucket"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Los custom data identifiers amplían la detección con regex y palabras clave.",
-      "reference": "https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html"
-    },
-    {
-      "id": "DET-030",
-      "type": "single",
-      "topic": "security-hub",
-      "question": "Se quiere subir o bajar automáticamente la severidad de ciertos hallazgos en Security Hub. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una SCP"
-        },
-        {
-          "id": "b",
-          "text": "Tag policies"
-        },
-        {
-          "id": "c",
-          "text": "Una regla de VPC"
-        },
-        {
-          "id": "d",
-          "text": "Automation rules"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Las reglas de automatización modifican hallazgos (severidad, notas, estado) según criterios.",
+      "explanation": "Cada servicio cubre una función distinta de detección; Inspector busca vulnerabilidades de software, que no corresponde a ninguno de estos requisitos.",
       "reference": "https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html"
     },
     {
-      "id": "DET-031",
-      "type": "single",
-      "topic": "security-lake",
-      "question": "Se desea consolidar en una sola Región los datos de varias Regiones por cumplimiento. ¿Qué característica de Security Lake?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Subscription filters"
-        },
-        {
-          "id": "b",
-          "text": "Un agregador de Config"
-        },
-        {
-          "id": "c",
-          "text": "Regiones de rollup"
-        },
-        {
-          "id": "d",
-          "text": "Cross-Region backup"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Un rollup Region agrega los datos de las Regiones contribuyentes.",
-      "reference": "https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html"
-    },
-    {
-      "id": "DET-032",
-      "type": "single",
-      "topic": "security-lake",
-      "question": "Los analistas quieren consultar datos de Security Lake con SQL sin moverlos. ¿Qué tipo de suscriptor?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Suscriptor de acceso a consultas (query access) con Athena"
-        },
-        {
-          "id": "b",
-          "text": "Un trail de organización"
-        },
-        {
-          "id": "c",
-          "text": "Una regla de EventBridge"
-        },
-        {
-          "id": "d",
-          "text": "Suscriptor de acceso a datos únicamente"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Query access permite consultar tablas con Athena; data access entrega los objetos a un consumidor.",
-      "reference": "https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html"
-    },
-    {
-      "id": "DET-033",
-      "type": "single",
-      "topic": "logs-de-red",
-      "question": "Se necesita registrar peticiones web de WAF sin guardar contraseñas en las query strings. ¿Qué se configura?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Cifrar el bucket únicamente"
-        },
-        {
-          "id": "b",
-          "text": "Campos redactados (redacted fields) en el logging de WAF"
-        },
-        {
-          "id": "c",
-          "text": "Un metric filter"
-        },
-        {
-          "id": "d",
-          "text": "Desactivar el logging"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "WAF permite redactar campos como cabeceras o query strings antes de registrarlos.",
-      "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
-    },
-    {
-      "id": "DET-034",
-      "type": "single",
-      "topic": "logs-de-red",
-      "question": "Se quiere cambiar el formato de un VPC Flow Log existente. ¿Qué se hace?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Se edita el formato en caliente"
-        },
-        {
-          "id": "b",
-          "text": "Se usa Athena"
-        },
-        {
-          "id": "c",
-          "text": "Se cambia el trail"
-        },
-        {
-          "id": "d",
-          "text": "Se elimina el flow log y se crea uno nuevo con el formato deseado"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "El formato de un flow log no se puede modificar una vez creado.",
-      "reference": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-limitations.html"
-    },
-    {
-      "id": "DET-035",
-      "type": "single",
-      "topic": "troubleshooting-deteccion",
-      "question": "Los logs de una instancia no aparecen en CloudWatch. ¿Qué se revisa primero?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Que el agente esté configurado, que el rol tenga la política del agente y que haya salida al endpoint"
-        },
-        {
-          "id": "b",
-          "text": "La retención de CloudTrail"
-        },
-        {
-          "id": "c",
-          "text": "La clave de Macie"
-        },
-        {
-          "id": "d",
-          "text": "El estándar de Security Hub"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Los fallos típicos son configuración del agente, permisos del rol de instancia y conectividad al endpoint.",
-      "reference": "https://repost.aws/knowledge-center/troubleshoot-cloudwatch-log-ingestion"
-    },
-    {
-      "id": "DET-036",
-      "type": "single",
-      "topic": "troubleshooting-deteccion",
-      "question": "API Gateway no escribe logs de acceso. ¿Qué falta con frecuencia?",
-      "options": [
-        {
-          "id": "a",
-          "text": "El ARN del rol de CloudWatch configurado a nivel de cuenta en esa Región"
-        },
-        {
-          "id": "b",
-          "text": "Un trail de datos"
-        },
-        {
-          "id": "c",
-          "text": "Una zona de Route 53"
-        },
-        {
-          "id": "d",
-          "text": "Una regla de WAF"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "API Gateway necesita un rol con permisos para publicar logs en CloudWatch configurado en la cuenta y Región.",
-      "reference": "https://repost.aws/knowledge-center/troubleshoot-cloudwatch-log-ingestion"
-    },
-    {
-      "id": "DET-037",
-      "type": "single",
-      "topic": "config-ssm-evaluaciones",
-      "question": "Se quiere mantener una configuración en las instancias de forma continua usando etiquetas como destino. ¿Qué capacidad de Systems Manager?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Parameter Store"
-        },
-        {
-          "id": "b",
-          "text": "Patch Manager únicamente"
-        },
-        {
-          "id": "c",
-          "text": "State Manager (asociaciones)"
-        },
-        {
-          "id": "d",
-          "text": "Session Manager"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "State Manager mantiene un estado deseado mediante asociaciones aplicadas a objetivos por etiqueta.",
-      "reference": "https://docs.aws.amazon.com/config/latest/developerguide/setup-autoremediation.html"
-    },
-    {
-      "id": "DET-038",
-      "type": "single",
+      "id": "DET-145",
+      "type": "ordering",
       "topic": "alertas-eventbridge-sns",
-      "question": "Se quiere crear automáticamente un ticket operativo cuando se activa una alarma. ¿Qué acción?",
+      "question": "Order the flow for alerting the security team by email when GuardDuty detects a high-severity finding.",
       "options": [
         {
           "id": "a",
-          "text": "Una acción de Macie"
+          "text": "GuardDuty generates the finding"
         },
         {
           "id": "b",
-          "text": "Una acción de OpsItem en Systems Manager OpsCenter"
+          "text": "GuardDuty publishes the finding event to EventBridge"
         },
         {
           "id": "c",
-          "text": "Un trail"
+          "text": "An EventBridge rule matches severity 7 or higher"
         },
         {
           "id": "d",
-          "text": "Un subscription filter"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Las alarmas de CloudWatch pueden crear OpsItems en OpsCenter.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings_eventbridge.html"
-    },
-    {
-      "id": "DET-039",
-      "type": "multiple",
-      "topic": "cloudtrail",
-      "question": "¿Qué buenas prácticas aplican a un trail de organización? (Elige TRES)",
-      "options": [
-        {
-          "id": "a",
-          "text": "Permitir que cada cuenta miembro lo detenga"
-        },
-        {
-          "id": "b",
-          "text": "Almacenar los logs en la cuenta de carga de trabajo"
-        },
-        {
-          "id": "c",
-          "text": "Registrar en todas las Regiones"
-        },
-        {
-          "id": "d",
-          "text": "Entregar a un bucket en una cuenta de logging dedicada"
+          "text": "The rule sends the event to an SNS topic"
         },
         {
           "id": "e",
-          "text": "Cifrar con KMS y habilitar la validación de integridad"
-        }
-      ],
-      "correct": [
-        "c",
-        "d",
-        "e"
-      ],
-      "explanation": "Las cuentas miembro no pueden modificar un trail de organización; el bucket debe estar protegido en una cuenta aparte.",
-      "reference": "https://docs.aws.eu/awscloudtrail/latest/userguide/how-cloudtrail-works.html"
-    },
-    {
-      "id": "DET-040",
-      "type": "ordering",
-      "topic": "guardduty",
-      "question": "Ordena el flujo de respuesta automatizada ante un hallazgo de GuardDuty de severidad alta.",
-      "options": [
-        {
-          "id": "a",
-          "text": "GuardDuty genera el hallazgo"
-        },
-        {
-          "id": "b",
-          "text": "EventBridge lo coincide con una regla de severidad alta"
-        },
-        {
-          "id": "c",
-          "text": "Se invoca una Lambda o runbook de Systems Manager"
-        },
-        {
-          "id": "d",
-          "text": "La automatización aísla el recurso y notifica al equipo por SNS"
+          "text": "SNS delivers the email to the subscribed team"
         }
       ],
       "correct": [
         "a",
         "b",
         "c",
-        "d"
+        "d",
+        "e"
       ],
-      "explanation": "GuardDuty detecta; EventBridge enruta; la automatización contiene y notifica.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
-    },
-    {
-      "id": "DET-041",
-      "type": "matching",
-      "topic": "guardduty",
-      "question": "Empareja cada necesidad con el plan de GuardDuty adecuado.",
-      "prompts": [
-        {
-          "id": "p1",
-          "text": "Malware en objetos subidos a S3"
-        },
-        {
-          "id": "p2",
-          "text": "Procesos maliciosos en contenedores o instancias"
-        },
-        {
-          "id": "p3",
-          "text": "Actividad anómala contra buckets de S3"
-        },
-        {
-          "id": "p4",
-          "text": "Credenciales de base de datos comprometidas"
-        }
-      ],
-      "options": [
-        {
-          "id": "a",
-          "text": "Macie"
-        },
-        {
-          "id": "b",
-          "text": "Runtime Monitoring"
-        },
-        {
-          "id": "c",
-          "text": "RDS Protection"
-        },
-        {
-          "id": "d",
-          "text": "Malware Protection for S3"
-        },
-        {
-          "id": "e",
-          "text": "S3 Protection"
-        }
-      ],
-      "correct": {
-        "p1": "d",
-        "p2": "b",
-        "p3": "e",
-        "p4": "c"
-      },
-      "explanation": "Cada plan cubre una fuente específica; Macie clasifica datos sensibles y no es un plan de GuardDuty.",
-      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+      "explanation": "GuardDuty envía los hallazgos a EventBridge automáticamente; la regla filtra y SNS distribuye.",
+      "reference": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings_eventbridge.html"
     }
   ]
 }

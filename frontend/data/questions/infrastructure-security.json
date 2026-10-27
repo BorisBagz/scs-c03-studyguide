@@ -2,1725 +2,1487 @@
   "domain": "infrastructure-security",
   "questions": [
     {
-      "id": "INF-001",
-      "type": "single",
-      "topic": "waf",
-      "question": "Se quiere probar una regla nueva de AWS WAF sin bloquear tráfico legítimo. ¿Qué acción se configura inicialmente?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Deshabilitar el web ACL"
-        },
-        {
-          "id": "b",
-          "text": "Allow para todo el tráfico"
-        },
-        {
-          "id": "c",
-          "text": "Block directamente en producción"
-        },
-        {
-          "id": "d",
-          "text": "Count, con registro y revisión de sampled requests antes de pasar a Block"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "El modo Count registra las coincidencias sin bloquear; permite validar falsos positivos antes de aplicar Block.",
-      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_Statement.html"
-    },
-    {
-      "id": "INF-002",
-      "type": "single",
-      "topic": "waf",
-      "question": "Se debe limitar los intentos de inicio de sesión por IP a una URL concreta. ¿Qué regla de WAF corresponde?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una restricción de CloudFront por país"
-        },
-        {
-          "id": "b",
-          "text": "Un managed rule group de SQLi"
-        },
-        {
-          "id": "c",
-          "text": "Una regla GeoMatch"
-        },
-        {
-          "id": "d",
-          "text": "Una regla rate-based con scope-down a la URI de login, agregando por IP (o IP reenviada si hay proxy)"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Las reglas rate-based cuentan solicitudes por clave de agregación; el scope-down limita la regla a la ruta de login.",
-      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_Statement.html"
-    },
-    {
-      "id": "INF-003",
-      "type": "single",
-      "topic": "waf",
-      "question": "Un managed rule group genera falsos positivos en una regla concreta. ¿Qué se recomienda?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Sobrescribir la acción de esa regla a Count en lugar de quitar el grupo completo"
-        },
-        {
-          "id": "b",
-          "text": "Eliminar el web ACL"
-        },
-        {
-          "id": "c",
-          "text": "Agregar la IP del atacante a una allow list global"
-        },
-        {
-          "id": "d",
-          "text": "Deshabilitar el logging"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Se mantiene la protección del grupo y solo se relaja la regla problemática, monitoreando sus coincidencias.",
-      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_Statement.html"
-    },
-    {
-      "id": "INF-004",
+      "id": "INF-101",
       "type": "scenario",
-      "topic": "cloudfront-borde",
-      "question": "Un bucket de S3 debe ser accesible solo a través de CloudFront. ¿Qué configuración se usa?",
+      "topic": "acceso-administrativo",
+      "question": "A company runs EC2 instances in private subnets with no internet access. Administrators currently connect through a bastion host with SSH keys. The security team wants to remove the bastion host, close all inbound ports, control access with IAM, and log every session command.\n\nWhich solution meets these requirements?",
       "options": [
         {
           "id": "a",
-          "text": "Origin Access Control (OAC) con una bucket policy para el servicio CloudFront y Block Public Access habilitado"
+          "text": "Use AWS Client VPN and allow SSH from the VPN CIDR range."
         },
         {
           "id": "b",
-          "text": "Una regla de WAF sobre el bucket"
+          "text": "Use Systems Manager Session Manager with interface VPC endpoints for ssm, ssmmessages, and ec2messages, and configure session logging to S3 or CloudWatch Logs."
         },
         {
           "id": "c",
-          "text": "Compartir las claves de acceso del bucket con CloudFront"
+          "text": "Move the bastion host to a private subnet and require MFA for SSH."
         },
         {
           "id": "d",
-          "text": "Hacer el bucket público y confiar en la URL"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "OAC es el método recomendado (reemplaza a OAI), soporta SSE-KMS y todas las regiones.",
-      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
-    },
-    {
-      "id": "INF-005",
-      "type": "single",
-      "topic": "estrategia-borde",
-      "question": "Un ALB está siendo atacado directamente, saltándose CloudFront y WAF. ¿Cómo se fuerza el tráfico por CloudFront?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Abrir el security group a 0.0.0.0/0"
-        },
-        {
-          "id": "b",
-          "text": "Aumentar el tamaño de la instancia"
-        },
-        {
-          "id": "c",
-          "text": "Quitar el WAF"
-        },
-        {
-          "id": "d",
-          "text": "Un encabezado secreto personalizado verificado en el ALB y el security group que solo permite la prefix list administrada de CloudFront"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "La prefix list de CloudFront restringe el origen a sus IPs y el encabezado secreto evita que otras distribuciones usen el ALB.",
-      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/ddos-advanced-summary-capabilities.html"
-    },
-    {
-      "id": "INF-006",
-      "type": "single",
-      "topic": "cloudfront-borde",
-      "question": "Contenido de pago debe ser accesible solo por tiempo limitado. ¿Qué se usa en CloudFront?",
-      "options": [
-        {
-          "id": "a",
-          "text": "URLs o cookies firmadas con un key group"
-        },
-        {
-          "id": "b",
-          "text": "Geo restriction"
-        },
-        {
-          "id": "c",
-          "text": "Un bucket público con nombre difícil de adivinar"
-        },
-        {
-          "id": "d",
-          "text": "Un response headers policy"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Las URLs y cookies firmadas restringen el acceso a contenido privado con caducidad.",
-      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
-    },
-    {
-      "id": "INF-007",
-      "type": "single",
-      "topic": "cloudfront-borde",
-      "question": "Se debe cifrar un campo de formulario sensible en el borde de modo que solo lo descifre el backend. ¿Qué característica?",
-      "options": [
-        {
-          "id": "a",
-          "text": "HSTS"
-        },
-        {
-          "id": "b",
-          "text": "Un response headers policy"
-        },
-        {
-          "id": "c",
-          "text": "Origin Shield"
-        },
-        {
-          "id": "d",
-          "text": "Field-level encryption de CloudFront"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Field-level encryption cifra campos específicos en el borde con una clave pública; solo quien tiene la privada los descifra.",
-      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
-    },
-    {
-      "id": "INF-008",
-      "type": "single",
-      "topic": "sg-nacl",
-      "question": "Se quiere bloquear explícitamente una dirección IP maliciosa en la red. ¿Qué control permite una regla de denegación?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una network ACL (los security groups solo tienen reglas de permitir)"
-        },
-        {
-          "id": "b",
-          "text": "Una route table"
-        },
-        {
-          "id": "c",
-          "text": "Un VPC endpoint"
-        },
-        {
-          "id": "d",
-          "text": "Un security group con regla deny"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Las NACL admiten reglas Allow y Deny evaluadas en orden; los security groups solo permiten.",
-      "reference": "https://docs.aws.eu/vpc/latest/userguide/nacl-examples.html"
-    },
-    {
-      "id": "INF-009",
-      "type": "single",
-      "topic": "sg-nacl",
-      "question": "El tráfico llega a la instancia pero las respuestas no salen. La subred tiene una NACL restrictiva. ¿Qué falta?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un NAT gateway"
-        },
-        {
-          "id": "b",
-          "text": "Una regla de entrada en el security group para puertos efímeros"
-        },
-        {
-          "id": "c",
-          "text": "Una regla de salida de la NACL que permita los puertos efímeros"
-        },
-        {
-          "id": "d",
-          "text": "Habilitar el reenvío DNS"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Las NACL no tienen estado: la respuesta debe estar permitida explícitamente en la salida, normalmente en puertos efímeros.",
-      "reference": "https://docs.aws.eu/vpc/latest/userguide/nacl-examples.html"
-    },
-    {
-      "id": "INF-010",
-      "type": "single",
-      "topic": "roles-computo",
-      "question": "Para impedir que una vulnerabilidad SSRF exponga credenciales de instancia, ¿qué se configura?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un security group abierto"
-        },
-        {
-          "id": "b",
-          "text": "IMDSv2 obligatorio (con token y hop limit), reforzado con SCP y Config"
-        },
-        {
-          "id": "c",
-          "text": "Claves de acceso en variables de entorno"
-        },
-        {
-          "id": "d",
-          "text": "IMDSv1 con firewall del sistema operativo"
+          "text": "Use EC2 Instance Connect with public IP addresses on the instances."
         }
       ],
       "correct": [
         "b"
       ],
-      "explanation": "IMDSv2 exige un token de sesión; el hop limit evita su reenvío fuera de la instancia.",
-      "reference": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html"
-    },
-    {
-      "id": "INF-011",
-      "type": "single",
-      "topic": "acceso-administrativo",
-      "question": "Se quiere eliminar bastiones y claves SSH para administrar instancias. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Abrir el puerto 22 a la oficina"
-        },
-        {
-          "id": "b",
-          "text": "Un bastión con IP elástica"
-        },
-        {
-          "id": "c",
-          "text": "AWS Systems Manager Session Manager"
-        },
-        {
-          "id": "d",
-          "text": "Compartir un par de claves"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Session Manager da acceso por IAM sin puertos de entrada ni claves, con registro de sesiones.",
+      "explanation": "Session Manager no requiere puertos de entrada ni bastion, se autoriza con IAM y registra las sesiones. En subredes privadas sin internet necesita los VPC endpoints de Systems Manager.",
       "reference": "https://docs.aws.amazon.com/ec2-instance-connect/latest/APIReference/API_SendSSHPublicKey.html"
     },
     {
-      "id": "INF-012",
+      "id": "INF-102",
       "type": "single",
-      "topic": "network-firewall",
-      "question": "Se debe permitir salida a internet solo hacia una lista de dominios aprobados. ¿Qué diseño?",
+      "topic": "acceso-administrativo",
+      "question": "Developers occasionally need SSH access to Linux instances in private subnets. The company wants to avoid long-lived SSH keys and avoid assigning public IP addresses or deploying a bastion host.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
       "options": [
         {
           "id": "a",
-          "text": "Security group con nombres de dominio"
+          "text": "Store SSH private keys in Secrets Manager and rotate them weekly."
         },
         {
           "id": "b",
-          "text": "Una NACL con dominios"
+          "text": "Create an EC2 Instance Connect Endpoint in the VPC and use EC2 Instance Connect, which pushes a temporary public key valid for 60 seconds."
         },
         {
           "id": "c",
-          "text": "AWS Network Firewall con una regla de lista de dominios Allow, orden STRICT_ORDER y acción por defecto drop"
+          "text": "Create a NAT gateway and allow SSH from the developers' IP addresses."
         },
         {
           "id": "d",
-          "text": "Un WAF en el NAT gateway"
+          "text": "Use AWS Verified Access with an SSH endpoint and long-lived keys."
         }
       ],
       "correct": [
-        "c"
+        "b"
       ],
-      "explanation": "Network Firewall filtra por dominio (SNI/HTTP host); con orden estricto y drop por defecto solo pasa lo permitido.",
-      "reference": "https://docs.aws.amazon.com/network-firewall/latest/developerguide/stateful-rule-groups-domain-names.html"
+      "explanation": "Instance Connect envía una clave pública temporal (60 segundos) autorizada por IAM; el EC2 Instance Connect Endpoint permite llegar a instancias privadas sin IP pública ni bastion.",
+      "reference": "https://docs.aws.amazon.com/ec2-instance-connect/latest/APIReference/API_SendSSHPublicKey.html"
     },
     {
-      "id": "INF-013",
+      "id": "INF-103",
       "type": "single",
-      "topic": "network-firewall",
-      "question": "Se necesita inspeccionar el contenido de tráfico cifrado con TLS en el firewall. ¿Qué se configura?",
+      "topic": "roles-computo",
+      "question": "A penetration test showed that a server-side request forgery (SSRF) vulnerability in a web application could be used to retrieve the instance role credentials from the instance metadata service.\n\nWhich change BEST mitigates this risk?",
       "options": [
         {
           "id": "a",
-          "text": "Reglas de security group"
+          "text": "Require IMDSv2 by setting HttpTokens to required on the instances, and enforce it for new instances with the ec2:MetadataHttpTokens condition key in an SCP."
         },
         {
           "id": "b",
-          "text": "VPC Flow Logs"
+          "text": "Block 169.254.169.254 in the instance security group."
         },
         {
           "id": "c",
-          "text": "Una TLS inspection configuration en AWS Network Firewall"
+          "text": "Enable VPC Flow Logs to detect requests to the metadata service."
         },
         {
           "id": "d",
-          "text": "Un WAF en el ALB"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "La inspección TLS descifra, inspecciona y vuelve a cifrar el tráfico usando certificados de ACM.",
-      "reference": "https://docs.aws.amazon.com/network-firewall/latest/developerguide/stateful-rule-groups-domain-names.html"
-    },
-    {
-      "id": "INF-014",
-      "type": "single",
-      "topic": "conectividad-hibrida",
-      "question": "Se debe cifrar el enlace físico de 10 o 100 Gbps entre el centro de datos y AWS Direct Connect. ¿Qué opción?",
-      "options": [
-        {
-          "id": "a",
-          "text": "MACsec en la conexión dedicada"
-        },
-        {
-          "id": "b",
-          "text": "Una VPN de cliente"
-        },
-        {
-          "id": "c",
-          "text": "ACM en el ALB"
-        },
-        {
-          "id": "d",
-          "text": "AWS WAF"
+          "text": "Remove the instance profile and store access keys in the application configuration."
         }
       ],
       "correct": [
         "a"
       ],
-      "explanation": "MACsec cifra a nivel de capa 2 en conexiones dedicadas; con must_encrypt no se tolera tráfico sin cifrar.",
-      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
-    },
-    {
-      "id": "INF-015",
-      "type": "single",
-      "topic": "conectividad-hibrida",
-      "question": "El cumplimiento exige cifrar el tráfico sobre Direct Connect sin usar IP públicas. ¿Qué se implementa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una VPN Site-to-Site por internet público"
-        },
-        {
-          "id": "b",
-          "text": "Un NAT gateway"
-        },
-        {
-          "id": "c",
-          "text": "Una VPN de IP privada (private IP VPN) sobre la transit VIF"
-        },
-        {
-          "id": "d",
-          "text": "Un peering de VPC"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "La VPN de IP privada cifra con IPsec sobre Direct Connect sin exponer direcciones públicas.",
-      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
-    },
-    {
-      "id": "INF-016",
-      "type": "single",
-      "topic": "verified-access",
-      "question": "Se quiere que los empleados accedan a aplicaciones internas sin VPN, con SSO y comprobación del estado del dispositivo. ¿Qué servicio?",
-      "options": [
-        {
-          "id": "a",
-          "text": "AWS Artifact"
-        },
-        {
-          "id": "b",
-          "text": "AWS Verified Access"
-        },
-        {
-          "id": "c",
-          "text": "AWS Client VPN con clave compartida"
-        },
-        {
-          "id": "d",
-          "text": "Amazon Macie"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Verified Access evalúa identidad y postura del dispositivo por solicitud con políticas Cedar y registra cada intento.",
-      "reference": "https://docs.aws.amazon.com/verified-access/latest/ug/how-it-works.html"
-    },
-    {
-      "id": "INF-017",
-      "type": "single",
-      "topic": "acceso-innecesario",
-      "question": "Una instancia no puede alcanzar a otra y se sospecha de reglas de red. ¿Qué herramienta analiza la ruta?",
-      "options": [
-        {
-          "id": "a",
-          "text": "IAM Access Analyzer"
-        },
-        {
-          "id": "b",
-          "text": "Amazon Macie"
-        },
-        {
-          "id": "c",
-          "text": "AWS Config conformance pack"
-        },
-        {
-          "id": "d",
-          "text": "VPC Reachability Analyzer"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Reachability Analyzer comprueba la conectividad entre dos puntos y señala el componente que la bloquea.",
-      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
-    },
-    {
-      "id": "INF-018",
-      "type": "single",
-      "topic": "genai-guardrails",
-      "question": "Un chatbot de Bedrock no debe tratar asesoría legal. ¿Qué componente de Guardrails se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Contextual grounding checks"
-        },
-        {
-          "id": "b",
-          "text": "Sensitive information filters"
-        },
-        {
-          "id": "c",
-          "text": "Denied topics"
-        },
-        {
-          "id": "d",
-          "text": "Word filters para insultos únicamente"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Los denied topics definen temas que el modelo no debe tratar; ApplyGuardrail permite usarlos con modelos externos a Bedrock.",
-      "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-components.html"
-    },
-    {
-      "id": "INF-019",
-      "type": "single",
-      "topic": "inspector",
-      "question": "Se necesita escanear imágenes de contenedor al hacer push a ECR y reaccionar a hallazgos críticos. ¿Qué diseño?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Macie sobre el repositorio"
-        },
-        {
-          "id": "b",
-          "text": "Amazon Inspector con escaneo mejorado de ECR y una regla de EventBridge sobre hallazgos críticos"
-        },
-        {
-          "id": "c",
-          "text": "Un conformance pack de Config"
-        },
-        {
-          "id": "d",
-          "text": "Una NACL"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Inspector escanea continuamente ECR y emite hallazgos que EventBridge puede enrutar a notificación o remediación.",
-      "reference": "https://aws.amazon.com/inspector/features/"
-    },
-    {
-      "id": "INF-020",
-      "type": "single",
-      "topic": "patch-manager",
-      "question": "Se quiere instalar de inmediato un parche urgente concreto en la flota. ¿Qué parámetro de Patch Manager?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un nuevo patch group"
-        },
-        {
-          "id": "b",
-          "text": "InstallOverrideList"
-        },
-        {
-          "id": "c",
-          "text": "Un nuevo maintenance window"
-        },
-        {
-          "id": "d",
-          "text": "Quitar el baseline"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "InstallOverrideList permite instalar parches específicos al margen del baseline.",
-      "reference": "https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-aws-runpatchbaseline.html"
-    },
-    {
-      "id": "INF-021",
-      "type": "multiple",
-      "topic": "roles-computo",
-      "question": "¿Qué medidas ayudan a proteger las credenciales de instancia EC2 frente a SSRF? (Elige TRES)",
-      "options": [
-        {
-          "id": "a",
-          "text": "Limitar el hop limit de metadatos"
-        },
-        {
-          "id": "b",
-          "text": "Guardar claves de acceso en la AMI"
-        },
-        {
-          "id": "c",
-          "text": "Reforzar con una SCP y reglas de Config que exijan IMDSv2"
-        },
-        {
-          "id": "d",
-          "text": "Exigir IMDSv2"
-        },
-        {
-          "id": "e",
-          "text": "Mantener IMDSv1 habilitado por compatibilidad"
-        }
-      ],
-      "correct": [
-        "a",
-        "c",
-        "d"
-      ],
-      "explanation": "IMDSv2 con token, el hop limit y el enforcement organizacional reducen el riesgo; IMDSv1 y las claves incrustadas lo aumentan.",
+      "explanation": "IMDSv2 exige un token de sesión obtenido con PUT, lo que mitiga SSRF. Los security groups no filtran el tráfico al servicio de metadatos, y las claves estáticas empeoran el riesgo.",
       "reference": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html"
     },
     {
-      "id": "INF-022",
-      "type": "matching",
-      "topic": "estrategia-borde",
-      "question": "Empareja cada necesidad con el servicio adecuado.",
-      "prompts": [
-        {
-          "id": "p1",
-          "text": "Bloquear inyección SQL y XSS con reglas gestionadas"
-        },
-        {
-          "id": "p2",
-          "text": "Mitigar DDoS de capa 7 con apoyo del SRT"
-        },
-        {
-          "id": "p3",
-          "text": "Filtrar salida por lista de dominios"
-        },
-        {
-          "id": "p4",
-          "text": "Aplicar la misma política de WAF o security groups en todas las cuentas"
-        }
-      ],
+      "id": "INF-104",
+      "type": "single",
+      "topic": "roles-computo",
+      "question": "Containers running on EC2 instances in an Amazon ECS cluster must not be able to obtain the credentials of the EC2 instance role. Each task must use its own permissions.\n\nWhich combination meets these requirements?",
       "options": [
         {
           "id": "a",
-          "text": "Amazon Macie"
+          "text": "Assign an ECS task role to each task definition and set the IMDSv2 hop limit to 1 on the container instances (or block container access to IMDS)."
         },
         {
           "id": "b",
-          "text": "AWS Network Firewall"
+          "text": "Assign the permissions to the task execution role and remove the instance role."
         },
         {
           "id": "c",
-          "text": "AWS Shield Advanced"
+          "text": "Store access keys for each task in environment variables."
         },
         {
           "id": "d",
-          "text": "AWS Firewall Manager"
-        },
-        {
-          "id": "e",
-          "text": "AWS WAF"
+          "text": "Increase the IMDS hop limit to 3 so that containers use IMDSv2."
         }
       ],
-      "correct": {
-        "p1": "e",
-        "p2": "c",
-        "p3": "b",
-        "p4": "d"
-      },
-      "explanation": "WAF filtra solicitudes web, Shield Advanced protege contra DDoS con SRT, Network Firewall filtra salida y Firewall Manager gobierna políticas en la organización.",
+      "correct": [
+        "a"
+      ],
+      "explanation": "El task role da permisos propios a la aplicación; el task execution role es para que ECS descargue imágenes y escriba logs. Con hop limit 1, los contenedores en modo bridge no alcanzan IMDSv2 y no obtienen las credenciales del nodo.",
+      "reference": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html"
+    },
+    {
+      "id": "INF-105",
+      "type": "single",
+      "topic": "roles-computo",
+      "question": "An ECS task fails to start with an error that it cannot pull the container image from Amazon ECR or retrieve a secret from Secrets Manager that is referenced in the task definition. The application code itself does not call ECR or Secrets Manager.\n\nWhich role is missing the required permissions?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The task role."
+        },
+        {
+          "id": "b",
+          "text": "The task execution role."
+        },
+        {
+          "id": "c",
+          "text": "The IAM role of the user who created the service."
+        },
+        {
+          "id": "d",
+          "text": "The ECS service-linked role."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "El task execution role lo usa el agente de ECS para descargar imágenes de ECR, enviar logs y obtener secretos referenciados en la definición. El task role es para las llamadas que hace el código de la aplicación.",
+      "reference": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html"
+    },
+    {
+      "id": "INF-106",
+      "type": "single",
+      "topic": "waf",
+      "question": "A security engineer must protect a public Network Load Balancer that serves an HTTPS application against SQL injection. The engineer tries to associate an AWS WAF web ACL with the NLB but it is not listed.\n\nWhat should the engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable AWS Shield Advanced on the NLB, which adds SQL injection protection."
+        },
+        {
+          "id": "b",
+          "text": "Place an Application Load Balancer or a CloudFront distribution in front of the application and associate the web ACL with it, because AWS WAF cannot be associated with an NLB."
+        },
+        {
+          "id": "c",
+          "text": "Use a security group on the NLB with a SQL injection rule."
+        },
+        {
+          "id": "d",
+          "text": "Create the web ACL in us-east-1 with the CloudFront scope, which also supports NLBs."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "WAF se asocia a CloudFront, ALB, API Gateway REST, AppSync, Cognito user pools, App Runner y Verified Access, no a NLB. Shield Advanced protege contra DDoS, no contra SQLi.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_WebACL.html"
+    },
+    {
+      "id": "INF-107",
+      "type": "single",
+      "topic": "waf",
+      "question": "A company is about to enable the AWS managed rule group AWSManagedRulesCommonRuleSet on a production web ACL. The company is concerned about false positives that could block legitimate customers.\n\nWhat should the security engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Add the rule group with its rule actions overridden to Count, analyze the WAF logs, then exclude or scope down problematic rules before switching to Block."
+        },
+        {
+          "id": "b",
+          "text": "Enable the rule group in Block mode and roll back if customers complain."
+        },
+        {
+          "id": "c",
+          "text": "Use a rate-based rule instead of the managed rule group."
+        },
+        {
+          "id": "d",
+          "text": "Add the rule group to a separate web ACL that is not associated with any resource."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "El modo Count registra coincidencias sin bloquear. Con los logs se identifican falsos positivos y se ajustan exclusiones o scope-down statements antes de bloquear.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-action.html"
+    },
+    {
+      "id": "INF-108",
+      "type": "single",
+      "topic": "waf",
+      "question": "A login API is receiving a credential-stuffing attack from thousands of IP addresses, each sending a few requests. A rate-based rule keyed on IP address does not stop the attack.\n\nWhich AWS WAF capability is MOST effective?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A geographic match rule that blocks all countries except the home country."
+        },
+        {
+          "id": "b",
+          "text": "A rate-based rule with a lower limit keyed on IP address."
+        },
+        {
+          "id": "c",
+          "text": "The account takeover prevention (ATP) managed rule group on the login path."
+        },
+        {
+          "id": "d",
+          "text": "An IP set that blocks the first 1,000 attacking IP addresses."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "ATP inspecciona los intentos de inicio de sesión (credenciales filtradas, patrones de abuso) aunque el ataque esté distribuido. Un límite por IP no sirve cuando cada IP envía pocas solicitudes.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html"
+    },
+    {
+      "id": "INF-109",
+      "type": "single",
+      "topic": "waf",
+      "question": "A rate-based rule must limit requests per client. Many legitimate users share the same corporate egress IP address, and attackers rotate IP addresses frequently.\n\nWhich aggregation key should the security engineer consider?",
+      "options": [
+        {
+          "id": "a",
+          "text": "The AWS Region of the web ACL."
+        },
+        {
+          "id": "b",
+          "text": "A JA4 (or JA3) TLS fingerprint, optionally combined with other keys."
+        },
+        {
+          "id": "c",
+          "text": "The Host header."
+        },
+        {
+          "id": "d",
+          "text": "Only the source IP address."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Desde 2025, las reglas rate-based pueden agregar por huellas JA3/JA4, que identifican al cliente TLS independientemente de la IP, y combinarlas con otras claves.",
+      "reference": "https://aws.amazon.com/about-aws/whats-new/2025/03/aws-waf-ja4-fingerprinting-aggregation-ja3-ja4-fingerprints-rate-based-rules/"
+    },
+    {
+      "id": "INF-110",
+      "type": "single",
+      "topic": "waf",
+      "question": "A security engineer must create an AWS WAF web ACL for a CloudFront distribution using the AWS CLI.\n\nWhich setting is required?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create one web ACL per edge location."
+        },
+        {
+          "id": "b",
+          "text": "Create the web ACL in any Region and replicate it with Firewall Manager."
+        },
+        {
+          "id": "c",
+          "text": "Create the web ACL with the REGIONAL scope in the Region of the origin."
+        },
+        {
+          "id": "d",
+          "text": "Create the web ACL with the CLOUDFRONT scope in the us-east-1 Region."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Los web ACLs para CloudFront usan el scope CLOUDFRONT y se crean en us-east-1.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_WebACL.html"
+    },
+    {
+      "id": "INF-111",
+      "type": "single",
+      "topic": "cloudfront-borde",
+      "question": "A company serves static content from an S3 bucket through CloudFront. The objects are encrypted with SSE-KMS. Users must not be able to access the bucket directly.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use origin access control (OAC), allow the CloudFront service principal in the bucket policy with an AWS:SourceArn condition for the distribution, and allow it to use the KMS key."
+        },
+        {
+          "id": "b",
+          "text": "Use origin access identity (OAI) and grant it kms:Decrypt in the key policy."
+        },
+        {
+          "id": "c",
+          "text": "Use an S3 website endpoint as the origin with a custom header."
+        },
+        {
+          "id": "d",
+          "text": "Make the bucket public and restrict access with a Referer header condition."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "OAC es el método recomendado y, a diferencia de OAI, soporta SSE-KMS. La bucket policy permite cloudfront.amazonaws.com limitado al ARN de la distribución, y la key policy debe permitir el uso de la clave.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
+    },
+    {
+      "id": "INF-112",
+      "type": "single",
+      "topic": "cloudfront-borde",
+      "question": "Premium subscribers of a video platform must be able to access hundreds of video segment files under /premium/* through CloudFront. The company does not want to change the URLs of the files.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use CloudFront signed cookies with a trusted key group."
+        },
+        {
+          "id": "b",
+          "text": "Use S3 presigned URLs for each segment."
+        },
+        {
+          "id": "c",
+          "text": "Use a CloudFront signed URL for each file."
+        },
+        {
+          "id": "d",
+          "text": "Use a CloudFront geographic restriction."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las signed cookies permiten acceso a múltiples archivos sin cambiar las URLs; las signed URLs son por archivo. Se recomiendan trusted key groups en lugar de claves de la cuenta root.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
+    },
+    {
+      "id": "INF-113",
+      "type": "single",
+      "topic": "cloudfront-borde",
+      "question": "An Application Load Balancer is the origin for a CloudFront distribution with AWS WAF. Attackers are bypassing CloudFront and WAF by sending requests directly to the ALB's DNS name.\n\nWhich combination of actions prevents this? (Choose the BEST option.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Associate the same web ACL with the CloudFront distribution only."
+        },
+        {
+          "id": "b",
+          "text": "Enable access logs on the ALB and block IP addresses that appear in the logs."
+        },
+        {
+          "id": "c",
+          "text": "Move the ALB to a private subnet without any other change."
+        },
+        {
+          "id": "d",
+          "text": "Restrict the ALB security group to the CloudFront managed prefix list and require a secret custom header added by CloudFront in an ALB listener rule."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "La prefix list limita el origen a IPs de CloudFront, y el encabezado secreto garantiza que la solicitud viene de tu distribución (otras distribuciones de CloudFront usan las mismas IPs). Otra alternativa es usar VPC origins con un ALB privado.",
+      "reference": "https://docs.aws.amazon.com/prescriptive-guidance/latest/bot-control/client-identification-controls.html"
+    },
+    {
+      "id": "INF-114",
+      "type": "single",
+      "topic": "cloudfront-borde",
+      "question": "A form on a website collects national ID numbers. The company requires that only one backend microservice can decrypt this field, even though other services along the request path (including the origin web servers) process the request.\n\nWhich CloudFront feature meets this requirement?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Field-level encryption with a public key, so that only the service that has the private key can decrypt the field."
+        },
+        {
+          "id": "b",
+          "text": "Signed cookies for the form path."
+        },
+        {
+          "id": "c",
+          "text": "Viewer protocol policy set to HTTPS only."
+        },
+        {
+          "id": "d",
+          "text": "Origin protocol policy set to HTTPS only."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Field-level encryption cifra campos específicos en el borde con una clave pública; solo quien tiene la clave privada los descifra. HTTPS protege en tránsito, pero los servicios intermedios ven el texto plano.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
+    },
+    {
+      "id": "INF-115",
+      "type": "single",
+      "topic": "estrategia-borde",
+      "question": "A company protects CloudFront and ALB resources with AWS Shield Advanced. The company wants Layer 7 DDoS attacks to be mitigated automatically without having to write WAF rules during an attack.\n\nWhat should the security engineer enable?",
+      "options": [
+        {
+          "id": "a",
+          "text": "VPC Flow Logs with an automated Lambda response."
+        },
+        {
+          "id": "b",
+          "text": "Shield Advanced automatic application layer DDoS mitigation, with a web ACL associated with the protected resources."
+        },
+        {
+          "id": "c",
+          "text": "Shield Standard on the resources."
+        },
+        {
+          "id": "d",
+          "text": "A Network Firewall stateless rule group."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "La mitigación automática de capa de aplicación crea y gestiona reglas en el web ACL asociado cuando detecta un ataque. Requiere que el recurso tenga un web ACL.",
       "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/ddos-advanced-summary-capabilities.html"
     },
     {
-      "id": "INF-023",
-      "type": "ordering",
-      "topic": "ami-imagenes-endurecidas",
-      "question": "Ordena los pasos para producir imágenes endurecidas de forma repetible con EC2 Image Builder.",
-      "options": [
-        {
-          "id": "a",
-          "text": "Crear una receta con la imagen base y los componentes de endurecimiento"
-        },
-        {
-          "id": "b",
-          "text": "Crear un pipeline con programación"
-        },
-        {
-          "id": "c",
-          "text": "Ejecutar la compilación y las pruebas de la imagen"
-        },
-        {
-          "id": "d",
-          "text": "Distribuir la AMI aprobada a otras Regiones y cuentas"
-        }
-      ],
-      "correct": [
-        "a",
-        "b",
-        "c",
-        "d"
-      ],
-      "explanation": "La receta define la imagen, el pipeline la ejecuta con calendario, las pruebas validan y la distribución comparte la AMI final.",
-      "reference": "https://aws.amazon.com/blogs/security/quickly-build-stig-compliant-amazon-machine-images-using-amazon-ec2-image-builder"
-    },
-    {
-      "id": "INF-024",
+      "id": "INF-116",
       "type": "single",
-      "topic": "waf",
-      "question": "Se permite el acceso solo desde ciertos países. ¿Qué configuración en WAF?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una NACL por país"
-        },
-        {
-          "id": "b",
-          "text": "Una regla rate-based"
-        },
-        {
-          "id": "c",
-          "text": "Un security group con países"
-        },
-        {
-          "id": "d",
-          "text": "Una regla GeoMatch invertida (Not) con acción Block, o la geo restriction de CloudFront"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "GeoMatch con negación bloquea lo que no proviene de los países permitidos.",
-      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_Statement.html"
-    },
-    {
-      "id": "INF-025",
-      "type": "single",
-      "topic": "waf",
-      "question": "Se quiere auditar qué bloqueó AWS WAF. ¿Qué se habilita?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un trail de datos"
-        },
-        {
-          "id": "b",
-          "text": "Macie"
-        },
-        {
-          "id": "c",
-          "text": "El logging de WAF a S3, CloudWatch Logs o Firehose, analizado con Athena o Security Lake"
-        },
-        {
-          "id": "d",
-          "text": "Solo las métricas por defecto"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Los logs de WAF incluyen la regla que coincidió y los detalles de la solicitud.",
-      "reference": "https://docs.aws.amazon.com/waf/latest/APIReference/API_Statement.html"
-    },
-    {
-      "id": "INF-026",
-      "type": "single",
-      "topic": "cloudfront-borde",
-      "question": "¿Qué recomienda AWS al migrar de OAI a OAC?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Hacer público el bucket"
-        },
-        {
-          "id": "b",
-          "text": "Usar claves de acceso"
-        },
-        {
-          "id": "c",
-          "text": "Usar OAC: soporta SSE-KMS y todas las Regiones"
-        },
-        {
-          "id": "d",
-          "text": "Mantener OAI siempre"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "OAC es el método recomendado para restringir el acceso a S3 desde CloudFront.",
-      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
-    },
-    {
-      "id": "INF-027",
-      "type": "single",
-      "topic": "cloudfront-borde",
-      "question": "Se desea agregar el encabezado HSTS a todas las respuestas. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una response headers policy"
-        },
-        {
-          "id": "b",
-          "text": "Un WAF rate-based"
-        },
-        {
-          "id": "c",
-          "text": "Field-level encryption"
-        },
-        {
-          "id": "d",
-          "text": "Origin Shield"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Las response headers policies agregan encabezados de seguridad como HSTS.",
-      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
-    },
-    {
-      "id": "INF-028",
-      "type": "single",
-      "topic": "sg-nacl",
-      "question": "Solo la capa web debe poder hablar con la capa de aplicación. ¿Qué se configura?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una route table pública"
-        },
-        {
-          "id": "b",
-          "text": "Abrir el puerto a 0.0.0.0/0"
-        },
-        {
-          "id": "c",
-          "text": "Una NACL global"
-        },
-        {
-          "id": "d",
-          "text": "El security group de la aplicación referenciando al security group de la capa web"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Referenciar security groups restringe el origen al grupo y se adapta a nuevas instancias.",
-      "reference": "https://docs.aws.eu/vpc/latest/userguide/nacl-examples.html"
-    },
-    {
-      "id": "INF-029",
-      "type": "single",
-      "topic": "sg-nacl",
-      "question": "Se quiere permitir tráfico de CloudFront hacia un ALB. ¿Qué se usa en el security group?",
-      "options": [
-        {
-          "id": "a",
-          "text": "La prefix list administrada de CloudFront"
-        },
-        {
-          "id": "b",
-          "text": "Una lista manual de IPs"
-        },
-        {
-          "id": "c",
-          "text": "La IP del cliente"
-        },
-        {
-          "id": "d",
-          "text": "0.0.0.0/0"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "La prefix list administrada se mantiene actualizada por AWS.",
-      "reference": "https://docs.aws.eu/vpc/latest/userguide/nacl-examples.html"
-    },
-    {
-      "id": "INF-030",
-      "type": "single",
-      "topic": "segmentacion-red",
-      "question": "Una base de datos no debe tener ruta a internet. ¿Qué diseño?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Subredes aisladas sin ruta a internet y acceso por VPC endpoints cuando se necesite"
-        },
-        {
-          "id": "b",
-          "text": "NAT gateway con ruta por defecto"
-        },
-        {
-          "id": "c",
-          "text": "Subredes públicas con IP elástica"
-        },
-        {
-          "id": "d",
-          "text": "Internet gateway adjunto"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Las subredes aisladas no tienen ruta a internet; los endpoints dan acceso privado a servicios.",
-      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
-    },
-    {
-      "id": "INF-031",
-      "type": "single",
-      "topic": "segmentacion-red",
-      "question": "Se quiere compartir un servicio con otras cuentas sin exponer la red. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una IP pública"
-        },
-        {
-          "id": "b",
-          "text": "VPC peering completo"
-        },
-        {
-          "id": "c",
-          "text": "Una VPN"
-        },
-        {
-          "id": "d",
-          "text": "AWS PrivateLink"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "PrivateLink expone un servicio mediante interface endpoints sin conectar las redes.",
-      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
-    },
-    {
-      "id": "INF-032",
-      "type": "single",
-      "topic": "segmentacion-red",
-      "question": "Producción y desarrollo no deben tener ruta entre sí en un Transit Gateway. ¿Cómo?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Una sola tabla de rutas compartida"
-        },
-        {
-          "id": "b",
-          "text": "Un security group abierto"
-        },
-        {
-          "id": "c",
-          "text": "Tablas de rutas separadas en el Transit Gateway (y cuentas distintas)"
-        },
-        {
-          "id": "d",
-          "text": "Un NAT gateway"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Asociar cada adjunto a su tabla de rutas permite segmentar el tráfico.",
-      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
-    },
-    {
-      "id": "INF-033",
-      "type": "single",
-      "topic": "segmentacion-red",
-      "question": "Se desea que un bucket de S3 solo sea accesible desde la VPC. ¿Qué se combina?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un gateway endpoint con endpoint policy y una bucket policy con aws:SourceVpce"
-        },
-        {
-          "id": "b",
-          "text": "Una NACL pública"
-        },
-        {
-          "id": "c",
-          "text": "CloudFront"
-        },
-        {
-          "id": "d",
-          "text": "Un NAT gateway"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "La política del bucket exige el endpoint y la política del endpoint limita lo que puede pasar por él.",
-      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
-    },
-    {
-      "id": "INF-034",
-      "type": "single",
-      "topic": "conectividad-hibrida",
-      "question": "Se necesita un sitio remoto cifrado en horas. ¿Qué opción?",
-      "options": [
-        {
-          "id": "a",
-          "text": "CloudFront"
-        },
-        {
-          "id": "b",
-          "text": "Site-to-Site VPN al transit gateway"
-        },
-        {
-          "id": "c",
-          "text": "Direct Connect dedicada"
-        },
-        {
-          "id": "d",
-          "text": "PrivateLink"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "La VPN Site-to-Site se aprovisiona rápidamente por internet con IPsec.",
-      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
-    },
-    {
-      "id": "INF-035",
-      "type": "single",
-      "topic": "conectividad-hibrida",
-      "question": "Se quiere autenticar túneles VPN sin claves precompartidas. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Certificados emitidos por AWS Private CA"
-        },
-        {
-          "id": "b",
-          "text": "Una contraseña común"
-        },
-        {
-          "id": "c",
-          "text": "Claves de acceso IAM"
-        },
-        {
-          "id": "d",
-          "text": "Un token de Cognito"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "La Site-to-Site VPN admite autenticación de túnel con certificados.",
-      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
-    },
-    {
-      "id": "INF-036",
-      "type": "single",
-      "topic": "conectividad-hibrida",
-      "question": "¿Cómo se rotan claves MACsec sin cortar el servicio?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Eliminando el keychain"
-        },
-        {
-          "id": "b",
-          "text": "Reiniciando la conexión"
-        },
-        {
-          "id": "c",
-          "text": "Apagando MACsec"
-        },
-        {
-          "id": "d",
-          "text": "Agregando un segundo par CKN/CAK al keychain"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Con dos pares se cambia de uno a otro sin interrupción.",
-      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
-    },
-    {
-      "id": "INF-037",
-      "type": "single",
-      "topic": "conectividad-hibrida",
-      "question": "Usuarios remotos necesitan acceso con MFA y SSO a recursos en la VPC. ¿Qué servicio?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Site-to-Site VPN"
-        },
-        {
-          "id": "b",
-          "text": "PrivateLink"
-        },
-        {
-          "id": "c",
-          "text": "Direct Connect"
-        },
-        {
-          "id": "d",
-          "text": "AWS Client VPN con autenticación SAML o Active Directory"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Client VPN integra proveedores de identidad para MFA y SSO.",
-      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
-    },
-    {
-      "id": "INF-038",
-      "type": "single",
-      "topic": "iot-core-seguridad",
-      "question": "Una flota de miles de dispositivos necesita una política común con identidad única por dispositivo. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Claves de acceso IAM por dispositivo"
-        },
-        {
-          "id": "b",
-          "text": "Un certificado por dispositivo con policy variables en AWS IoT Core"
-        },
-        {
-          "id": "c",
-          "text": "Un usuario de Cognito"
-        },
-        {
-          "id": "d",
-          "text": "Un certificado compartido por toda la flota"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Cada dispositivo tiene su certificado; las policy variables adaptan una única política a cada identidad.",
-      "reference": "https://docs.aws.amazon.com/iot/latest/developerguide/security-best-practices.html"
-    },
-    {
-      "id": "INF-039",
-      "type": "single",
-      "topic": "iot-core-seguridad",
-      "question": "Un dispositivo IoT queda comprometido. ¿Cómo se contiene?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Desactivando o revocando su certificado"
-        },
-        {
-          "id": "b",
-          "text": "Apagando la Región"
-        },
-        {
-          "id": "c",
-          "text": "Cambiando la política común"
-        },
-        {
-          "id": "d",
-          "text": "Revocando el certificado de toda la flota"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "La identidad única permite aislar solo al dispositivo afectado.",
-      "reference": "https://docs.aws.amazon.com/iot/latest/developerguide/security-best-practices.html"
-    },
-    {
-      "id": "INF-040",
-      "type": "single",
-      "topic": "iot-core-seguridad",
-      "question": "Se quiere detectar políticas de IoT demasiado permisivas. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "AWS Artifact"
-        },
-        {
-          "id": "b",
-          "text": "Amazon Macie"
-        },
-        {
-          "id": "c",
-          "text": "AWS IoT Device Defender Audit"
-        },
-        {
-          "id": "d",
-          "text": "VPC Flow Logs"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Device Defender audita configuraciones y políticas de la flota.",
-      "reference": "https://docs.aws.amazon.com/iot/latest/developerguide/security-best-practices.html"
-    },
-    {
-      "id": "INF-041",
-      "type": "single",
-      "topic": "seguridad-pipeline",
-      "question": "Se desea bloquear un build con vulnerabilidades críticas. ¿Qué se agrega?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un paso de escaneo en CodeBuild o CodePipeline con umbral de severidad"
-        },
-        {
-          "id": "b",
-          "text": "Un bucket policy"
-        },
-        {
-          "id": "c",
-          "text": "Una alarma de facturación"
-        },
-        {
-          "id": "d",
-          "text": "Una NACL"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "El escaneo en el pipeline falla el build si supera el umbral definido.",
-      "reference": "https://aws.amazon.com/blogs/security/automate-and-enhance-your-code-security-with-ai-powered-services/"
-    },
-    {
-      "id": "INF-042",
-      "type": "single",
-      "topic": "seguridad-pipeline",
-      "question": "Se quiere dar feedback de seguridad al desarrollador mientras escribe código. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Config rules"
-        },
-        {
-          "id": "b",
-          "text": "Macie"
-        },
-        {
-          "id": "c",
-          "text": "Una auditoría anual"
-        },
-        {
-          "id": "d",
-          "text": "Escaneo de seguridad en el IDE (Amazon Q Developer)"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "El escaneo en el IDE detecta problemas antes del commit.",
-      "reference": "https://aws.amazon.com/blogs/security/automate-and-enhance-your-code-security-with-ai-powered-services/"
-    },
-    {
-      "id": "INF-043",
-      "type": "single",
-      "topic": "genai-guardrails",
-      "question": "Se debe evitar que la respuesta de un modelo incluya números de tarjeta o correos. ¿Qué filtro de Guardrails?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Denied topics"
-        },
-        {
-          "id": "b",
-          "text": "Contextual grounding checks"
-        },
-        {
-          "id": "c",
-          "text": "Word filters únicamente"
-        },
-        {
-          "id": "d",
-          "text": "Sensitive information filters"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Los filtros de información sensible enmascaran o bloquean PII en entradas y salidas.",
-      "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-components.html"
-    },
-    {
-      "id": "INF-044",
-      "type": "single",
-      "topic": "genai-guardrails",
-      "question": "Se desea detectar intentos de jailbreak o prompt injection. ¿Qué control?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Contextual grounding"
-        },
-        {
-          "id": "b",
-          "text": "Denied topics"
-        },
-        {
-          "id": "c",
-          "text": "Sensitive information filters"
-        },
-        {
-          "id": "d",
-          "text": "El content filter Prompt Attack"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Prompt Attack detecta intentos de eludir instrucciones del sistema.",
-      "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-components.html"
-    },
-    {
-      "id": "INF-045",
-      "type": "single",
-      "topic": "genai-guardrails",
-      "question": "Se quiere reducir alucinaciones en una aplicación RAG. ¿Qué se habilita?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Contextual grounding checks"
-        },
-        {
-          "id": "b",
-          "text": "Denied topics"
-        },
-        {
-          "id": "c",
-          "text": "Prompt Attack"
-        },
-        {
-          "id": "d",
-          "text": "Word filters"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "Las comprobaciones de fundamentación contrastan la respuesta con las fuentes proporcionadas.",
-      "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-components.html"
-    },
-    {
-      "id": "INF-046",
-      "type": "single",
-      "topic": "roles-computo",
-      "question": "Se necesitan permisos por pod en EKS. ¿Qué mecanismo?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un instance profile compartido por el nodo"
-        },
-        {
-          "id": "b",
-          "text": "IRSA o EKS Pod Identity"
-        },
-        {
-          "id": "c",
-          "text": "El usuario root"
-        },
-        {
-          "id": "d",
-          "text": "Claves de acceso en un secreto"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Ambos mecanismos asignan roles IAM a cuentas de servicio de Kubernetes.",
-      "reference": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html"
-    },
-    {
-      "id": "INF-047",
-      "type": "single",
-      "topic": "inspector",
-      "question": "Se necesita priorizar parches según riesgo real. ¿Qué ofrece Inspector?",
-      "options": [
-        {
-          "id": "a",
-          "text": "El Inspector score, que considera la alcanzabilidad de red"
-        },
-        {
-          "id": "b",
-          "text": "El costo del parche"
-        },
-        {
-          "id": "c",
-          "text": "Una lista alfabética"
-        },
-        {
-          "id": "d",
-          "text": "Solo la severidad CVSS"
-        }
-      ],
-      "correct": [
-        "a"
-      ],
-      "explanation": "El score contextual ajusta la severidad según el entorno y la exposición.",
-      "reference": "https://aws.amazon.com/inspector/features/"
-    },
-    {
-      "id": "INF-048",
-      "type": "single",
-      "topic": "patch-manager",
-      "question": "Se quiere probar parches primero en desarrollo y más tarde en producción. ¿Cómo?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Desactivar los patch groups"
-        },
-        {
-          "id": "b",
-          "text": "Aplicar siempre en producción primero"
-        },
-        {
-          "id": "c",
-          "text": "Un único baseline sin retrasos"
-        },
-        {
-          "id": "d",
-          "text": "Patch groups separados con baselines distintos y mayor auto-approval delay en producción"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Los baselines por entorno permiten un retraso de aprobación en producción.",
-      "reference": "https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-aws-runpatchbaseline.html"
-    },
-    {
-      "id": "INF-049",
-      "type": "single",
-      "topic": "patch-manager",
-      "question": "Se desea parchear todas las cuentas de la organización. ¿Qué se usa?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un conformance pack"
-        },
-        {
-          "id": "b",
-          "text": "Una patch policy con Quick Setup"
-        },
-        {
-          "id": "c",
-          "text": "Una tag policy"
-        },
-        {
-          "id": "d",
-          "text": "Una regla de WAF"
-        }
-      ],
-      "correct": [
-        "b"
-      ],
-      "explanation": "Quick Setup despliega políticas de parcheo en la organización.",
-      "reference": "https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-aws-runpatchbaseline.html"
-    },
-    {
-      "id": "INF-050",
-      "type": "single",
-      "topic": "patch-manager",
-      "question": "Un nodo aparece como no conforme tras instalar parches. ¿Causa probable?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Macie lo marcó"
-        },
-        {
-          "id": "b",
-          "text": "El trail está detenido"
-        },
-        {
-          "id": "c",
-          "text": "Falta un certificado"
-        },
-        {
-          "id": "d",
-          "text": "Quedó pendiente de reinicio (NoReboot) o falló un parche"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Reiniciar y volver a hacer Scan suele resolverlo.",
-      "reference": "https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-aws-runpatchbaseline.html"
-    },
-    {
-      "id": "INF-051",
-      "type": "single",
-      "topic": "ami-imagenes-endurecidas",
-      "question": "Se debe impedir lanzar instancias desde imágenes no aprobadas. ¿Qué control?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Un security group"
-        },
-        {
-          "id": "b",
-          "text": "Una regla de WAF"
-        },
-        {
-          "id": "c",
-          "text": "Controles de gobierno de AMIs (por ejemplo Allowed AMIs y SCP)"
-        },
-        {
-          "id": "d",
-          "text": "Una NACL"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Allowed AMIs y políticas preventivas restringen las imágenes permitidas.",
-      "reference": "https://aws.amazon.com/blogs/security/quickly-build-stig-compliant-amazon-machine-images-using-amazon-ec2-image-builder"
-    },
-    {
-      "id": "INF-052",
-      "type": "single",
-      "topic": "ami-imagenes-endurecidas",
-      "question": "Para evitar secretos en una AMI, ¿qué se hace?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Compartirlos por correo"
-        },
-        {
-          "id": "b",
-          "text": "Incrustarlos en la AMI"
-        },
-        {
-          "id": "c",
-          "text": "Obtenerlos en tiempo de ejecución desde Secrets Manager o Parameter Store"
-        },
-        {
-          "id": "d",
-          "text": "Guardarlos en un tag"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Los secretos no deben formar parte de la imagen.",
-      "reference": "https://aws.amazon.com/blogs/security/quickly-build-stig-compliant-amazon-machine-images-using-amazon-ec2-image-builder"
-    },
-    {
-      "id": "INF-053",
-      "type": "single",
-      "topic": "acceso-innecesario",
-      "question": "Se quiere auditar rutas inesperadas hacia la capa de base de datos. ¿Qué herramienta?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Reachability Analyzer"
-        },
-        {
-          "id": "b",
-          "text": "Macie"
-        },
-        {
-          "id": "c",
-          "text": "Cost Explorer"
-        },
-        {
-          "id": "d",
-          "text": "Network Access Analyzer con un scope personalizado"
-        }
-      ],
-      "correct": [
-        "d"
-      ],
-      "explanation": "Network Access Analyzer identifica accesos de red no deseados según el alcance definido.",
-      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
-    },
-    {
-      "id": "INF-054",
-      "type": "single",
-      "topic": "verified-access",
-      "question": "Se quiere auditar cada intento de acceso a una aplicación sin VPN. ¿Qué se habilita?",
-      "options": [
-        {
-          "id": "a",
-          "text": "Config"
-        },
-        {
-          "id": "b",
-          "text": "VPC Flow Logs únicamente"
-        },
-        {
-          "id": "c",
-          "text": "Los logs de Verified Access"
-        },
-        {
-          "id": "d",
-          "text": "Un trail de datos"
-        }
-      ],
-      "correct": [
-        "c"
-      ],
-      "explanation": "Verified Access registra cada solicitud evaluada contra la política.",
-      "reference": "https://docs.aws.amazon.com/verified-access/latest/ug/how-it-works.html"
-    },
-    {
-      "id": "INF-055",
-      "type": "multiple",
       "topic": "network-firewall",
-      "question": "¿Qué casos cubre AWS Network Firewall? (Elige TRES)",
+      "question": "Workloads in several VPCs must reach only an approved list of external domains over HTTPS. All other outbound internet traffic must be blocked and logged.\n\nWhich solution meets these requirements?",
       "options": [
         {
           "id": "a",
-          "text": "Gestión de secretos"
+          "text": "Use AWS WAF on the NAT gateway to filter domains."
         },
         {
           "id": "b",
-          "text": "Filtrado de salida por lista de dominios"
+          "text": "Route egress traffic through AWS Network Firewall in a centralized inspection VPC with a stateful domain list rule group (allowlist on TLS SNI and HTTP Host) and a default drop."
         },
         {
           "id": "c",
-          "text": "Reglas IPS personalizadas con Suricata"
+          "text": "Use security groups with the domain names in outbound rules."
         },
         {
           "id": "d",
-          "text": "Inspección TLS"
-        },
-        {
-          "id": "e",
-          "text": "Cifrado de volúmenes EBS"
+          "text": "Use network ACLs with the IP addresses of the domains."
         }
       ],
       "correct": [
-        "b",
-        "c",
-        "d"
+        "b"
       ],
-      "explanation": "Network Firewall filtra dominios, ejecuta reglas Suricata y puede inspeccionar TLS.",
+      "explanation": "Las domain lists de Network Firewall filtran por SNI (TLS) y Host (HTTP). Los security groups y NACLs no entienden nombres de dominio, y WAF no se asocia con un NAT gateway.",
       "reference": "https://docs.aws.amazon.com/network-firewall/latest/developerguide/stateful-rule-groups-domain-names.html"
     },
     {
-      "id": "INF-056",
-      "type": "ordering",
-      "topic": "segmentacion-red",
-      "question": "Ordena el diseño de inspección centralizada para muchas VPC.",
+      "id": "INF-117",
+      "type": "single",
+      "topic": "network-firewall",
+      "question": "A centralized Network Firewall inspects traffic from 20 spoke VPCs attached to a transit gateway. Suricata rules that use $HOME_NET do not match traffic from the spoke VPCs.\n\nWhat should the security engineer do?",
       "options": [
         {
           "id": "a",
-          "text": "Crear una VPC de inspección con Network Firewall"
+          "text": "Deploy a separate firewall in each spoke VPC."
         },
         {
           "id": "b",
-          "text": "Conectar las VPC de carga al Transit Gateway"
+          "text": "Enable TLS inspection on the firewall."
         },
         {
           "id": "c",
-          "text": "Configurar las rutas para enviar el tráfico por la VPC de inspección"
+          "text": "Expand the HOME_NET rule variable in the firewall policy to include the CIDR ranges of all spoke VPCs."
         },
         {
           "id": "d",
-          "text": "Ampliar HOME_NET y habilitar el registro del firewall"
+          "text": "Convert all stateful rules to stateless rules."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Por defecto HOME_NET es el CIDR de la VPC donde está el firewall. En un modelo centralizado hay que ampliarlo con los rangos de las spoke VPCs.",
+      "reference": "https://docs.aws.amazon.com/network-firewall/latest/APIReference/API_FirewallPolicy.html"
+    },
+    {
+      "id": "INF-118",
+      "type": "single",
+      "topic": "network-firewall",
+      "question": "Malware hides command-and-control traffic inside TLS connections to domains that look legitimate. The security team needs Network Firewall to inspect the decrypted content of outbound HTTPS traffic.\n\nWhat should the security engineer configure?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A TLS inspection configuration on the firewall with a certificate from AWS Certificate Manager trusted by the clients."
+        },
+        {
+          "id": "b",
+          "text": "A stateless rule group that drops port 443."
+        },
+        {
+          "id": "c",
+          "text": "VPC Traffic Mirroring of the encrypted traffic to the firewall."
+        },
+        {
+          "id": "d",
+          "text": "A domain list rule group with the suspicious domains."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "La inspección TLS de Network Firewall descifra, inspecciona y vuelve a cifrar el tráfico con un certificado en ACM en el que confían los clientes.",
+      "reference": "https://docs.aws.amazon.com/network-firewall/latest/APIReference/API_FirewallPolicy.html"
+    },
+    {
+      "id": "INF-119",
+      "type": "single",
+      "topic": "sg-nacl",
+      "question": "A network ACL on a public subnet allows inbound TCP 443 from 0.0.0.0/0 and outbound TCP 443 to 0.0.0.0/0. Clients cannot complete connections to the web server in the subnet, although the security group allows inbound 443.\n\nWhat is the cause?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Network ACLs are stateless; the outbound rules must also allow responses to the clients' ephemeral ports (for example, 1024-65535)."
+        },
+        {
+          "id": "b",
+          "text": "Network ACLs must allow inbound ICMP for TCP connections."
+        },
+        {
+          "id": "c",
+          "text": "The NACL rule numbers must be greater than 100."
+        },
+        {
+          "id": "d",
+          "text": "Security groups must also allow outbound 443 for the responses."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las NACLs no rastrean conexiones: la respuesta del servidor sale hacia el puerto efímero del cliente y debe estar permitida. Los security groups sí son stateful.",
+      "reference": "https://docs.aws.eu/vpc/latest/userguide/nacl-examples.html"
+    },
+    {
+      "id": "INF-120",
+      "type": "single",
+      "topic": "sg-nacl",
+      "question": "A security engineer must block a single malicious IP address from reaching any instance in a subnet while all other traffic continues to be allowed by the existing security groups.\n\nWhat should the engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Add a network ACL deny rule for the IP address with a lower rule number than the allow rules."
+        },
+        {
+          "id": "b",
+          "text": "Remove the IP address range from the route table."
+        },
+        {
+          "id": "c",
+          "text": "Create a VPC endpoint policy that denies the IP address."
+        },
+        {
+          "id": "d",
+          "text": "Add a deny rule for the IP address to each security group."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los security groups solo admiten reglas Allow. Las NACLs admiten Deny y se evalúan en orden ascendente por número de regla.",
+      "reference": "https://docs.aws.eu/vpc/latest/userguide/nacl-examples.html"
+    },
+    {
+      "id": "INF-121",
+      "type": "single",
+      "topic": "segmentacion-red",
+      "question": "An S3 bucket policy denies access unless aws:SourceIp matches the company's VPC CIDR range. Instances in the VPC access S3 through a gateway VPC endpoint and receive AccessDenied.\n\nWhat should the security engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Change the gateway endpoint to an interface endpoint."
+        },
+        {
+          "id": "b",
+          "text": "Replace the aws:SourceIp condition with aws:SourceVpce (or aws:SourceVpc), because requests through a VPC endpoint do not carry a public source IP that matches."
+        },
+        {
+          "id": "c",
+          "text": "Add the private IP addresses of the instances to aws:SourceIp."
+        },
+        {
+          "id": "d",
+          "text": "Add a NAT gateway so that requests use a public IP address."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Con un VPC endpoint, aws:SourceIp no aplica para IPs privadas de la VPC. Se usa aws:SourceVpce o aws:SourceVpc para restringir el origen.",
+      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
+    },
+    {
+      "id": "INF-122",
+      "type": "single",
+      "topic": "segmentacion-red",
+      "question": "Instances in a private subnet must download objects only from buckets owned by the company's AWS organization, to prevent data exfiltration to personal buckets through the S3 gateway endpoint.\n\nWhat should the security engineer configure?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A security group rule that allows only the S3 prefix list."
+        },
+        {
+          "id": "b",
+          "text": "A network ACL that denies all S3 IP ranges except the company's."
+        },
+        {
+          "id": "c",
+          "text": "A bucket policy on the company's buckets with aws:SourceVpce."
+        },
+        {
+          "id": "d",
+          "text": "A VPC endpoint policy that allows S3 actions only when aws:ResourceOrgID equals the company's organization ID."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "La endpoint policy controla qué recursos pueden alcanzarse a través del endpoint. aws:ResourceOrgID limita los buckets a la organización. Una bucket policy propia no impide escribir en buckets ajenos.",
+      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
+    },
+    {
+      "id": "INF-123",
+      "type": "single",
+      "topic": "segmentacion-red",
+      "question": "A company provides an internal API to 50 consumer VPCs in other accounts. The VPCs have overlapping CIDR ranges, and consumers must not have network-level access to any other resource in the provider VPC.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Attach all VPCs to a transit gateway with a shared route table."
+        },
+        {
+          "id": "b",
+          "text": "Expose the API through a Network Load Balancer as an AWS PrivateLink endpoint service and have consumers create interface endpoints."
+        },
+        {
+          "id": "c",
+          "text": "Expose the API publicly and restrict it with security groups."
+        },
+        {
+          "id": "d",
+          "text": "Create VPC peering connections with each consumer VPC."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "PrivateLink expone un único servicio, funciona con CIDR solapados y no da acceso al resto de la VPC. El peering y el transit gateway requieren CIDR no solapados y dan conectividad de red.",
+      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
+    },
+    {
+      "id": "INF-124",
+      "type": "single",
+      "topic": "acceso-innecesario",
+      "question": "The security team must verify that no path exists from the internet to the database subnets across all VPCs, and identify any network path that violates this requirement.\n\nWhich tool should the security engineer use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Reachability Analyzer between one internet gateway and one database instance."
+        },
+        {
+          "id": "b",
+          "text": "Amazon GuardDuty Runtime Monitoring."
+        },
+        {
+          "id": "c",
+          "text": "VPC Flow Logs filtered by REJECT."
+        },
+        {
+          "id": "d",
+          "text": "Network Access Analyzer with a Network Access Scope that defines internet gateways as sources and the database subnets as destinations."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Network Access Analyzer evalúa todos los caminos que coinciden con un scope; Reachability Analyzer analiza un par origen-destino concreto. Flow Logs solo muestra tráfico observado.",
+      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
+    },
+    {
+      "id": "INF-125",
+      "type": "single",
+      "topic": "inspector",
+      "question": "A company wants continuous vulnerability scanning of EC2 instances, container images in Amazon ECR, and Lambda functions in all accounts, with findings rescanned when new CVEs are published.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable Amazon Inspector with a delegated administrator and auto-enable EC2, ECR, and Lambda scanning for all member accounts."
+        },
+        {
+          "id": "b",
+          "text": "Use AWS Config managed rules for vulnerability detection."
+        },
+        {
+          "id": "c",
+          "text": "Use GuardDuty Runtime Monitoring on all resources."
+        },
+        {
+          "id": "d",
+          "text": "Enable ECR basic scanning and run a monthly scan on EC2 with a third-party tool."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Inspector escanea EC2, imágenes de ECR y Lambda de forma continua y reevalúa al publicarse nuevas CVE. El escaneo básico de ECR solo analiza al subir la imagen o de forma manual.",
+      "reference": "https://aws.amazon.com/inspector/features/"
+    },
+    {
+      "id": "INF-126",
+      "type": "single",
+      "topic": "inspector",
+      "question": "Amazon Inspector shows EC2 instances as unmanaged and does not produce vulnerability findings for them. The company does not want to install additional agents.\n\nWhat should the security engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Attach an Elastic IP address to each instance."
+        },
+        {
+          "id": "b",
+          "text": "Enable agentless scanning in Amazon Inspector (hybrid scan mode), which scans EBS snapshots of instances that are not managed by SSM."
+        },
+        {
+          "id": "c",
+          "text": "Enable GuardDuty Malware Protection for EC2."
+        },
+        {
+          "id": "d",
+          "text": "Install the CloudWatch agent on the instances."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "Inspector escanea EC2 con el SSM Agent o, en modo híbrido, sin agente mediante snapshots de EBS para las instancias no administradas.",
+      "reference": "https://aws.amazon.com/inspector/features/"
+    },
+    {
+      "id": "INF-127",
+      "type": "single",
+      "topic": "seguridad-pipeline",
+      "question": "A CI/CD pipeline builds container images. The security team requires that the pipeline fail if an image contains a vulnerability with critical severity, before the image is pushed to production.\n\nWhich solution meets this requirement?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable ECR enhanced scanning and review findings weekly."
+        },
+        {
+          "id": "b",
+          "text": "Use AWS Config to detect vulnerable images after deployment."
+        },
+        {
+          "id": "c",
+          "text": "Enable GuardDuty Runtime Monitoring on the cluster."
+        },
+        {
+          "id": "d",
+          "text": "Add a CodeBuild step that generates an SBOM and calls the Amazon Inspector scanning integration for CI/CD, failing the build when critical vulnerabilities are found."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "La integración CI/CD de Inspector evalúa la imagen durante el build y permite fallar según severidad, antes de publicar. El resto de opciones detecta después del despliegue.",
+      "reference": "https://aws.amazon.com/blogs/security/automate-and-enhance-your-code-security-with-ai-powered-services/"
+    },
+    {
+      "id": "INF-128",
+      "type": "single",
+      "topic": "seguridad-pipeline",
+      "question": "A CodePipeline pipeline in a tools account deploys to a production account. The artifact bucket is encrypted with the AWS managed key aws/s3, and the deployment role in the production account cannot read the artifacts.\n\nWhat should the security engineer do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Encrypt the artifact bucket with a customer managed KMS key whose key policy allows the production account role, and grant the role access in the bucket policy."
+        },
+        {
+          "id": "b",
+          "text": "Disable encryption on the artifact bucket."
+        },
+        {
+          "id": "c",
+          "text": "Copy the artifacts to a public bucket for the deployment."
+        },
+        {
+          "id": "d",
+          "text": "Grant the production role kms:Decrypt on the aws/s3 key in its identity-based policy."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Las AWS managed keys no admiten acceso entre cuentas. Para pipelines entre cuentas se usa una customer managed key compartida y una bucket policy que permita el rol de destino.",
+      "reference": "https://aws.amazon.com/blogs/security/automate-and-enhance-your-code-security-with-ai-powered-services/"
+    },
+    {
+      "id": "INF-129",
+      "type": "single",
+      "topic": "seguridad-pipeline",
+      "question": "A CodeBuild project needs a database password during the build. The password must not appear in the buildspec file, the source repository, or the console as plain text.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Store the password as a plaintext environment variable in the CodeBuild project."
+        },
+        {
+          "id": "b",
+          "text": "Store the password in Secrets Manager and reference it in the env/secrets-manager section of the buildspec, granting the CodeBuild service role access to the secret."
+        },
+        {
+          "id": "c",
+          "text": "Store the password in an S3 object with public read access."
+        },
+        {
+          "id": "d",
+          "text": "Commit the password to the repository encrypted with Base64."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "CodeBuild obtiene secretos de Secrets Manager o Parameter Store en tiempo de ejecución sin exponerlos en el código. Base64 no es cifrado.",
+      "reference": "https://aws.amazon.com/blogs/security/automate-and-enhance-your-code-security-with-ai-powered-services/"
+    },
+    {
+      "id": "INF-130",
+      "type": "single",
+      "topic": "ami-imagenes-endurecidas",
+      "question": "A company must produce monthly AMIs that are hardened to a DISA STIG baseline, include the latest patches, and are scanned for vulnerabilities before being shared with workload accounts.\n\nWhich solution meets these requirements with the LEAST operational overhead?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use an EC2 Image Builder pipeline with STIG hardening components, a schedule, Amazon Inspector scanning, and distribution settings that share the AMI with the workload accounts."
+        },
+        {
+          "id": "b",
+          "text": "Use AWS Config to harden the AMIs after they are shared."
+        },
+        {
+          "id": "c",
+          "text": "Manually launch an instance each month, apply the STIG settings, and create an AMI."
+        },
+        {
+          "id": "d",
+          "text": "Use Systems Manager Patch Manager to create AMIs."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Image Builder automatiza construcción, endurecimiento (componentes STIG), pruebas, escaneo y distribución de imágenes.",
+      "reference": "https://aws.amazon.com/blogs/security/quickly-build-stig-compliant-amazon-machine-images-using-amazon-ec2-image-builder"
+    },
+    {
+      "id": "INF-131",
+      "type": "single",
+      "topic": "ami-imagenes-endurecidas",
+      "question": "The security team must ensure that developers can launch EC2 instances only from AMIs produced by the company's image pipeline account.\n\nWhich solution meets this requirement?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable Allowed AMIs for the accounts (for example, through a declarative policy) that permits only images owned by the image pipeline account."
+        },
+        {
+          "id": "b",
+          "text": "Make the approved AMIs public."
+        },
+        {
+          "id": "c",
+          "text": "Use an AWS Config rule that terminates instances launched from other AMIs."
+        },
+        {
+          "id": "d",
+          "text": "Tag the approved AMIs and rely on developers to filter by tag."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Allowed AMIs restringe preventivamente qué imágenes se pueden descubrir y usar; puede aplicarse a nivel de organización con políticas declarativas. Config solo detecta después del lanzamiento.",
+      "reference": "https://aws.amazon.com/blogs/security/quickly-build-stig-compliant-amazon-machine-images-using-amazon-ec2-image-builder"
+    },
+    {
+      "id": "INF-132",
+      "type": "single",
+      "topic": "patch-manager",
+      "question": "Patches must be applied first to development instances and, seven days later, to production instances. Patch compliance must be reported for both environments.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create separate patch baselines with different auto-approval delays (0 days for development, 7 days for production) and apply them with patch policies or maintenance windows running AWS-RunPatchBaseline."
+        },
+        {
+          "id": "b",
+          "text": "Use Amazon Inspector to install patches in production after seven days."
+        },
+        {
+          "id": "c",
+          "text": "Use one patch baseline and run AWS-RunPatchBaseline with the Scan operation in production."
+        },
+        {
+          "id": "d",
+          "text": "Create an AMI each week and replace production instances manually."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "El auto-approval delay de cada baseline define cuántos días después de la publicación se aprueba un parche. Scan solo reporta; Install aplica los parches.",
+      "reference": "https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-aws-runpatchbaseline.html"
+    },
+    {
+      "id": "INF-133",
+      "type": "single",
+      "topic": "patch-manager",
+      "question": "A security engineer wants to know which managed instances are missing critical security patches without installing anything during business hours.\n\nWhat should the engineer run?",
+      "options": [
+        {
+          "id": "a",
+          "text": "AWS-RunPatchBaseline with the Operation parameter set to Install and RebootOption NoReboot."
+        },
+        {
+          "id": "b",
+          "text": "AWS-UpdateSSMAgent on all instances."
+        },
+        {
+          "id": "c",
+          "text": "An Amazon Inspector CIS benchmark scan."
+        },
+        {
+          "id": "d",
+          "text": "AWS-RunPatchBaseline with the Operation parameter set to Scan."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "La operación Scan compara las instancias contra el baseline y reporta el cumplimiento sin instalar nada.",
+      "reference": "https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-aws-runpatchbaseline.html"
+    },
+    {
+      "id": "INF-134",
+      "type": "single",
+      "topic": "conectividad-hibrida",
+      "question": "A company has a 100 Gbps dedicated AWS Direct Connect connection. Regulations require encryption of all traffic between the on-premises router and AWS at line rate.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use TLS in every application that uses the connection."
+        },
+        {
+          "id": "b",
+          "text": "Direct Connect encrypts all traffic by default."
+        },
+        {
+          "id": "c",
+          "text": "Run a Site-to-Site VPN over the Direct Connect public virtual interface."
+        },
+        {
+          "id": "d",
+          "text": "Enable MACsec on the dedicated connection with a CKN/CAK pair on supported devices."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "MACsec cifra en capa 2 a velocidad de línea en conexiones dedicadas compatibles. Una VPN IPsec tiene un límite de ancho de banda por túnel, y Direct Connect no cifra por defecto.",
+      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/MACsec.html"
+    },
+    {
+      "id": "INF-135",
+      "type": "single",
+      "topic": "conectividad-hibrida",
+      "question": "A company uses Direct Connect with a transit virtual interface. The company must encrypt traffic with IPsec but does not want the VPN tunnels to use public IP addresses or traverse the internet.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use AWS Client VPN for the data center."
+        },
+        {
+          "id": "b",
+          "text": "Enable MACsec on a hosted connection."
+        },
+        {
+          "id": "c",
+          "text": "Create a private IP Site-to-Site VPN attached to the transit gateway over the Direct Connect transit virtual interface."
+        },
+        {
+          "id": "d",
+          "text": "Create a standard Site-to-Site VPN over the internet with BGP."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "La VPN de IP privada usa direcciones privadas para los túneles IPsec sobre Direct Connect, sin exponerse a internet.",
+      "reference": "https://docs.aws.amazon.com/vpn/latest/s2svpn/private-ip-dx"
+    },
+    {
+      "id": "INF-136",
+      "type": "single",
+      "topic": "conectividad-hibrida",
+      "question": "A company wants to authenticate Site-to-Site VPN tunnels with certificates instead of pre-shared keys.\n\nWhat should the security engineer use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Private certificates issued by AWS Private CA (through ACM) for the customer gateway."
+        },
+        {
+          "id": "b",
+          "text": "A certificate imported into Secrets Manager."
+        },
+        {
+          "id": "c",
+          "text": "IAM server certificates."
+        },
+        {
+          "id": "d",
+          "text": "Public certificates from ACM."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "La autenticación de túneles con certificados usa certificados privados emitidos por AWS Private CA en lugar de claves precompartidas.",
+      "reference": "https://docs.aws.amazon.com/vpn/latest/s2svpn/vpn-tunnel-authentication-options.html"
+    },
+    {
+      "id": "INF-137",
+      "type": "single",
+      "topic": "conectividad-hibrida",
+      "question": "Remote employees need access to applications in a VPC. Access must use the corporate SAML identity provider with MFA, and the security team wants to authorize access by user group to specific CIDR ranges.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "A public NLB with security groups per employee IP."
+        },
+        {
+          "id": "b",
+          "text": "Site-to-Site VPN from each employee's home router."
+        },
+        {
+          "id": "c",
+          "text": "AWS Client VPN with SAML-based federated authentication and authorization rules per group."
+        },
+        {
+          "id": "d",
+          "text": "Direct Connect hosted connections for each employee."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Client VPN admite autenticación federada SAML (con MFA del IdP) y authorization rules por grupo hacia redes específicas.",
+      "reference": "https://www.repost.aws/articles/ARYB4LBePgRO6vf7XMRfzWFQ/aws-client-vpn-connection-and-traffic-flow-handling-simplified"
+    },
+    {
+      "id": "INF-138",
+      "type": "single",
+      "topic": "verified-access",
+      "question": "A company wants employees to access internal web applications without a VPN. Access decisions must consider the user's identity group and the security posture of the device for every request.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "AWS Client VPN with certificate authentication."
+        },
+        {
+          "id": "b",
+          "text": "Amazon Cognito user pools with an ALB authentication action only."
+        },
+        {
+          "id": "c",
+          "text": "An internet-facing ALB with AWS WAF IP sets."
+        },
+        {
+          "id": "d",
+          "text": "AWS Verified Access with an identity trust provider (for example, IAM Identity Center) and a device trust provider, using Cedar access policies."
+        }
+      ],
+      "correct": [
+        "d"
+      ],
+      "explanation": "Verified Access aplica Zero Trust: evalúa identidad y postura del dispositivo en cada solicitud mediante políticas Cedar, sin VPN.",
+      "reference": "https://docs.aws.amazon.com/verified-access/latest/ug/trust-providers.html"
+    },
+    {
+      "id": "INF-139",
+      "type": "single",
+      "topic": "genai-guardrails",
+      "question": "A company uses Amazon Bedrock for a customer support chatbot. Responses must never include customer email addresses or phone numbers, and must not discuss investment advice.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Configure an Amazon Bedrock guardrail with sensitive information filters that mask or block email and phone PII and a denied topic for investment advice."
+        },
+        {
+          "id": "b",
+          "text": "Add instructions to the system prompt telling the model not to reveal PII or give investment advice."
+        },
+        {
+          "id": "c",
+          "text": "Use Amazon Macie to scan each response before returning it."
+        },
+        {
+          "id": "d",
+          "text": "Use an AWS WAF rule to block responses that contain email addresses."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Los guardrails aplican controles fuera del modelo: filtros de información sensible (PII o regex) y denied topics. Las instrucciones en el prompt pueden eludirse; Macie solo analiza S3.",
+      "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-components.html"
+    },
+    {
+      "id": "INF-140",
+      "type": "single",
+      "topic": "genai-guardrails",
+      "question": "The security team must ensure that every call to Amazon Bedrock InvokeModel in the account uses an approved guardrail, so developers cannot bypass it.\n\nWhich solution meets this requirement?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Attach the guardrail to the foundation model in the Bedrock console."
+        },
+        {
+          "id": "b",
+          "text": "Use an AWS Config rule to detect calls without a guardrail."
+        },
+        {
+          "id": "c",
+          "text": "Use an IAM policy (or SCP) condition on bedrock:GuardrailIdentifier that denies InvokeModel requests without the approved guardrail."
+        },
+        {
+          "id": "d",
+          "text": "Enable model invocation logging and review logs weekly."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "La condición bedrock:GuardrailIdentifier permite exigir un guardrail específico en las llamadas de inferencia. El logging y Config solo detectan.",
+      "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html"
+    },
+    {
+      "id": "INF-141",
+      "type": "single",
+      "topic": "genai-guardrails",
+      "question": "A company hosts its own open-source LLM on Amazon SageMaker and wants to apply the same content filters and PII protections that it uses with Amazon Bedrock guardrails.\n\nWhat should the company do?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Bedrock guardrails can be used only with Bedrock foundation models; build custom filters."
+        },
+        {
+          "id": "b",
+          "text": "Call the ApplyGuardrail API to evaluate the prompts and responses of the self-hosted model against the guardrail."
+        },
+        {
+          "id": "c",
+          "text": "Enable Amazon Macie on the SageMaker endpoint."
+        },
+        {
+          "id": "d",
+          "text": "Import the model into AWS WAF."
+        }
+      ],
+      "correct": [
+        "b"
+      ],
+      "explanation": "ApplyGuardrail evalúa texto contra un guardrail sin invocar un modelo de Bedrock, por lo que sirve para modelos propios o de terceros.",
+      "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html"
+    },
+    {
+      "id": "INF-142",
+      "type": "multiple",
+      "topic": "genai-guardrails",
+      "question": "An AI agent built with Amazon Bedrock can call internal APIs. Which controls mitigate the OWASP Top 10 for LLM risks of prompt injection and excessive agency? (Select THREE.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable the prompt attack content filter in a guardrail"
+        },
+        {
+          "id": "b",
+          "text": "Give the agent AdministratorAccess so it never fails"
+        },
+        {
+          "id": "c",
+          "text": "Increase the model temperature"
+        },
+        {
+          "id": "d",
+          "text": "Require human confirmation before the agent performs destructive actions"
+        },
+        {
+          "id": "e",
+          "text": "Give the agent's IAM role only the permissions it needs for the specific actions"
+        },
+        {
+          "id": "f",
+          "text": "Disable model invocation logging"
+        }
+      ],
+      "correct": [
+        "a",
+        "d",
+        "e"
+      ],
+      "explanation": "El filtro Prompt Attack detecta inyección; mínimo privilegio y confirmación humana limitan la excessive agency. Más temperatura o menos logging no ayudan.",
+      "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-components.html"
+    },
+    {
+      "id": "INF-143",
+      "type": "single",
+      "topic": "iot-core-seguridad",
+      "question": "A fleet of 50,000 IoT devices connects to AWS IoT Core. Each device must publish only to its own MQTT topic devices/<thingName>/telemetry, using one shared policy.\n\nWhich solution meets these requirements?",
+      "options": [
+        {
+          "id": "a",
+          "text": "Use a unique X.509 certificate per device and an IoT policy that uses the ${iot:Connection.Thing.ThingName} policy variable in the topic ARN."
+        },
+        {
+          "id": "b",
+          "text": "Use IAM users with access keys for each device."
+        },
+        {
+          "id": "c",
+          "text": "Use one certificate for all devices and a policy that lists all topics."
+        },
+        {
+          "id": "d",
+          "text": "Create one IoT policy per device that lists its topic."
+        }
+      ],
+      "correct": [
+        "a"
+      ],
+      "explanation": "Una identidad única por dispositivo más policy variables permite una sola política que restringe a cada dispositivo a su propio topic.",
+      "reference": "https://docs.aws.amazon.com/iot/latest/developerguide/security-best-practices.html"
+    },
+    {
+      "id": "INF-144",
+      "type": "single",
+      "topic": "iot-core-seguridad",
+      "question": "The security team wants to be alerted when an IoT device suddenly sends far more messages than usual or connects from an unexpected IP address.\n\nWhich feature should the security engineer use?",
+      "options": [
+        {
+          "id": "a",
+          "text": "AWS IoT Device Defender Audit."
+        },
+        {
+          "id": "b",
+          "text": "AWS Config rules for IoT."
+        },
+        {
+          "id": "c",
+          "text": "AWS IoT Device Defender Detect with security profiles (rules-based or ML-based)."
+        },
+        {
+          "id": "d",
+          "text": "Amazon GuardDuty Runtime Monitoring."
+        }
+      ],
+      "correct": [
+        "c"
+      ],
+      "explanation": "Device Defender Detect monitoriza el comportamiento de los dispositivos frente a perfiles de seguridad; Audit revisa configuraciones (por ejemplo, políticas demasiado permisivas).",
+      "reference": "https://docs.aws.amazon.com/iot/latest/developerguide/security-best-practices.html"
+    },
+    {
+      "id": "INF-145",
+      "type": "ordering",
+      "topic": "network-firewall",
+      "question": "Order the steps to deploy centralized egress inspection with AWS Network Firewall for several VPCs.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Create an inspection VPC with firewall subnets in each Availability Zone"
+        },
+        {
+          "id": "b",
+          "text": "Create the firewall with a firewall policy and rule groups"
+        },
+        {
+          "id": "c",
+          "text": "Attach the spoke VPCs and the inspection VPC to a transit gateway"
+        },
+        {
+          "id": "d",
+          "text": "Update transit gateway and VPC route tables to send traffic through the firewall endpoints"
+        },
+        {
+          "id": "e",
+          "text": "Enable firewall logging and verify traffic flows"
         }
       ],
       "correct": [
         "a",
         "b",
         "c",
-        "d"
+        "d",
+        "e"
       ],
-      "explanation": "El tráfico este-oeste y de salida pasa por la VPC de inspección vía Transit Gateway.",
-      "reference": "https://aws.amazon.com/blogs/aws/new-amazon-vpc-network-access-analyzer"
+      "explanation": "Primero la infraestructura de inspección y el firewall, luego la conectividad y las rutas que dirigen el tráfico por los endpoints, y finalmente el logging y la verificación.",
+      "reference": "https://docs.aws.amazon.com/network-firewall/latest/APIReference/API_FirewallPolicy.html"
     },
     {
-      "id": "INF-057",
+      "id": "INF-146",
       "type": "matching",
-      "topic": "conectividad-hibrida",
-      "question": "Empareja cada necesidad de conectividad con la solución.",
+      "topic": "waf",
+      "question": "Match each AWS WAF feature with its use case.",
       "prompts": [
         {
           "id": "p1",
-          "text": "Sitio remoto cifrado en horas"
+          "text": "Rate-based rule"
         },
         {
           "id": "p2",
-          "text": "Cifrar un enlace dedicado de 10/100 Gbps"
+          "text": "Bot Control managed rule group"
         },
         {
           "id": "p3",
-          "text": "Cifrar sobre Direct Connect sin IP públicas"
+          "text": "Account takeover prevention (ATP)"
         },
         {
           "id": "p4",
-          "text": "Acceso remoto de usuarios con SSO"
+          "text": "CAPTCHA action"
+        },
+        {
+          "id": "p5",
+          "text": "Count action"
         }
       ],
       "options": [
         {
           "id": "a",
-          "text": "Client VPN"
+          "text": "Require a human puzzle before allowing the request"
         },
         {
           "id": "b",
-          "text": "MACsec"
+          "text": "Test a rule without blocking requests"
         },
         {
           "id": "c",
-          "text": "VPN de IP privada sobre transit VIF"
+          "text": "Identify and manage automated traffic"
         },
         {
           "id": "d",
-          "text": "AWS WAF"
+          "text": "Limit requests per client over a time window"
         },
         {
           "id": "e",
-          "text": "Site-to-Site VPN"
+          "text": "Encrypt request bodies"
+        },
+        {
+          "id": "f",
+          "text": "Detect credential stuffing on a login page"
         }
       ],
       "correct": {
-        "p1": "e",
-        "p2": "b",
-        "p3": "c",
-        "p4": "a"
+        "p1": "d",
+        "p2": "c",
+        "p3": "f",
+        "p4": "a",
+        "p5": "b"
       },
-      "explanation": "Cada solución cubre un caso distinto de conectividad; WAF no aplica.",
-      "reference": "https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
+      "explanation": "Cada función resuelve un problema distinto; WAF no cifra el cuerpo de las solicitudes.",
+      "reference": "https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-action.html"
+    },
+    {
+      "id": "INF-147",
+      "type": "matching",
+      "topic": "segmentacion-red",
+      "question": "Match each requirement with the MOST appropriate network control.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "Allow traffic from the web tier security group only"
+        },
+        {
+          "id": "p2",
+          "text": "Deny a specific IP address at the subnet level"
+        },
+        {
+          "id": "p3",
+          "text": "Filter outbound traffic by domain name for all VPCs"
+        },
+        {
+          "id": "p4",
+          "text": "Block DNS resolution of malicious domains"
+        },
+        {
+          "id": "p5",
+          "text": "Private access to S3 without an internet gateway"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "Network ACL"
+        },
+        {
+          "id": "b",
+          "text": "Security group referencing another security group"
+        },
+        {
+          "id": "c",
+          "text": "Route 53 Resolver DNS Firewall"
+        },
+        {
+          "id": "d",
+          "text": "Gateway VPC endpoint"
+        },
+        {
+          "id": "e",
+          "text": "Internet gateway"
+        },
+        {
+          "id": "f",
+          "text": "AWS Network Firewall"
+        }
+      ],
+      "correct": {
+        "p1": "b",
+        "p2": "a",
+        "p3": "f",
+        "p4": "c",
+        "p5": "d"
+      },
+      "explanation": "Cada control actúa en una capa distinta de la red; un internet gateway da acceso a internet en lugar de restringirlo.",
+      "reference": "https://docs.aws.amazon.com/network-firewall/latest/developerguide/stateful-rule-groups-domain-names.html"
+    },
+    {
+      "id": "INF-148",
+      "type": "multiple",
+      "topic": "cloudfront-borde",
+      "question": "A security engineer must enforce secure communication for a CloudFront distribution with a custom origin. Which configurations should the engineer apply? (Select TWO.)",
+      "options": [
+        {
+          "id": "a",
+          "text": "Enable field-level encryption for all fields"
+        },
+        {
+          "id": "b",
+          "text": "Disable caching on the distribution"
+        },
+        {
+          "id": "c",
+          "text": "Set the viewer protocol policy to redirect HTTP to HTTPS (or HTTPS only)"
+        },
+        {
+          "id": "d",
+          "text": "Use a CloudFront signed URL for every request"
+        },
+        {
+          "id": "e",
+          "text": "Set the origin protocol policy to HTTPS only"
+        }
+      ],
+      "correct": [
+        "c",
+        "e"
+      ],
+      "explanation": "La viewer protocol policy protege el tramo cliente-CloudFront, y la origin protocol policy el tramo CloudFront-origen.",
+      "reference": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html"
     }
   ]
 }
