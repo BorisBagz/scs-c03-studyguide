@@ -1,7 +1,7 @@
 """
 POST /progress
 
-Guarda un item de progreso. Dos tipos de registro, segun "type" en el body:
+Guarda un item de progreso. Tres tipos de registro, segun "type" en el body:
 
   type = "attempt"
     { "type": "attempt", "domain": "detection", "score": 4, "total": 5,
@@ -9,9 +9,14 @@ Guarda un item de progreso. Dos tipos de registro, segun "type" en el body:
 
   type = "failed_question"
     { "type": "failed_question", "domain": "detection", "questionId": "DET-001" }
+
+  type = "topic"   (tema de teoria estudiado / pendiente)
+    { "type": "topic", "topicId": "detection/guardduty", "done": true,
+      "updatedAt": "2026-10-26T19:00:00Z" }   # updatedAt opcional
 """
 import json
 import os
+import re
 import time
 
 import boto3
@@ -21,7 +26,8 @@ dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(TABLE_NAME)
 
 USER_PK = "USER#default"
-VALID_TYPES = {"attempt", "failed_question"}
+VALID_TYPES = {"attempt", "failed_question", "topic"}
+TOPIC_ID_RE = re.compile(r"^[a-z0-9-]{1,60}/[a-z0-9-]{1,80}$")
 
 
 def handler(event, context):
@@ -36,6 +42,8 @@ def handler(event, context):
 
     if record_type == "attempt":
         item = _build_attempt_item(body)
+    elif record_type == "topic":
+        item = _build_topic_item(body)
     else:
         item = _build_failed_question_item(body)
 
@@ -80,6 +88,23 @@ def _build_failed_question_item(body):
         "questionId": question_id,
         "domain": domain,
         "lastSeen": _now_iso(),
+    }
+
+
+def _build_topic_item(body):
+    topic_id = body.get("topicId")
+    done = body.get("done")
+    if not isinstance(topic_id, str) or not TOPIC_ID_RE.match(topic_id):
+        return None
+    if not isinstance(done, bool):
+        return None
+    return {
+        "pk": USER_PK,
+        "sk": f"TOPIC#{topic_id}",
+        "recordType": "topic",
+        "topicId": topic_id,
+        "done": done,
+        "updatedAt": body.get("updatedAt") or _now_iso(),
     }
 
 

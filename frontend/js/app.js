@@ -7,6 +7,9 @@ const views = {
   quiz: $("#view-quiz"),
   results: $("#view-results"),
   progress: $("#view-progress"),
+  theory: $("#view-theory"),
+  domain: $("#view-domain"),
+  topic: $("#view-topic"),
 };
 
 const questionCounts = {}; // domainId -> numero | null (error) | undefined (cargando)
@@ -50,7 +53,7 @@ function notice(message) {
 function showView(name) {
   Object.entries(views).forEach(([key, el]) => el.classList.toggle("hidden", key !== name));
   document.body.dataset.view = name;
-  const tab = name === "progress" ? "progress" : "home";
+  const tab = name === "progress" ? "progress" : ["theory", "domain", "topic"].includes(name) ? "theory" : "home";
   document.querySelectorAll(".tab").forEach((btn) => {
     if (btn.dataset.view === tab) btn.setAttribute("aria-current", "page");
     else btn.removeAttribute("aria-current");
@@ -62,11 +65,15 @@ function showView(name) {
 
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.addEventListener("click", () => {
-    if (btn.dataset.view === "progress") {
+    if (btn.dataset.view === "theory") {
+      if (location.hash === "#/teoria") Theory.route();
+      else location.hash = "#/teoria";
+    } else if (btn.dataset.view === "progress") {
       renderProgress();
       showView("progress");
       syncFromRemote().then((changed) => changed && renderProgress());
     } else {
+      if (location.hash) history.replaceState(null, "", location.pathname + location.search);
       renderHome();
       showView("home");
     }

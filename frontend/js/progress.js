@@ -4,13 +4,22 @@
 
 const LOCAL_KEY = "scs03_progress_v1";
 
+function emptyProgress() {
+  return { attempts: [], failedQuestions: {}, topics: {} };
+}
+
 function loadLocalProgress() {
   try {
     const raw = localStorage.getItem(LOCAL_KEY);
-    return raw ? JSON.parse(raw) : { attempts: [], failedQuestions: {} };
+    const progress = raw ? JSON.parse(raw) : emptyProgress();
+    // Datos guardados antes de que existiera la teoria no traen "topics"
+    progress.attempts ||= [];
+    progress.failedQuestions ||= {};
+    progress.topics ||= {};
+    return progress;
   } catch (e) {
     console.warn("No se pudo leer progreso local:", e);
-    return { attempts: [], failedQuestions: {} };
+    return emptyProgress();
   }
 }
 
@@ -72,6 +81,22 @@ async function syncFailedQuestionToRemote(domain, questionId) {
   }
 }
 
+async function syncTopicToRemote(topicId, done, updatedAt) {
+  if (!hasRemoteConfig()) return;
+  try {
+    await fetch(`${CONFIG.API_BASE_URL}/progress`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": CONFIG.API_KEY,
+      },
+      body: JSON.stringify({ type: "topic", topicId, done, updatedAt }),
+    });
+  } catch (e) {
+    console.warn("Sync de tema fallo (queda guardado localmente):", e);
+  }
+}
+
 async function fetchRemoteProgress() {
   if (!hasRemoteConfig()) return null;
   try {
@@ -98,6 +123,7 @@ async function syncFromRemote() {
   const attemptKey = (a) => `${a.domain}|${a.timestamp}`;
   const localKeys = new Set(progress.attempts.map(attemptKey));
   const remoteKeys = new Set();
+  const remoteTopics = {};
   let changed = false;
 
   for (const item of items) {
@@ -110,6 +136,14 @@ async function syncFromRemote() {
           total: item.total,
           timestamp: item.timestamp,
         });
+        changed = true;
+      }
+    } else if (item.recordType === "topic") {
+      remoteTopics[item.topicId] = item.updatedAt;
+      const local = progress.topics[item.topicId];
+      // gana el cambio mas reciente (marcar y desmarcar son ambos validos)
+      if (!local || local.updatedAt < item.updatedAt) {
+        progress.topics[item.topicId] = { done: item.done, updatedAt: item.updatedAt };
         changed = true;
       }
     } else if (item.recordType === "failed_question") {
@@ -133,6 +167,11 @@ async function syncFromRemote() {
   progress.attempts
     .filter((a) => !remoteKeys.has(attemptKey(a)))
     .forEach((a) => syncAttemptToRemote(a));
+
+  // Temas que solo existen localmente o que cambiaron aqui despues del remoto
+  Object.entries(progress.topics)
+    .filter(([id, t]) => !remoteTopics[id] || remoteTopics[id] < t.updatedAt)
+    .forEach(([id, t]) => syncTopicToRemote(id, t.done, t.updatedAt));
 
   return changed;
 }
@@ -197,4 +236,24 @@ function getRecentAttempts(limit = 10) {
 
 function getFailedCount() {
   return Object.keys(loadLocalProgress().failedQuestions).length;
+}
+
+// ---------- Teoria: temas estudiados ----------
+
+function isTopicDone(topicId) {
+  return Boolean(loadLocalProgress().topics[topicId]?.done);
+}
+
+function setTopicDone(topicId, done) {
+  const progress = loadLocalProgress();
+  const updatedAt = new Date().toISOString();
+  progress.topics[topicId] = { done, updatedAt };
+  saveLocalProgress(progress);
+  syncTopicToRemote(topicId, done, updatedAt);
+}
+
+// Cuantos temas de un dominio estan marcados como estudiados
+function countTopicsDone(domainId) {
+  const topics = loadLocalProgress().topics;
+  return Object.entries(topics).filter(([id, t]) => t.done && id.startsWith(`${domainId}/`)).length;
 }

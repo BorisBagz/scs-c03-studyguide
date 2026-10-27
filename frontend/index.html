@@ -32,7 +32,11 @@
     <nav class="tabs" aria-label="Secciones">
       <button class="tab" data-view="home" aria-current="page">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20V8M22 20H2" /></svg>
-        <span>Dominios</span>
+        <span>Práctica</span>
+      </button>
+      <button class="tab" data-view="theory">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z" /></svg>
+        <span>Teoría</span>
       </button>
       <button class="tab" data-view="progress">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-5 4 4 8-9M15 7h5v5" /></svg>
@@ -52,6 +56,17 @@
       <p id="blueprint-note" class="note"></p>
       <ul id="domain-list" class="rows"></ul>
     </section>
+
+    <!-- Teoría: índice de dominios, temas de un dominio y lectura de un tema -->
+    <section id="view-theory" class="view hidden">
+      <header class="view-head">
+        <h1 tabindex="-1" data-focus>Teoría</h1>
+        <p class="lede">Guía de estudio por dominio, enfocada en lo que se evalúa en el examen. Marca cada tema como estudiado para seguir tu avance.</p>
+      </header>
+      <ul id="theory-list" class="rows"></ul>
+    </section>
+    <section id="view-domain" class="view hidden"><div id="domain-body"></div></section>
+    <section id="view-topic" class="view view-wide hidden"><div id="topic-body"></div></section>
 
     <!-- Quiz -->
     <section id="view-quiz" class="view hidden">
@@ -93,5 +108,7 @@
   <script src="js/progress.js?v=__VERSION__"></script>
   <script src="js/quiz.js?v=__VERSION__"></script>
   <script src="js/app.js?v=__VERSION__"></script>
+  <script src="js/vendor/marked.umd.js?v=__VERSION__"></script>
+  <script src="js/theory.js?v=__VERSION__"></script>
 </body>
 </html>
