@@ -31,7 +31,7 @@ Resources:
             BurstLimit: 5
             RateLimit: 2
           Quota:
-            Limit: 10000
+            Limit: 2000
             Period: MONTH
 
   ProgressTable:
