@@ -729,7 +729,160 @@
           "title": "Proteger datos confidenciales, credenciales, secretos y llaves criptográficas"
         }
       ],
-      "topics": []
+      "topics": [
+        {
+          "id": "tls-elb-acm",
+          "title": "TLS, ELB y ACM",
+          "summary": "Políticas de seguridad de ELB, certificados ACM y cómo forzar TLS.",
+          "tasks": [
+            "5.1"
+          ],
+          "services": [
+            "ELB",
+            "ACM",
+            "S3"
+          ]
+        },
+        {
+          "id": "cifrado-entre-recursos",
+          "title": "Cifrado entre recursos y VPC Encryption Controls",
+          "summary": "Nitro, VPC Encryption Controls, PrivateLink y cifrado entre nodos.",
+          "tasks": [
+            "5.1"
+          ],
+          "services": [
+            "VPC",
+            "EC2 Nitro",
+            "PrivateLink"
+          ]
+        },
+        {
+          "id": "kms-fundamentos",
+          "title": "AWS KMS: fundamentos",
+          "summary": "Tipos de clave, key policy, grants, rotación, eliminación y buenas prácticas.",
+          "tasks": [
+            "5.2",
+            "5.3"
+          ],
+          "services": [
+            "KMS"
+          ]
+        },
+        {
+          "id": "kms-almacenes-llaves",
+          "title": "KMS vs CloudHSM vs XKS",
+          "summary": "Almacenes de claves personalizados, XKS y CloudHSM: cuándo usar cada uno.",
+          "tasks": [
+            "5.2"
+          ],
+          "services": [
+            "KMS",
+            "CloudHSM",
+            "XKS"
+          ]
+        },
+        {
+          "id": "cifrado-s3",
+          "title": "Cifrado en Amazon S3",
+          "summary": "SSE-S3, SSE-KMS, DSSE-KMS, SSE-C y cliente; cómo forzarlo.",
+          "tasks": [
+            "5.2"
+          ],
+          "services": [
+            "S3",
+            "KMS"
+          ]
+        },
+        {
+          "id": "cifrado-ebs-rds-servicios",
+          "title": "Cifrado en EBS, RDS y otros servicios",
+          "summary": "Cifrado de volúmenes y bases de datos; cifrar recursos existentes.",
+          "tasks": [
+            "5.2"
+          ],
+          "services": [
+            "EBS",
+            "RDS",
+            "DynamoDB",
+            "EFS"
+          ]
+        },
+        {
+          "id": "inmutabilidad-datos",
+          "title": "Inmutabilidad de datos",
+          "summary": "Object Lock, Vault Lock, versionado y AWS Signer.",
+          "tasks": [
+            "5.2"
+          ],
+          "services": [
+            "S3 Object Lock",
+            "AWS Backup",
+            "Glacier",
+            "AWS Signer"
+          ]
+        },
+        {
+          "id": "respaldo-ransomware",
+          "title": "Respaldo, ciclo de vida y ransomware",
+          "summary": "AWS Backup, DLM, DataSync y diseño anti-ransomware.",
+          "tasks": [
+            "5.2"
+          ],
+          "services": [
+            "AWS Backup",
+            "DLM",
+            "DataSync"
+          ]
+        },
+        {
+          "id": "secrets-manager",
+          "title": "Secrets Manager y rotación",
+          "summary": "Rotación de secretos, etiquetas de versión y comparación con Parameter Store.",
+          "tasks": [
+            "5.3"
+          ],
+          "services": [
+            "Secrets Manager",
+            "Parameter Store"
+          ]
+        },
+        {
+          "id": "llaves-importadas-multirregion",
+          "title": "Claves importadas y multi-Region",
+          "summary": "Material importado, caducidad, rotación manual y claves multi-Region.",
+          "tasks": [
+            "5.3"
+          ],
+          "services": [
+            "KMS"
+          ]
+        },
+        {
+          "id": "proteccion-datos-sensibles",
+          "title": "Protección de datos sensibles en logs y mensajes",
+          "summary": "Data protection de CloudWatch Logs y SNS; técnicas complementarias.",
+          "tasks": [
+            "5.3"
+          ],
+          "services": [
+            "CloudWatch Logs",
+            "SNS",
+            "Macie"
+          ]
+        },
+        {
+          "id": "private-ca-certificados",
+          "title": "AWS Private CA",
+          "summary": "PKI privada: jerarquías, revocación, certificados de corta duración y RAM.",
+          "tasks": [
+            "5.3"
+          ],
+          "services": [
+            "Private CA",
+            "ACM"
+          ]
+        }
+      ]
     },
     "governance": {
       "tasks": [
