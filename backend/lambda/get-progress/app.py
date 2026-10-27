@@ -6,6 +6,7 @@ intentos de quiz y preguntas falladas para repaso espaciado.
 """
 import json
 import os
+from decimal import Decimal
 
 import boto3
 
@@ -38,6 +39,16 @@ def handler(event, context):
         return _response(500, {"error": str(e)})
 
 
+class _DecimalEncoder(json.JSONEncoder):
+    """DynamoDB devuelve numeros como Decimal; json no los serializa por defecto."""
+
+    def default(self, o):
+        if isinstance(o, Decimal):
+            # score/total son siempre enteros en este dominio
+            return int(o) if o % 1 == 0 else float(o)
+        return super().default(o)
+
+
 def _response(status_code, body):
     return {
         "statusCode": status_code,
@@ -45,5 +56,5 @@ def _response(status_code, body):
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
         },
-        "body": json.dumps(body),
+        "body": json.dumps(body, cls=_DecimalEncoder),
     }
