@@ -15,7 +15,9 @@ node_modules/
 .env
 .env.*
 *.pem
-frontend/js/config.js
+# frontend/js/config.js: se commitea a propósito — GitHub Pages lo sirve
+# directo desde el repo, y la API key ya es pública una vez desplegado
+# el sitio (visible en devtools), así que ocultarla en git no protege nada.
 
 # OS / editor
 .DS_Store
