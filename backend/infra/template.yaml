@@ -22,8 +22,20 @@ Resources:
         AllowMethods: "'GET,POST,OPTIONS'"
         AllowHeaders: "'Content-Type,x-api-key'"
         AllowOrigin: "'*'"
+      # Errores de API Gateway (403 key invalida, 429 quota/throttle) no pasan
+      # por la Lambda, asi que sin esto no llevan headers CORS y el navegador
+      # los muestra como un error de CORS generico.
+      GatewayResponses:
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'Content-Type,x-api-key'"
       Auth:
         ApiKeyRequired: true
+        # El preflight OPTIONS del navegador no envia x-api-key; si lo exige,
+        # responde 403 sin CORS y el POST real nunca sale.
+        AddApiKeyRequiredToCorsPreflight: false
         UsagePlan:
           CreateUsagePlan: PER_API
           Description: Usage plan para uso personal, dentro del free tier
