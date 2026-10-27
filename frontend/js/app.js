@@ -193,18 +193,58 @@ function renderSteps() {
     .join("");
 }
 
-function renderQuestion() {
-  const q = QuizEngine.getCurrentQuestion();
-  const multi = q.type === "multiple" || q.correct.length > 1;
-  const kind = multi ? "Elige todas las que apliquen" : q.type === "scenario" ? "Escenario: elige una respuesta" : "";
+function shuffled(arr) {
+  const c = [...arr];
+  for (let i = c.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [c[i], c[j]] = [c[j], c[i]];
+  }
+  return c;
+}
 
-  $("#quiz-progress-label").textContent = `${QuizEngine.getCurrentIndex() + 1} de ${QuizEngine.getTotal()}`;
-  renderSteps();
+function orderingItemHTML(o, pos) {
+  return `<li class="ord-item" data-id="${esc(o.id)}">
+    <span class="ord-pos">${pos}</span>
+    <span class="ord-text">${fmt(o.text)}</span>
+    <span class="ord-btns">
+      <button type="button" class="ord-btn" data-move="-1" aria-label="Subir paso">&#9650;</button>
+      <button type="button" class="ord-btn" data-move="1" aria-label="Bajar paso">&#9660;</button>
+    </span>
+    <span class="opt-mark" aria-hidden="true"></span>
+  </li>`;
+}
 
-  $("#quiz-question-card").innerHTML = `<article class="q">
-    ${kind ? `<p class="q-kind">${kind}</p>` : ""}
-    <h2 class="q-text" id="q-text" tabindex="-1">${fmt(q.question)}</h2>
-    <fieldset class="opts" aria-labelledby="q-text">
+function renumberOrdering() {
+  const items = [...document.querySelectorAll(".ord-item")];
+  items.forEach((li, i) => {
+    li.querySelector(".ord-pos").textContent = i + 1;
+    li.querySelector('[data-move="-1"]').disabled = i === 0;
+    li.querySelector('[data-move="1"]').disabled = i === items.length - 1;
+  });
+}
+
+function questionBodyHTML(q, multi) {
+  if (q.type === "ordering") {
+    let order = shuffled(q.options);
+    for (let t = 0; t < 10 && order.every((o, i) => o.id === q.correct[i]); t++) order = shuffled(q.options);
+    return `<ol class="ord" aria-labelledby="q-text">${order.map((o, i) => orderingItemHTML(o, i + 1)).join("")}</ol>`;
+  }
+  if (q.type === "matching") {
+    const choices = shuffled(q.options);
+    return `<div class="match" aria-labelledby="q-text">${q.prompts
+      .map(
+        (p) => `<div class="match-row" data-id="${esc(p.id)}">
+        <p class="match-prompt">${fmt(p.text)}</p>
+        <select class="match-select" data-prompt="${esc(p.id)}" aria-label="Respuesta para: ${esc(p.text)}">
+          <option value="">Elige…</option>
+          ${choices.map((o) => `<option value="${esc(o.id)}">${esc(o.text)}</option>`).join("")}
+        </select>
+        <span class="opt-mark" aria-hidden="true"></span>
+      </div>`
+      )
+      .join("")}</div>`;
+  }
+  return `<fieldset class="opts" aria-labelledby="q-text">
       ${q.options
         .map(
           (o) => `<label class="opt" data-id="${esc(o.id)}">
@@ -215,14 +255,37 @@ function renderQuestion() {
       </label>`
         )
         .join("")}
-    </fieldset>
+    </fieldset>`;
+}
+
+function renderQuestion() {
+  const q = QuizEngine.getCurrentQuestion();
+  const multi = q.type === "multiple" || (q.type !== "ordering" && q.type !== "matching" && q.correct.length > 1);
+  const kind = multi
+    ? "Elige todas las que apliquen"
+    : q.type === "scenario"
+    ? "Escenario: elige una respuesta"
+    : q.type === "ordering"
+    ? "Ordena los pasos (usa las flechas)"
+    : q.type === "matching"
+    ? "Empareja cada elemento con su respuesta"
+    : "";
+
+  $("#quiz-progress-label").textContent = `${QuizEngine.getCurrentIndex() + 1} de ${QuizEngine.getTotal()}`;
+  renderSteps();
+
+  $("#quiz-question-card").innerHTML = `<article class="q">
+    ${kind ? `<p class="q-kind">${kind}</p>` : ""}
+    <h2 class="q-text" id="q-text" tabindex="-1">${fmt(q.question)}</h2>
+    ${questionBodyHTML(q, multi)}
     <div id="quiz-feedback" class="feedback hidden" role="status" aria-live="polite"></div>
   </article>`;
 
   const submit = $("#quiz-submit-btn");
-  submit.disabled = true;
+  submit.disabled = q.type !== "ordering";
   submit.classList.remove("hidden");
   $("#quiz-next-btn").classList.add("hidden");
+  if (q.type === "ordering") renumberOrdering();
   window.scrollTo(0, 0);
   $("#q-text").focus({ preventScroll: true });
 }
@@ -230,12 +293,37 @@ function renderQuestion() {
 $("#quiz-question-card").addEventListener("change", (e) => {
   if (e.target.name === "quiz-option") {
     $("#quiz-submit-btn").disabled = false;
+  } else if (e.target.classList.contains("match-select")) {
+    const all = [...document.querySelectorAll(".match-select")].every((el) => el.value);
+    $("#quiz-submit-btn").disabled = !all;
   }
 });
 
+$("#quiz-question-card").addEventListener("click", (e) => {
+  const btn = e.target.closest(".ord-btn");
+  if (!btn || btn.disabled) return;
+  const li = btn.closest(".ord-item");
+  const dir = Number(btn.dataset.move);
+  if (dir < 0 && li.previousElementSibling) li.parentNode.insertBefore(li, li.previousElementSibling);
+  if (dir > 0 && li.nextElementSibling) li.parentNode.insertBefore(li.nextElementSibling, li);
+  renumberOrdering();
+  btn.focus();
+});
+
+function collectAnswer(q) {
+  if (q.type === "ordering") return [...document.querySelectorAll(".ord-item")].map((li) => li.dataset.id);
+  if (q.type === "matching") {
+    const out = {};
+    document.querySelectorAll(".match-select").forEach((el) => (out[el.dataset.prompt] = el.value));
+    return out;
+  }
+  return Array.from(document.querySelectorAll('input[name="quiz-option"]:checked')).map((el) => el.value);
+}
+
 $("#quiz-submit-btn").addEventListener("click", () => {
-  const selected = Array.from(document.querySelectorAll('input[name="quiz-option"]:checked')).map((el) => el.value);
-  if (selected.length === 0) return;
+  const q = QuizEngine.getCurrentQuestion();
+  const selected = collectAnswer(q);
+  if (Array.isArray(selected) ? selected.length === 0 : false) return;
   QuizEngine.submitAnswer(selected);
   revealAnswer(selected);
   $("#quiz-submit-btn").classList.add("hidden");
@@ -248,26 +336,59 @@ $("#quiz-submit-btn").addEventListener("click", () => {
 function revealAnswer(selected) {
   const q = QuizEngine.getCurrentQuestion();
   const ok = QuizEngine.isCorrect();
-  const correct = new Set(q.correct);
-
   document.querySelector(".q").classList.add("is-revealed");
-  document.querySelectorAll(".opt").forEach((label) => {
-    const id = label.dataset.id;
-    const mark = label.querySelector(".opt-mark");
-    label.querySelector("input").disabled = true;
-    if (correct.has(id)) {
-      label.classList.add("is-correct");
-      mark.innerHTML = `${ICON_CHECK}<span class="sr-only">Respuesta correcta</span>`;
-    } else if (selected.includes(id)) {
-      label.classList.add("is-wrong");
-      mark.innerHTML = `${ICON_CROSS}<span class="sr-only">Respuesta incorrecta</span>`;
-    }
-  });
+  const mark = (el, good) => {
+    const m = el.querySelector(".opt-mark");
+    el.classList.add(good ? "is-correct" : "is-wrong");
+    m.innerHTML = good
+      ? `${ICON_CHECK}<span class="sr-only">Correcto</span>`
+      : `${ICON_CROSS}<span class="sr-only">Incorrecto</span>`;
+  };
+  let answerLine = "";
 
-  const letters = q.correct.map((id) => id.toUpperCase());
-  const answerLine = ok
-    ? ""
-    : `<p class="feedback-answer">${letters.length > 1 ? "Las respuestas correctas son" : "La respuesta correcta es"} ${joinList(letters)}.</p>`;
+  if (q.type === "ordering") {
+    document.querySelectorAll(".ord-item").forEach((li, i) => {
+      mark(li, li.dataset.id === q.correct[i]);
+      li.querySelectorAll(".ord-btn").forEach((b) => (b.disabled = true));
+    });
+    if (!ok) {
+      const byId = Object.fromEntries(q.options.map((o) => [o.id, o.text]));
+      answerLine = `<p class="feedback-answer">Orden correcto:</p><ol class="feedback-order">${q.correct
+        .map((id) => `<li>${fmt(byId[id])}</li>`)
+        .join("")}</ol>`;
+    }
+  } else if (q.type === "matching") {
+    const byId = Object.fromEntries(q.options.map((o) => [o.id, o.text]));
+    document.querySelectorAll(".match-row").forEach((row) => {
+      const pid = row.dataset.id;
+      const good = selected[pid] === q.correct[pid];
+      row.querySelector("select").disabled = true;
+      mark(row, good);
+      if (!good) {
+        const p = document.createElement("p");
+        p.className = "match-fix";
+        p.textContent = `Correcto: ${byId[q.correct[pid]]}`;
+        row.appendChild(p);
+      }
+    });
+  } else {
+    const correct = new Set(q.correct);
+    document.querySelectorAll(".opt").forEach((label) => {
+      const id = label.dataset.id;
+      label.querySelector("input").disabled = true;
+      if (correct.has(id)) {
+        label.classList.add("is-correct");
+        label.querySelector(".opt-mark").innerHTML = `${ICON_CHECK}<span class="sr-only">Respuesta correcta</span>`;
+      } else if (selected.includes(id)) {
+        label.classList.add("is-wrong");
+        label.querySelector(".opt-mark").innerHTML = `${ICON_CROSS}<span class="sr-only">Respuesta incorrecta</span>`;
+      }
+    });
+    const letters = q.correct.map((id) => id.toUpperCase());
+    answerLine = ok
+      ? ""
+      : `<p class="feedback-answer">${letters.length > 1 ? "Las respuestas correctas son" : "La respuesta correcta es"} ${joinList(letters)}.</p>`;
+  }
   const link = /^https:\/\//.test(q.reference || "")
     ? `<a class="feedback-link" href="${esc(q.reference)}" target="_blank" rel="noopener">Ver en la documentación de AWS</a>`
     : "";

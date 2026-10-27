@@ -56,13 +56,19 @@ const QuizEngine = (() => {
 
   function isCorrect(index = currentIndex) {
     const q = currentQuestions[index];
-    const given = userAnswers[index] || [];
+    const given = userAnswers[index];
+    if (given === null || given === undefined) return false;
+    if (q.type === "ordering") {
+      // respuesta = ids en el orden elegido; debe coincidir exactamente con q.correct
+      return Array.isArray(given) && given.length === q.correct.length && q.correct.every((v, i) => v === given[i]);
+    }
+    if (q.type === "matching") {
+      // respuesta = { idPrompt: idRespuesta }; deben acertarse todos los pares
+      return q.prompts.every((p) => given[p.id] === q.correct[p.id]);
+    }
     const correct = [...q.correct].sort();
     const givenSorted = [...given].sort();
-    return (
-      correct.length === givenSorted.length &&
-      correct.every((v, i) => v === givenSorted[i])
-    );
+    return correct.length === givenSorted.length && correct.every((v, i) => v === givenSorted[i]);
   }
 
   function next() {

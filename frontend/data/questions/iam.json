@@ -2,173 +2,440 @@
   "domain": "iam",
   "questions": [
     {
-      "id": "IAM-001", "type": "single", "topic": "limites-permisos",
+      "id": "IAM-001",
+      "type": "single",
+      "topic": "limites-permisos",
       "question": "Un usuario IAM tiene una política de identidad que concede iam:CreateUser y un permissions boundary que solo permite s3:*, cloudwatch:* y ec2:*. ¿Qué ocurre cuando intenta crear un usuario?",
       "options": [
-        { "id": "a", "text": "Tiene éxito: la política de identidad concede la acción" },
-        { "id": "b", "text": "Falla: el boundary no incluye iam:CreateUser y el permiso efectivo es la intersección" },
-        { "id": "c", "text": "Tiene éxito solo si la cuenta no tiene SCP" },
-        { "id": "d", "text": "Falla únicamente si existe un Deny explícito en la política de identidad" }
+        {
+          "id": "a",
+          "text": "Tiene éxito: la política de identidad concede la acción"
+        },
+        {
+          "id": "b",
+          "text": "Falla: el boundary no incluye iam:CreateUser y el permiso efectivo es la intersección"
+        },
+        {
+          "id": "c",
+          "text": "Tiene éxito solo si la cuenta no tiene SCP"
+        },
+        {
+          "id": "d",
+          "text": "Falla únicamente si existe un Deny explícito en la política de identidad"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "Un permissions boundary no concede permisos: fija el máximo. La acción solo se permite si tanto la política de identidad como el boundary la permiten. Como el boundary no incluye IAM, la acción falla aunque la política de identidad la conceda.",
       "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
     },
     {
-      "id": "IAM-002", "type": "scenario", "topic": "limites-permisos",
+      "id": "IAM-002",
+      "type": "scenario",
+      "topic": "limites-permisos",
       "question": "Los desarrolladores deben poder crear roles IAM para sus aplicaciones, pero sin posibilidad de otorgarles más permisos de los que ellos tienen ni de saltarse los límites corporativos. ¿Qué diseño cumple el requisito?",
       "options": [
-        { "id": "a", "text": "Darles iam:* y confiar en revisiones periódicas con Access Analyzer" },
-        { "id": "b", "text": "Permitir iam:CreateRole y iam:AttachRolePolicy solo con la condición iam:PermissionsBoundary apuntando al boundary corporativo, y denegar la eliminación o edición del boundary" },
-        { "id": "c", "text": "Aplicar una SCP que deniegue iam:CreateRole en la cuenta" },
-        { "id": "d", "text": "Usar session policies en cada rol creado" }
+        {
+          "id": "a",
+          "text": "Darles iam:* y confiar en revisiones periódicas con Access Analyzer"
+        },
+        {
+          "id": "b",
+          "text": "Permitir iam:CreateRole y iam:AttachRolePolicy solo con la condición iam:PermissionsBoundary apuntando al boundary corporativo, y denegar la eliminación o edición del boundary"
+        },
+        {
+          "id": "c",
+          "text": "Aplicar una SCP que deniegue iam:CreateRole en la cuenta"
+        },
+        {
+          "id": "d",
+          "text": "Usar session policies en cada rol creado"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "El patrón de delegación segura exige que todo rol nuevo lleve el boundary corporativo (condición iam:PermissionsBoundary) y que no se pueda borrar ni modificar el boundary. Así los roles creados nunca superan el techo definido.",
       "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
     },
     {
-      "id": "IAM-003", "type": "single", "topic": "limites-permisos",
+      "id": "IAM-003",
+      "type": "single",
+      "topic": "limites-permisos",
       "question": "Un rol tiene AdministratorAccess, pero una aplicación debe asumirlo entregando a cada usuario acceso solo a su prefijo de S3. ¿Qué mecanismo se usa al llamar a AssumeRole?",
       "options": [
-        { "id": "a", "text": "Una session policy" },
-        { "id": "b", "text": "Un permissions boundary en el usuario final" },
-        { "id": "c", "text": "Una SCP por usuario" },
-        { "id": "d", "text": "Una política de recursos en el rol" }
+        {
+          "id": "a",
+          "text": "Una session policy"
+        },
+        {
+          "id": "b",
+          "text": "Un permissions boundary en el usuario final"
+        },
+        {
+          "id": "c",
+          "text": "Una SCP por usuario"
+        },
+        {
+          "id": "d",
+          "text": "Una política de recursos en el rol"
+        }
       ],
-      "correct": ["a"],
+      "correct": [
+        "a"
+      ],
       "explanation": "Las session policies se pasan en AssumeRole y reducen los permisos de esa sesión (intersección con la política de identidad del rol). Nunca amplían permisos.",
       "reference": "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
     },
     {
-      "id": "IAM-004", "type": "single", "topic": "abac-rbac",
+      "id": "IAM-004",
+      "type": "single",
+      "topic": "abac-rbac",
       "question": "Se quiere que cada equipo gestione solo los recursos de su proyecto sin editar políticas cada vez que se añade un recurso o persona. ¿Qué estrategia aplica?",
       "options": [
-        { "id": "a", "text": "RBAC con un rol por recurso" },
-        { "id": "b", "text": "ABAC comparando aws:PrincipalTag con aws:ResourceTag" },
-        { "id": "c", "text": "Una política de bucket por proyecto" },
-        { "id": "d", "text": "Grupos IAM anidados" }
+        {
+          "id": "a",
+          "text": "RBAC con un rol por recurso"
+        },
+        {
+          "id": "b",
+          "text": "ABAC comparando aws:PrincipalTag con aws:ResourceTag"
+        },
+        {
+          "id": "c",
+          "text": "Una política de bucket por proyecto"
+        },
+        {
+          "id": "d",
+          "text": "Grupos IAM anidados"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "ABAC usa etiquetas: una misma política concede acceso cuando las etiquetas del principal coinciden con las del recurso, por lo que escala sin modificar la política.",
       "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html"
     },
     {
-      "id": "IAM-005", "type": "multiple", "topic": "abac-rbac",
+      "id": "IAM-005",
+      "type": "multiple",
+      "topic": "abac-rbac",
       "question": "En una implementación ABAC, ¿qué controles evitan que un desarrollador se auto-conceda acceso modificando etiquetas? (Elige DOS)",
       "options": [
-        { "id": "a", "text": "Denegar TagResource/UntagResource sobre las claves de control de acceso salvo a roles de administración" },
-        { "id": "b", "text": "Una SCP que impida modificar las etiquetas de control de acceso fuera de los roles de administración" },
-        { "id": "c", "text": "Habilitar versionado en S3" },
-        { "id": "d", "text": "Activar MFA Delete" }
+        {
+          "id": "a",
+          "text": "Denegar TagResource/UntagResource sobre las claves de control de acceso salvo a roles de administración"
+        },
+        {
+          "id": "b",
+          "text": "Una SCP que impida modificar las etiquetas de control de acceso fuera de los roles de administración"
+        },
+        {
+          "id": "c",
+          "text": "Habilitar versionado en S3"
+        },
+        {
+          "id": "d",
+          "text": "Activar MFA Delete"
+        },
+        {
+          "id": "e",
+          "text": "Crear un permissions boundary que conceda iam:* a todos los desarrolladores"
+        }
       ],
-      "correct": ["a", "b"],
+      "correct": [
+        "a",
+        "b"
+      ],
       "explanation": "En ABAC quien controla las etiquetas controla el acceso. Se protege restringiendo TagResource/UntagResource sobre las claves reservadas y reforzándolo con una SCP.",
       "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html"
     },
     {
-      "id": "IAM-006", "type": "single", "topic": "abac-rbac",
+      "id": "IAM-006",
+      "type": "single",
+      "topic": "abac-rbac",
       "question": "Con ABAC y sesiones federadas, ¿qué limitación indica la documentación sobre las etiquetas de sesión?",
       "options": [
-        { "id": "a", "text": "Pueden tener varios valores por clave" },
-        { "id": "b", "text": "No se admiten etiquetas multivaluadas: si un usuario trabaja en dos proyectos hay que listar explícitamente los dos roles" },
-        { "id": "c", "text": "Solo funcionan con usuarios IAM" },
-        { "id": "d", "text": "No se pueden usar en políticas de recursos" }
+        {
+          "id": "a",
+          "text": "Pueden tener varios valores por clave"
+        },
+        {
+          "id": "b",
+          "text": "No se admiten etiquetas multivaluadas: si un usuario trabaja en dos proyectos hay que listar explícitamente los dos roles"
+        },
+        {
+          "id": "c",
+          "text": "Solo funcionan con usuarios IAM"
+        },
+        {
+          "id": "d",
+          "text": "No se pueden usar en políticas de recursos"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "IAM/STS exige un único valor por etiqueta de sesión; para usuarios en varios proyectos hay que enumerar explícitamente los roles permitidos.",
       "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html"
     },
     {
-      "id": "IAM-007", "type": "single", "topic": "verified-permissions",
+      "id": "IAM-007",
+      "type": "single",
+      "topic": "verified-permissions",
       "question": "En Amazon Verified Permissions (Cedar), una política permit y una política forbid se satisfacen para la misma solicitud. ¿Cuál es el resultado?",
       "options": [
-        { "id": "a", "text": "Allow, porque permit tiene prioridad" },
-        { "id": "b", "text": "Deny: forbid prevalece sobre permit" },
-        { "id": "c", "text": "Se evalúa en orden alfabético" },
-        { "id": "d", "text": "Error de conflicto de políticas" }
+        {
+          "id": "a",
+          "text": "Allow, porque permit tiene prioridad"
+        },
+        {
+          "id": "b",
+          "text": "Deny: forbid prevalece sobre permit"
+        },
+        {
+          "id": "c",
+          "text": "Se evalúa en orden alfabético"
+        },
+        {
+          "id": "d",
+          "text": "Error de conflicto de políticas"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "Cedar deniega por defecto y forbid siempre gana sobre permit.",
       "reference": "https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/terminology.html"
     },
     {
-      "id": "IAM-008", "type": "single", "topic": "verified-permissions",
+      "id": "IAM-008",
+      "type": "single",
+      "topic": "verified-permissions",
       "question": "Verified Permissions devuelve Deny, pero la aplicación igual entrega los datos al usuario. ¿Cuál es la causa más probable?",
       "options": [
-        { "id": "a", "text": "El policy store no tiene schema" },
-        { "id": "b", "text": "La aplicación no aplica la decisión: Verified Permissions solo devuelve la decisión y el código debe hacerla cumplir" },
-        { "id": "c", "text": "Falta una SCP" },
-        { "id": "d", "text": "El token de Cognito expiró" }
+        {
+          "id": "a",
+          "text": "El policy store no tiene schema"
+        },
+        {
+          "id": "b",
+          "text": "La aplicación no aplica la decisión: Verified Permissions solo devuelve la decisión y el código debe hacerla cumplir"
+        },
+        {
+          "id": "c",
+          "text": "Falta una SCP"
+        },
+        {
+          "id": "d",
+          "text": "El token de Cognito expiró"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "Verified Permissions no hace enforcement: la aplicación (o su authorizer) debe bloquear cuando la respuesta es Deny.",
       "reference": "https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/terminology.html"
     },
     {
-      "id": "IAM-009", "type": "single", "topic": "access-analyzer",
+      "id": "IAM-009",
+      "type": "single",
+      "topic": "access-analyzer",
       "question": "Se necesita alertar cuando un bucket de S3 o una clave KMS quede accesible desde fuera de la organización. ¿Qué función de IAM Access Analyzer se usa?",
       "options": [
-        { "id": "a", "text": "Unused access analyzer" },
-        { "id": "b", "text": "Policy generation" },
-        { "id": "c", "text": "External access analyzer" },
-        { "id": "d", "text": "Custom policy checks" }
+        {
+          "id": "a",
+          "text": "Unused access analyzer"
+        },
+        {
+          "id": "b",
+          "text": "Policy generation"
+        },
+        {
+          "id": "c",
+          "text": "External access analyzer"
+        },
+        {
+          "id": "d",
+          "text": "Custom policy checks"
+        }
       ],
-      "correct": ["c"],
+      "correct": [
+        "c"
+      ],
       "explanation": "El analizador de acceso externo monitorea continuamente los permisos de recursos y genera hallazgos cuando son accesibles públicamente o desde otras cuentas; los eventos se pueden enviar a EventBridge/Security Hub.",
       "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
     },
     {
-      "id": "IAM-010", "type": "single", "topic": "access-analyzer",
+      "id": "IAM-010",
+      "type": "single",
+      "topic": "access-analyzer",
       "question": "Un rol de aplicación tiene una política demasiado amplia y nadie sabe qué permisos usa realmente. ¿Cómo se obtiene una política de mínimo privilegio basada en su actividad?",
       "options": [
-        { "id": "a", "text": "Policy generation de Access Analyzer a partir de CloudTrail" },
-        { "id": "b", "text": "Policy Simulator" },
-        { "id": "c", "text": "Credential report" },
-        { "id": "d", "text": "Permissions boundary" }
+        {
+          "id": "a",
+          "text": "Policy generation de Access Analyzer a partir de CloudTrail"
+        },
+        {
+          "id": "b",
+          "text": "Policy Simulator"
+        },
+        {
+          "id": "c",
+          "text": "Credential report"
+        },
+        {
+          "id": "d",
+          "text": "Permissions boundary"
+        }
       ],
-      "correct": ["a"],
+      "correct": [
+        "a"
+      ],
       "explanation": "Policy generation genera políticas granulares según la actividad registrada en CloudTrail.",
       "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
     },
     {
-      "id": "IAM-011", "type": "scenario", "topic": "access-analyzer",
+      "id": "IAM-011",
+      "type": "scenario",
+      "topic": "access-analyzer",
       "question": "El pipeline de CI/CD debe bloquear automáticamente cualquier cambio de plantilla que otorgue más acceso que la versión actual de la política. ¿Qué se implementa?",
       "options": [
-        { "id": "a", "text": "Access Analyzer unused access" },
-        { "id": "b", "text": "Custom policy checks de Access Analyzer integrados en el pipeline" },
-        { "id": "c", "text": "AWS Config rule periódica" },
-        { "id": "d", "text": "Credential report semanal" }
+        {
+          "id": "a",
+          "text": "Access Analyzer unused access"
+        },
+        {
+          "id": "b",
+          "text": "Custom policy checks de Access Analyzer integrados en el pipeline"
+        },
+        {
+          "id": "c",
+          "text": "AWS Config rule periódica"
+        },
+        {
+          "id": "d",
+          "text": "Credential report semanal"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "Las custom policy checks validan políticas contra tus estándares y marcan cambios más permisivos que la versión anterior; se integran en CI/CD, por ejemplo validando plantillas de CloudFormation.",
       "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
     },
     {
-      "id": "IAM-012", "type": "single", "topic": "evaluacion-politicas",
+      "id": "IAM-012",
+      "type": "single",
+      "topic": "evaluacion-politicas",
       "question": "Una política de recursos con NotPrincipal + Deny bloquea a todos los roles que tienen permissions boundary. ¿Cuál es la alternativa recomendada?",
       "options": [
-        { "id": "a", "text": "Usar Principal: \"*\" con Allow" },
-        { "id": "b", "text": "Usar ArnNotEquals con aws:PrincipalArn en una condición" },
-        { "id": "c", "text": "Eliminar el boundary" },
-        { "id": "d", "text": "Usar una SCP en lugar de la política" }
+        {
+          "id": "a",
+          "text": "Usar Principal: \"*\" con Allow"
+        },
+        {
+          "id": "b",
+          "text": "Usar ArnNotEquals con aws:PrincipalArn en una condición"
+        },
+        {
+          "id": "c",
+          "text": "Eliminar el boundary"
+        },
+        {
+          "id": "d",
+          "text": "Usar una SCP en lugar de la política"
+        }
       ],
-      "correct": ["b"],
+      "correct": [
+        "b"
+      ],
       "explanation": "La documentación advierte que NotPrincipal con Deny siempre deniega a los principales con boundary; se recomienda ArnNotEquals sobre aws:PrincipalArn.",
       "reference": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html"
     },
     {
-      "id": "IAM-013", "type": "single", "topic": "limites-permisos",
+      "id": "IAM-013",
+      "type": "single",
+      "topic": "limites-permisos",
       "question": "Se quiere aplicar a todas las cuentas de la organización la regla \"nunca desactivar CloudTrail\". ¿Qué mecanismo corresponde?",
       "options": [
-        { "id": "a", "text": "Permissions boundary" },
-        { "id": "b", "text": "Session policy" },
-        { "id": "c", "text": "SCP" },
-        { "id": "d", "text": "Política de grupo IAM" }
+        {
+          "id": "a",
+          "text": "Permissions boundary"
+        },
+        {
+          "id": "b",
+          "text": "Session policy"
+        },
+        {
+          "id": "c",
+          "text": "SCP"
+        },
+        {
+          "id": "d",
+          "text": "Política de grupo IAM"
+        }
       ],
-      "correct": ["c"],
+      "correct": [
+        "c"
+      ],
       "explanation": "Una SCP fija el máximo de permisos para todas las cuentas miembro; un boundary solo afecta a una identidad y una session policy a una sesión.",
       "reference": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+    },
+    {
+      "id": "IAM-014",
+      "type": "matching",
+      "topic": "access-analyzer",
+      "question": "Empareja cada pregunta de seguridad con la función de IAM Access Analyzer que la responde.",
+      "prompts": [
+        {
+          "id": "p1",
+          "text": "¿Qué recursos están compartidos con el público o con otras cuentas?"
+        },
+        {
+          "id": "p2",
+          "text": "¿Qué roles, claves de acceso y permisos no se usan?"
+        },
+        {
+          "id": "p3",
+          "text": "¿Esta política es más permisiva que la versión anterior?"
+        },
+        {
+          "id": "p4",
+          "text": "¿Qué permisos usa realmente esta aplicación según su actividad?"
+        }
+      ],
+      "options": [
+        {
+          "id": "a",
+          "text": "External access analyzer"
+        },
+        {
+          "id": "b",
+          "text": "Unused access analyzer"
+        },
+        {
+          "id": "c",
+          "text": "Custom policy checks"
+        },
+        {
+          "id": "d",
+          "text": "Policy generation (CloudTrail)"
+        },
+        {
+          "id": "e",
+          "text": "Credential report"
+        }
+      ],
+      "correct": {
+        "p1": "a",
+        "p2": "b",
+        "p3": "c",
+        "p4": "d"
+      },
+      "explanation": "El acceso externo detecta exposición pública o entre cuentas; el acceso no utilizado señala permisos y credenciales sin uso; las custom policy checks marcan cambios más permisivos (CI/CD); policy generation crea políticas a partir de la actividad en CloudTrail. El credential report no corresponde a ninguna de estas preguntas.",
+      "reference": "https://aws.amazon.com/iam/access-analyzer/features/"
     }
   ]
 }

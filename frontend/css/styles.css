@@ -647,6 +647,102 @@ a.col:hover .seg {
   stroke: var(--bad);
 }
 
+/* Preguntas de ordenar y emparejar */
+.ord, .match {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ord-item, .match-row {
+  display: grid;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+.ord-item {
+  grid-template-columns: auto 1fr auto auto;
+}
+.ord-pos {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1.5px solid var(--line-strong);
+  font: 700 14px var(--font-display);
+  color: var(--muted);
+}
+.ord-text {
+  overflow-wrap: anywhere;
+}
+.ord-btns {
+  display: flex;
+  gap: 6px;
+}
+.ord-btn {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  cursor: pointer;
+}
+.ord-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.ord-btn:focus-visible, .match-select:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.match-row {
+  grid-template-columns: 1fr auto;
+}
+.match-prompt {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.match-select {
+  min-height: 44px;
+  width: 100%;
+  padding: 0 10px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 8px;
+}
+.match-fix {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 14px;
+  color: var(--ok);
+}
+.q.is-revealed .ord-item.is-correct, .q.is-revealed .match-row.is-correct {
+  background: var(--ok-bg);
+  border-color: var(--ok);
+}
+.q.is-revealed .ord-item.is-wrong, .q.is-revealed .match-row.is-wrong {
+  background: var(--bad-bg);
+  border-color: var(--bad);
+}
+.q.is-revealed .is-correct .opt-mark svg { stroke: var(--ok); }
+.q.is-revealed .is-wrong .opt-mark svg { stroke: var(--bad); }
+.feedback-order {
+  margin: 6px 0 10px;
+  padding-left: 22px;
+}
+
 .feedback {
   margin-top: 20px;
   padding: 16px 18px 18px;
