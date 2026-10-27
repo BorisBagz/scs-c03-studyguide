@@ -14,6 +14,7 @@ const views = {
 
 const questionCounts = {}; // domainId -> numero | null (error) | undefined (cargando)
 let activeDomain = null;
+let activeSpec = null;
 let introPlayed = false;
 
 const ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
@@ -127,12 +128,20 @@ function rowHTML(d) {
     </div>
     <div class="row-weight"><span class="fig">${d.weight}%</span><span class="cap">del examen</span></div>
     <div class="row-mastery">${mastery}</div>
-    ${count === 0 ? "" : `<button class="btn btn-primary" data-domain="${d.id}" ${enabled ? "" : "disabled"}>Practicar</button>`}
+    ${
+      count === 0
+        ? ""
+        : `<div class="row-actions">
+      ${count > QuizEngine.QUICK_SIZE ? `<button class="btn btn-primary" data-domain="${d.id}" data-mode="quick" ${enabled ? "" : "disabled"}>Rápido · ${QuizEngine.QUICK_SIZE}</button>` : ""}
+      <button class="btn ${count > QuizEngine.QUICK_SIZE ? "btn-secondary" : "btn-primary"}" data-domain="${d.id}" data-mode="all" ${enabled ? "" : "disabled"}>${count ? `Todas · ${count}` : "Practicar"}</button>
+    </div>`
+    }
   </li>`;
 }
 
 function renderRows() {
   $("#domain-list").innerHTML = DOMAINS.map(rowHTML).join("");
+  renderExamCard();
 }
 
 function renderHome() {
@@ -149,8 +158,26 @@ function renderHome() {
 $("#domain-list").addEventListener("click", (e) => {
   const btn = e.target.closest("[data-domain]");
   if (!btn || btn.disabled) return;
-  startQuiz(DOMAINS.find((d) => d.id === btn.dataset.domain));
+  const domain = DOMAINS.find((d) => d.id === btn.dataset.domain);
+  startQuiz({ kind: "domain", domain, limit: btn.dataset.mode === "quick" ? QuizEngine.QUICK_SIZE : 0 });
 });
+
+$("#exam-start-btn").addEventListener("click", (e) => {
+  if (!e.currentTarget.disabled) startQuiz({ kind: "exam" });
+});
+
+function renderExamCard() {
+  const counts = DOMAINS.map((d) => questionCounts[d.id]);
+  const loaded = counts.every((c) => c !== undefined);
+  const total = counts.reduce((s, c) => s + (c || 0), 0);
+  const n = Math.min(QuizEngine.EXAM_SIZE, total);
+  $("#exam-sub").textContent = !loaded
+    ? "Cargando preguntas…"
+    : total === 0
+    ? "Aún no hay preguntas."
+    : `${n} preguntas aleatorias de los 6 dominios, repartidas según su peso en el examen.`;
+  $("#exam-start-btn").disabled = !loaded || total === 0;
+}
 
 async function loadQuestionCounts() {
   await Promise.all(
@@ -166,19 +193,21 @@ async function loadQuestionCounts() {
     })
   );
   renderRows();
+  renderExamCard();
 }
 
 // ---------- Vista: quiz ----------
 
-async function startQuiz(domain) {
+async function startQuiz(spec) {
   try {
-    const count = await QuizEngine.loadDomain(domain);
+    const count = await QuizEngine.load(spec);
     if (count === 0) {
-      notice(`Aún no hay preguntas de ${domain.name}.`);
+      notice("Aún no hay preguntas para este quiz.");
       return;
     }
-    activeDomain = domain;
-    views.quiz.style.setProperty("--c", domain.color);
+    activeSpec = spec;
+    activeDomain = spec.kind === "exam" ? { id: "exam", name: "Examen completo", color: "#14243B", tint: "#D9DFEA" } : spec.domain;
+    views.quiz.style.setProperty("--c", activeDomain.color);
     showView("quiz");
     renderQuestion();
   } catch (e) {
@@ -422,19 +451,40 @@ $("#quiz-exit-btn").addEventListener("click", () => {
 
 function finishQuiz() {
   const r = QuizEngine.computeResults();
-  recordAttempt(r.domain, r.score, r.total);
-  r.failedIds.forEach((id) => recordFailedQuestion(r.domain, id));
+  const isExam = activeSpec.kind === "exam";
+  // El examen completo se registra como un intento por dominio (el esquema de sync no cambia).
+  if (isExam) {
+    DOMAINS.forEach((d) => {
+      const bd = r.byDomain[d.id];
+      if (bd && bd.total > 0) recordAttempt(d.id, bd.score, bd.total);
+    });
+  } else {
+    recordAttempt(r.domain, r.score, r.total);
+  }
+  r.failed.forEach((f) => recordFailedQuestion(f.domain, f.id));
 
   const d = activeDomain;
   const pct = Math.round((r.score / r.total) * 100);
   const note = r.failedIds.length
     ? `${plural(r.failedIds.length, "pregunta guardada", "preguntas guardadas")} para repaso.`
     : "Acertaste todas.";
+  const breakdown = isExam
+    ? `<ul class="breakdown" aria-label="Resultado por dominio">${DOMAINS.filter((x) => r.byDomain[x.id])
+        .map((x) => {
+          const b = r.byDomain[x.id];
+          const p = Math.round((b.score / b.total) * 100);
+          return `<li style="--c:${x.color}"><span class="attempt-domain"><span class="dot"></span>${esc(x.name)}</span><span class="attempt-score">${b.score}/${b.total}</span><div class="meter" role="img" aria-label="${p}% de aciertos"><span style="width:${p}%"></span></div></li>`;
+        })
+        .join("")}</ul>
+       <p class="result-note">Referencia: el examen real se aprueba con 750 sobre 1000 en una escala propia de AWS; este porcentaje es orientativo y no equivale a esa escala.</p>`
+    : "";
+  const sub = isExam ? "Examen completo terminado" : activeSpec.limit ? `Quiz rápido · ${r.total} preguntas` : "Quiz completado";
 
   $("#results-card").innerHTML = `<article class="result" style="--c:${d.color}">
     <h1 tabindex="-1" data-focus>${esc(d.name)}</h1>
-    <p class="result-sub">Quiz completado</p>
+    <p class="result-sub">${sub}</p>
     <p class="result-score"><span>${r.score} de ${r.total} correctas</span><span class="result-pct">${pct}%</span></p>
+    ${breakdown}
     <ul class="outcomes" aria-label="Resultado por pregunta">
       ${r.outcomes
         .map((ok, i) => `<li class="${ok ? "" : "is-wrong"}" aria-label="Pregunta ${i + 1}: ${ok ? "correcta" : "incorrecta"}">${ok ? ICON_CHECK : ICON_CROSS}</li>`)
@@ -443,11 +493,11 @@ function finishQuiz() {
     <p class="result-note">${note}</p>
     <div class="result-actions">
       <button class="btn btn-primary" id="results-retry-btn">Repetir este quiz</button>
-      <button class="btn btn-secondary" id="results-back-btn">Elegir otro dominio</button>
+      <button class="btn btn-secondary" id="results-back-btn">Elegir otro quiz</button>
     </div>
   </article>`;
 
-  $("#results-retry-btn").addEventListener("click", () => startQuiz(activeDomain));
+  $("#results-retry-btn").addEventListener("click", () => startQuiz(activeSpec));
   $("#results-back-btn").addEventListener("click", () => {
     renderHome();
     showView("home");

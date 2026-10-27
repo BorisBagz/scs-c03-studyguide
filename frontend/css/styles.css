@@ -1462,3 +1462,62 @@ a.btn {
     scroll-behavior: auto !important;
   }
 }
+
+/* Examen completo y acciones por dominio */
+.exam-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: center;
+  margin: 8px 0 28px;
+  padding: 18px 18px 18px 20px;
+  background: var(--surface);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+}
+.exam-title {
+  margin: 0 0 4px;
+  font: 700 20px var(--font-display);
+}
+.section-label {
+  margin: 0 0 4px;
+  font: 700 13px var(--font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+.row-actions .btn {
+  flex: 1 1 140px;
+}
+.breakdown {
+  list-style: none;
+  margin: 18px 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.breakdown li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  align-items: center;
+}
+.breakdown .meter {
+  grid-column: 1 / -1;
+}
+@media (min-width: 720px) {
+  .exam-card {
+    grid-template-columns: 1fr auto;
+  }
+  .row-actions {
+    grid-column: auto;
+    flex-wrap: nowrap;
+  }
+}

@@ -6,15 +6,51 @@ const QuizEngine = (() => {
   let currentIndex = 0;
   let userAnswers = [];
 
-  async function loadDomain(domain) {
+  const EXAM_SIZE = 65;
+  const QUICK_SIZE = 15;
+
+  async function fetchDomain(d) {
     // no-cache: revalida contra el servidor (ETag) para ver preguntas nuevas al publicar
-    const res = await fetch(`data/questions/${domain.file}`, { cache: "no-cache" });
-    if (!res.ok) {
-      throw new Error(`No se pudo cargar ${domain.file} (HTTP ${res.status})`);
-    }
+    const res = await fetch(`data/questions/${d.file}`, { cache: "no-cache" });
+    if (!res.ok) throw new Error(`No se pudo cargar ${d.file} (HTTP ${res.status})`);
     const data = await res.json();
-    currentQuestions = shuffle(data.questions);
-    currentDomain = domain;
+    return data.questions.map((q) => ({ ...q, _domain: d.id }));
+  }
+
+  // Reparte `total` preguntas segun el peso de cada dominio (resto mayor),
+  // sin exceder las disponibles; el sobrante se reasigna a dominios con banco libre.
+  function allocate(total, pools) {
+    const sumW = pools.reduce((s, p) => s + p.weight, 0);
+    const alloc = pools.map((p) => {
+      const exact = (p.weight / sumW) * total;
+      return { id: p.id, n: Math.min(Math.floor(exact), p.avail), frac: exact - Math.floor(exact), avail: p.avail, weight: p.weight };
+    });
+    let left = Math.min(total, pools.reduce((s, p) => s + p.avail, 0)) - alloc.reduce((s, a) => s + a.n, 0);
+    const order = [...alloc].sort((x, y) => y.frac - x.frac);
+    while (left > 0) {
+      const next = order.find((a) => a.n < a.avail) || null;
+      if (!next) break;
+      next.n++;
+      left--;
+      order.sort((x, y) => (y.avail - y.n > 0) - (x.avail - x.n > 0) || y.frac - x.frac);
+    }
+    return Object.fromEntries(alloc.map((a) => [a.id, a.n]));
+  }
+
+  // spec: { kind: "exam" } | { kind: "domain", domain, limit? }
+  async function load(spec) {
+    let list;
+    if (spec.kind === "exam") {
+      const pools = await Promise.all(DOMAINS.map(async (d) => ({ d, qs: await fetchDomain(d) })));
+      const counts = allocate(EXAM_SIZE, pools.map((p) => ({ id: p.d.id, weight: p.d.weight, avail: p.qs.length })));
+      list = pools.flatMap((p) => shuffle(p.qs).slice(0, counts[p.d.id]));
+      currentDomain = { id: "exam", name: "Examen completo" };
+    } else {
+      list = await fetchDomain(spec.domain);
+      if (spec.limit) list = shuffle(list).slice(0, spec.limit);
+      currentDomain = spec.domain;
+    }
+    currentQuestions = shuffle(list);
     currentIndex = 0;
     userAnswers = new Array(currentQuestions.length).fill(null);
     return currentQuestions.length;
@@ -85,28 +121,36 @@ const QuizEngine = (() => {
 
   function computeResults() {
     let correctCount = 0;
-    const failedIds = [];
+    const failed = [];
     const outcomes = [];
+    const byDomain = {};
     currentQuestions.forEach((q, i) => {
       const ok = isCorrect(i);
       outcomes.push(ok);
+      const bd = (byDomain[q._domain] = byDomain[q._domain] || { score: 0, total: 0 });
+      bd.total++;
       if (ok) {
         correctCount++;
+        bd.score++;
       } else {
-        failedIds.push(q.id);
+        failed.push({ id: q.id, domain: q._domain });
       }
     });
     return {
       domain: currentDomain.id,
       score: correctCount,
       total: currentQuestions.length,
-      failedIds,
+      failed,
+      failedIds: failed.map((f) => f.id),
+      byDomain,
       outcomes,
     };
   }
 
   return {
-    loadDomain,
+    load,
+    EXAM_SIZE,
+    QUICK_SIZE,
     getCurrentQuestion,
     getCurrentIndex,
     getTotal,
