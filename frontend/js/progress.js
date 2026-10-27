@@ -87,6 +87,56 @@ async function fetchRemoteProgress() {
   }
 }
 
+// Mezcla el progreso remoto con el local (union, sin duplicados) y sube al
+// backend lo que solo existe localmente (p. ej. intentos hechos offline).
+// Devuelve true si el progreso local cambio.
+async function syncFromRemote() {
+  const items = await fetchRemoteProgress();
+  if (items === null) return false;
+
+  const progress = loadLocalProgress();
+  const attemptKey = (a) => `${a.domain}|${a.timestamp}`;
+  const localKeys = new Set(progress.attempts.map(attemptKey));
+  const remoteKeys = new Set();
+  let changed = false;
+
+  for (const item of items) {
+    if (item.recordType === "attempt") {
+      remoteKeys.add(attemptKey(item));
+      if (!localKeys.has(attemptKey(item))) {
+        progress.attempts.push({
+          domain: item.domain,
+          score: item.score,
+          total: item.total,
+          timestamp: item.timestamp,
+        });
+        changed = true;
+      }
+    } else if (item.recordType === "failed_question") {
+      const local = progress.failedQuestions[item.questionId];
+      if (!local || local.lastSeen < item.lastSeen) {
+        progress.failedQuestions[item.questionId] = {
+          domain: item.domain,
+          lastSeen: item.lastSeen,
+        };
+        changed = true;
+      }
+    }
+  }
+
+  if (changed) {
+    progress.attempts.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    saveLocalProgress(progress);
+  }
+
+  // El sk del intento incluye el timestamp, asi que re-enviar es idempotente.
+  progress.attempts
+    .filter((a) => !remoteKeys.has(attemptKey(a)))
+    .forEach((a) => syncAttemptToRemote(a));
+
+  return changed;
+}
+
 function recordAttempt(domain, score, total) {
   const progress = loadLocalProgress();
   const attempt = {

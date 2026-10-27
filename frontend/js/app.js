@@ -18,7 +18,10 @@ function showView(name) {
 document.querySelectorAll(".nav-btn[data-view]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const view = btn.dataset.view;
-    if (view === "progress") renderProgressView();
+    if (view === "progress") {
+      renderProgressView();
+      syncFromRemote().then((changed) => changed && renderProgressView());
+    }
     showView(view);
   });
 });
@@ -183,5 +186,11 @@ function renderProgressView() {
   });
 }
 
-// Init
+// Init: render inmediato con datos locales, luego mezcla con el backend
 renderDomainList();
+syncFromRemote().then((changed) => {
+  if (changed) {
+    renderDomainList();
+    renderProgressView();
+  }
+});
